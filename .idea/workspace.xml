@@ -22,8 +22,10 @@
         <entry file="file://$PROJECT_DIR$/MyFirstFile.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="594">
-              <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="47" />
-              <folding />
+              <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
+              <folding>
+                <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -334,7 +336,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1911" y="-105" width="1938" height="1098" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1796875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -372,7 +374,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
           <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="47" />
-          <folding />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -397,7 +401,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
           <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="47" />
-          <folding />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -422,7 +428,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
           <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="47" />
-          <folding />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -447,7 +455,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
           <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -462,7 +472,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
           <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -483,8 +495,10 @@
     <entry file="file://$PROJECT_DIR$/MyFirstFile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
-          <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="47" />
-          <folding />
+          <caret line="27" column="47" lean-forward="false" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
+          <folding>
+            <marker date="1493670412000" expanded="true" signature="186:211" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

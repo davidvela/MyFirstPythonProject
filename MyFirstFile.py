@@ -14,6 +14,13 @@ class Car:
     # my_car = Car()
     # print("I am a car!")
 
+class BMI:
+    def __init__(self, *args):
+        
+    def calculate(self, height, weight):
+        return weight / height ** 2 
+            
+     
 
 class MyFirstClass:
     def quadratic_fn(self, a, b, c):  # comments!
@@ -26,6 +33,7 @@ class MyFirstClass:
             return root1, root2
         else:
             return "This equation has no roots"
+
 
 
 if __name__ == '__main__':

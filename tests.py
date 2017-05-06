@@ -11,10 +11,9 @@ house = [["hallway", hall],
          ["kitchen", kit],
          ["living room", liv],
          ["bedroom", bed],
-         ["bathroom", bath]
-         ]
+         ["bathroom", bath] ]
 
 # Print out house
-print(type(house))
-print(house)
-print(house[0])
+print(type(house)); print( house ); print(house[0]);
+print(str(house[1])+"="+str(house[-4]))
+# array manipulation - slice inclusive:exclusive - del(array[2]) 

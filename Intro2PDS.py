@@ -23,10 +23,16 @@ print(str(house[1])+"="+str(house[-4]))
 
 # funcitons: max, len, sorted, complex, 
 # methods: capitalize, replace, bit_length, conjugate, index, count, append, reverse, remove
-HallwayIndex = house.index("hallway")
+HallwayIndex = house.index(["hallway",hall])
 
 # Numpy:        For efficient work in arrays
 # Matplotlib:   Data visualization
 # Scikit-learn: Machine Learning  
 
-# install package: pip3 install // pip.readthedocs.org ! 
+# install package: pip3 install // pip.readthedocs.org ! import as // from .. import .. 
+# List - slow , operations/calculations for all data collecitons 
+# Numpy - fast and possible  = numeric python
+import numpy as np 
+np_house = np.array(house)
+# np_house_2 = np_house * 2
+# print(np_house_2)

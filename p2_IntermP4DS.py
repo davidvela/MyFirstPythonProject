@@ -9,3 +9,5 @@
 # 4 LOOPS 
 # 5 CASE STUDY: HACKER STATISTICS
 
+import matplotlib.pyplot as plt 
+

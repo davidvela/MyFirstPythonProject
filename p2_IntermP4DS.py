@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 year = [2010,2011,2012] # x
-plot = [2010,2011,2012] # y
+plot = [10,20,30] # y
 
 # Print the last item from year and pop
-print(year[-1]); print(pop[-1])
-plt.plot(year,pop); plt.show()
+print(year[-1]); print(plot[-1])
+plt.plot(year,plot); plt.show()

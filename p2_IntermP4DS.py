@@ -16,7 +16,7 @@
 import matplotlib.pyplot as plt 
 import numpy as np 
 
-year = [2010,2011,2012] # x
+year = [2010,2011,2012] # xinstall 
 plot = [10,20,30] # y
 
 # Print the last item from year and pop

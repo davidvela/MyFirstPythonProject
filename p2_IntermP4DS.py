@@ -9,6 +9,10 @@
 # 4 LOOPS. 
 # 5 CASE STUDY: HACKER STATISTICS
 
+# *************************************************
+
+# 1 NATPLOTLIB! 
+
 import matplotlib.pyplot as plt 
 import numpy as np 
 
@@ -31,3 +35,7 @@ plt.grid(True)
 plt.show()
 
 # documentation - help(plt.hist) // plt.plot
+# *************************************************
+
+# 2 DICTIONARIES AND PANDAS.  
+# pandas - get data from excel, csv, read sql 

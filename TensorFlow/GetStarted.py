@@ -45,9 +45,16 @@ with tf.Session() as session:
     for _ in range(3):
         session.run(update)
         print(session.run(state))
-        
-        
-
-
-# Placeholder are like variables -> you have to define the type: 
-# placeholder = tf.placeholder()
+    
+# Placeholder: fedding data from outside he model 
+# __ Data types: DT_FLOAT, DT_DOUBLE, DT_INT8..., DT_STRING, DT_BOOL, 
+#                DT_COMPLEX64,128, DT_QUINT, 
+a = tf.placeholder(tf.float32)
+b = a * 2
+dictionary = { a: [  [[1,2,3],[2,3,4],[4,5,6]] ] }
+with tf.Session() as sess:
+    result = sess.run(b, feed_dict={a:3.5})
+    print(result)    
+    
+    result = sess.run(b, feed_dict=dictionary)
+    print(result)

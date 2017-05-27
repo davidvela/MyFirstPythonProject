@@ -1,3 +1,5 @@
+# TensorFlow - lesson 1 Big Data University
+
 import tensorflow as tf
 hello = tf.constant('Hello, TenshorFlow!')
 a = tf.constant([2])
@@ -23,14 +25,28 @@ Matrix_two = tf.constant([ [2,3],[2,3] ])
 # Regular Matrix product : - * | = [4, 6], [8, 12] 
 first_operation = tf.matmul(Matrix_one, Matrix_two)
 
-with tf.Session() as sess:
-    result = sess.run(Tensor)
+# Variables: - variables need to be initialized
+state   = tf.Variable(0)
+one     = tf.constant(1)
+new     = tf.add(state, one)
+update  = tf.assign(state, new)
+init_op = tf.initialize_all_variables()
+
+
+with tf.Session() as session:
+    result = session.run(Tensor)
     print( "Tensor (3x3x3 entries): \n" ,  result )
 
-    result = sess.run(first_operation)
+    result = session.run(first_operation)
     print( " \n Multiplication:  \n" ,  result )
 
-
+    session.run(init_op)
+    print("Counter: " , session.run(state))
+    for _ in range(3):
+        session.run(update)
+        print(session.run(state))
+        
+        
 
 
 # Placeholder are like variables -> you have to define the type: 

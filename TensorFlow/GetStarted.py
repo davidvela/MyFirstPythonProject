@@ -1,6 +1,9 @@
-# TensorFlow - lesson 1 Big Data University
-
 import tensorflow as tf
+import numpy as np
+
+# TensorFlow - lesson 1 Big Data University
+#----------------------------------------------
+
 hello = tf.constant('Hello, TenshorFlow!')
 a = tf.constant([2])
 b = tf.constant([3])
@@ -14,6 +17,8 @@ with tf.Session() as sess:
     result = sess.run(c)
     print(result)
 
+# Introduction: Variables and placeholders 
+#----------------------------------------------
 # Multidimensional Arrays
 Scalar = tf.constant([2])
 Vector = tf.constant([5,6,2])
@@ -58,3 +63,18 @@ with tf.Session() as sess:
     
     result = sess.run(b, feed_dict=dictionary)
     print(result)
+
+
+# Introduction: Linear regression: Y = aX + b
+#----------------------------------------------
+
+# two variables - dependent  : state final goal 
+#               - independent: explanatory - clauses states
+# Multiple linear regresion => more than 1 independent variables
+# Multivariante linear regresion => more than 1 dependent variables
+
+# a slope or gradient and b intercept
+
+
+
+

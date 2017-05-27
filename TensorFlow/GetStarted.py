@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.patches as mpatches 
+import matplotlib.pyplot as plt 
 
 # TensorFlow - lesson 1 Big Data University
 #----------------------------------------------
@@ -59,10 +61,10 @@ b = a * 2
 dictionary = { a: [  [[1,2,3],[2,3,4],[4,5,6]] ] }
 with tf.Session() as sess:
     result = sess.run(b, feed_dict={a:3.5})
-    print(result)    
+    print("placeholder: ", result)    
     
     result = sess.run(b, feed_dict=dictionary)
-    print(result)
+    print("placeholder DIC: ", result)
 
 
 # Introduction: Linear regression: Y = aX + b
@@ -75,6 +77,33 @@ with tf.Session() as sess:
 
 # a slope or gradient and b intercept
 
+plt.rcParams['figure.figsize'] = (10,6)
+X = np.arange(0.0, 5.0, 0.1)
+a = 1 
+b = 0
+Y = a*X + b
+plt.plot(X,Y)
+plt.ylabel('Dependent Variable')
+plt.xlabel('Independent Variable')
+# plt.show()
 
+x_data = np.random.rand(100).astype(np.float)
+# model: Y = 3X + 2
+y_data = x_data*3 + 2
+y_data = np.vectorize(lambda y: y + np.random.normal(loc=0.0, scale = 0.1 ))(y_data)  # with error 
 
+zip(x_data, y_data)
+a = tf.Variable(1.0)
+b = tf.Variable(0.2)
+y = a * x_data + b      # Model y values 
 
+# Equation to be minimized as loss 
+loss        = tf.reduce_mean(tf.square(y - y_data))
+optimizer   = tf.train.GradientDescentOptimizer(0.5)
+train       = optimizer.minimize(loss)
+
+init        = tf.initialize_all_variables( )
+sess        = tf.Session()
+sess.run(init)
+train_data = []
+#for step in range(100)

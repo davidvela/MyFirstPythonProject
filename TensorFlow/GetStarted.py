@@ -87,7 +87,7 @@ plt.ylabel('Dependent Variable')
 plt.xlabel('Independent Variable')
 #plt.show()
 
-x_data = np.random.rand(100).astype(np.float)
+x_data = np.random.rand(100).astype(np.float32)
 # model: Y = 3X + 2
 y_data = x_data*3 + 2
 y_data = np.vectorize(lambda y: y + np.random.normal(loc=0.0, scale = 0.1 ))(y_data)  # with error 
@@ -132,5 +132,5 @@ plt.plot(x_data, y_data, 'ro')
 
 green_line = mpatches.Patch(color = 'red', label = 'Data Points')
 plt.legend(handles=[green_line])
-# plt.show()
+plt.show()
 

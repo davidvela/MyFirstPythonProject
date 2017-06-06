@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 
 # TensorFlow - lesson 1 Big Data University
 #----------------------------------------------
-#       Module 2 - convolutional networks 
-#  original goal of machine learning: 
+# MODULE 2 - convolutional networks 
+# original goal of machine learning: 
 #   "Move humananity closer to the undreachable General AI"
 
-# fully connected layer 
+# Fully connected layer 
 # - each neuron connected to every neuron in previuos layer
 # - each connection has it's own weight 
 # - no assumptions about the feautres in the input data 
 # - type of layers are also very expensive in terms of memory and computation
 #   
-# convolutional layer 
+# Convolutional layer 
 # - each neuron is only connected to a few nearby local neurons in previosu layer
 # - same weights is used for every neuron 
 # - this connection patterns only makes sense for cases where:
@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 #  
 #
 # FEATURE LEARNING  
-#   Feature enginering is the process of extracting useful patterns from input data
-#   that will help prediction model to understand better the real nature of the problem.  
+#  Feature enginering is the process of extracting useful patterns from input data
+#  that will help prediction model to understand better the real nature of the problem.  
 #  CNN good for finding patterns - Feature Engineering 
 #  Combining simple features to create bigger pictures s

@@ -11,3 +11,4 @@ import matplotlib.pyplot as plt
 #   RNN solution LSTM - Long Short Term Memory 
 #   ex. Twitter sentiment analysis 
 
+# Question - can I use this network for FP? 

@@ -21,7 +21,6 @@ print(sess.run(softmaxTensor))
 plt.plot(x, softmax(scores2).T, linewidth = 2 )
 plt.ylabel('Probabillities')
 plt.xlabel('x values')
-plt.title("Softmax function")
+plt.title("Softmax function man.")
 
 plt.show()
-

@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 # y = wx + b 
 
+
 # 1.10 - Softmax
 scores  = [3.0, 1.0, 0.2]
 x       = np.arange(-2, 6, 0.1)

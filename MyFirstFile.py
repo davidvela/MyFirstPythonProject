@@ -1,5 +1,5 @@
 import math
-
+# comments: # and for blocks: ''' (tripple quotes)
 
 class Car:
     def __init__(self, odometer, speed, time):

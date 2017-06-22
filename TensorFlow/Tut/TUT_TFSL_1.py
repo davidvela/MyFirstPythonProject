@@ -28,9 +28,13 @@ import tensorflow as tf
 
 
 def main(unused_argv):
+    
+  print("start")  
   # Load dataset
   boston = datasets.load_boston()
+  print(boston)
   x, y = boston.data, boston.target
+
 
   # Split dataset into train / test
   x_train, x_test, y_train, y_test = model_selection.train_test_split(

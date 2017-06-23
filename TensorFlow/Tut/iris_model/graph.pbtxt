@@ -1,5 +1,5 @@
 node {
-  name: "global_step/Initializer/zeros"
+  name: "global_step/Initializer/Const"
   op: "Const"
   attr {
     key: "_class"
@@ -86,7 +86,7 @@ node {
   name: "global_step/Assign"
   op: "Assign"
   input: "global_step"
-  input: "global_step/Initializer/zeros"
+  input: "global_step/Initializer/Const"
   attr {
     key: "T"
     value {
@@ -211,20 +211,20 @@ node {
   attr {
     key: "dtype"
     value {
-      type: DT_INT64
+      type: DT_INT32
     }
   }
   attr {
     key: "value"
     value {
       tensor {
-        dtype: DT_INT64
+        dtype: DT_INT32
         tensor_shape {
           dim {
             size: 120
           }
         }
-        tensor_content: "\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000"
+        tensor_content: "\002\000\000\000\001\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\001\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\002\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\001\000\000\000\001\000\000\000\002\000\000\000\002\000\000\000\002\000\000\000\001\000\000\000\002\000\000\000\000\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\002\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\001\000\000\000\000\000\000\000\002\000\000\000\000\000\000\000\001\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000"
       }
     }
   }
@@ -696,7 +696,7 @@ node {
   }
 }
 node {
-  name: "dnn/hiddenlayer_0/biases/part_0/Initializer/zeros"
+  name: "dnn/hiddenlayer_0/biases/part_0/Initializer/Const"
   op: "Const"
   attr {
     key: "_class"
@@ -795,7 +795,7 @@ node {
   name: "dnn/hiddenlayer_0/biases/part_0/Assign"
   op: "Assign"
   input: "dnn/hiddenlayer_0/biases/part_0"
-  input: "dnn/hiddenlayer_0/biases/part_0/Initializer/zeros"
+  input: "dnn/hiddenlayer_0/biases/part_0/Initializer/Const"
   attr {
     key: "T"
     value {
@@ -1684,7 +1684,7 @@ node {
   }
 }
 node {
-  name: "dnn/hiddenlayer_1/biases/part_0/Initializer/zeros"
+  name: "dnn/hiddenlayer_1/biases/part_0/Initializer/Const"
   op: "Const"
   attr {
     key: "_class"
@@ -1783,7 +1783,7 @@ node {
   name: "dnn/hiddenlayer_1/biases/part_0/Assign"
   op: "Assign"
   input: "dnn/hiddenlayer_1/biases/part_0"
-  input: "dnn/hiddenlayer_1/biases/part_0/Initializer/zeros"
+  input: "dnn/hiddenlayer_1/biases/part_0/Initializer/Const"
   attr {
     key: "T"
     value {
@@ -2672,7 +2672,7 @@ node {
   }
 }
 node {
-  name: "dnn/hiddenlayer_2/biases/part_0/Initializer/zeros"
+  name: "dnn/hiddenlayer_2/biases/part_0/Initializer/Const"
   op: "Const"
   attr {
     key: "_class"
@@ -2771,7 +2771,7 @@ node {
   name: "dnn/hiddenlayer_2/biases/part_0/Assign"
   op: "Assign"
   input: "dnn/hiddenlayer_2/biases/part_0"
-  input: "dnn/hiddenlayer_2/biases/part_0/Initializer/zeros"
+  input: "dnn/hiddenlayer_2/biases/part_0/Initializer/Const"
   attr {
     key: "T"
     value {
@@ -3660,7 +3660,7 @@ node {
   }
 }
 node {
-  name: "dnn/logits/biases/part_0/Initializer/zeros"
+  name: "dnn/logits/biases/part_0/Initializer/Const"
   op: "Const"
   attr {
     key: "_class"
@@ -3759,7 +3759,7 @@ node {
   name: "dnn/logits/biases/part_0/Assign"
   op: "Assign"
   input: "dnn/logits/biases/part_0"
-  input: "dnn/logits/biases/part_0/Initializer/zeros"
+  input: "dnn/logits/biases/part_0/Initializer/Const"
   attr {
     key: "T"
     value {
@@ -4347,7 +4347,7 @@ node {
   attr {
     key: "Tlabels"
     value {
-      type: DT_INT64
+      type: DT_INT32
     }
   }
   attr {
@@ -5394,7 +5394,14 @@ node {
 }
 node {
   name: "dnn/multi_class_head/train_op/dnn/gradients/zeros_like"
-  op: "Const"
+  op: "ZerosLike"
+  input: "dnn/multi_class_head/softmax_cross_entropy_loss:1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
   attr {
     key: "_output_shapes"
     value {
@@ -5407,29 +5414,6 @@ node {
             size: 3
           }
         }
-      }
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-          dim {
-            size: 120
-          }
-          dim {
-            size: 3
-          }
-        }
-        float_val: 0.0
       }
     }
   }
@@ -9264,14 +9248,43 @@ node {
   }
 }
 node {
+  name: "dnn/multi_class_head/metrics/Cast"
+  op: "Cast"
+  input: "dnn/multi_class_head/predictions/classes"
+  attr {
+    key: "DstT"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "SrcT"
+    value {
+      type: DT_INT64
+    }
+  }
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+          dim {
+            size: 120
+          }
+        }
+      }
+    }
+  }
+}
+node {
   name: "dnn/multi_class_head/metrics/Equal"
   op: "Equal"
-  input: "dnn/multi_class_head/predictions/classes"
+  input: "dnn/multi_class_head/metrics/Cast"
   input: "Const_1"
   attr {
     key: "T"
     value {
-      type: DT_INT64
+      type: DT_INT32
     }
   }
   attr {
@@ -10035,7 +10048,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/Shape"
+  name: "dnn/multi_class_head/Shape_1"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10071,7 +10084,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack"
+  name: "dnn/multi_class_head/strided_slice_1/stack"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10107,7 +10120,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack_1"
+  name: "dnn/multi_class_head/strided_slice_1/stack_1"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10143,7 +10156,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack_2"
+  name: "dnn/multi_class_head/strided_slice_1/stack_2"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10179,12 +10192,12 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice"
+  name: "dnn/multi_class_head/strided_slice_1"
   op: "StridedSlice"
-  input: "dnn/multi_class_head/_classification_output_alternatives/Shape"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack_1"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice/stack_2"
+  input: "dnn/multi_class_head/Shape_1"
+  input: "dnn/multi_class_head/strided_slice_1/stack"
+  input: "dnn/multi_class_head/strided_slice_1/stack_1"
+  input: "dnn/multi_class_head/strided_slice_1/stack_2"
   attr {
     key: "Index"
     value {
@@ -10238,210 +10251,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/Shape_1"
-  op: "Const"
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-          dim {
-            size: 2
-          }
-        }
-      }
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 2
-          }
-        }
-        tensor_content: "x\000\000\000\003\000\000\000"
-      }
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack"
-  op: "Const"
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-          dim {
-            size: 1
-          }
-        }
-      }
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack_1"
-  op: "Const"
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-          dim {
-            size: 1
-          }
-        }
-      }
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        int_val: 2
-      }
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack_2"
-  op: "Const"
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-          dim {
-            size: 1
-          }
-        }
-      }
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1"
-  op: "StridedSlice"
-  input: "dnn/multi_class_head/_classification_output_alternatives/Shape_1"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack_1"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1/stack_2"
-  attr {
-    key: "Index"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-        }
-      }
-    }
-  }
-  attr {
-    key: "begin_mask"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "ellipsis_mask"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "end_mask"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "new_axis_mask"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "shrink_axis_mask"
-    value {
-      i: 1
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/range/start"
+  name: "dnn/multi_class_head/range/start"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10471,7 +10281,37 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/range/delta"
+  name: "dnn/multi_class_head/range/limit"
+  op: "Const"
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+        }
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "dnn/multi_class_head/range/delta"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10501,11 +10341,11 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/range"
+  name: "dnn/multi_class_head/range"
   op: "Range"
-  input: "dnn/multi_class_head/_classification_output_alternatives/range/start"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice_1"
-  input: "dnn/multi_class_head/_classification_output_alternatives/range/delta"
+  input: "dnn/multi_class_head/range/start"
+  input: "dnn/multi_class_head/range/limit"
+  input: "dnn/multi_class_head/range/delta"
   attr {
     key: "Tidx"
     value {
@@ -10518,7 +10358,7 @@ node {
       list {
         shape {
           dim {
-            size: -1
+            size: 3
           }
         }
       }
@@ -10526,7 +10366,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/ExpandDims/dim"
+  name: "dnn/multi_class_head/ExpandDims/dim"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10556,10 +10396,10 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/ExpandDims"
+  name: "dnn/multi_class_head/ExpandDims"
   op: "ExpandDims"
-  input: "dnn/multi_class_head/_classification_output_alternatives/range"
-  input: "dnn/multi_class_head/_classification_output_alternatives/ExpandDims/dim"
+  input: "dnn/multi_class_head/range"
+  input: "dnn/multi_class_head/ExpandDims/dim"
   attr {
     key: "T"
     value {
@@ -10581,7 +10421,7 @@ node {
             size: 1
           }
           dim {
-            size: -1
+            size: 3
           }
         }
       }
@@ -10589,7 +10429,7 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/Tile/multiples/1"
+  name: "dnn/multi_class_head/Tile/multiples/1"
   op: "Const"
   attr {
     key: "_output_shapes"
@@ -10619,10 +10459,10 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/Tile/multiples"
+  name: "dnn/multi_class_head/Tile/multiples"
   op: "Pack"
-  input: "dnn/multi_class_head/_classification_output_alternatives/strided_slice"
-  input: "dnn/multi_class_head/_classification_output_alternatives/Tile/multiples/1"
+  input: "dnn/multi_class_head/strided_slice_1"
+  input: "dnn/multi_class_head/Tile/multiples/1"
   attr {
     key: "N"
     value {
@@ -10655,10 +10495,10 @@ node {
   }
 }
 node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/Tile"
+  name: "dnn/multi_class_head/Tile"
   op: "Tile"
-  input: "dnn/multi_class_head/_classification_output_alternatives/ExpandDims"
-  input: "dnn/multi_class_head/_classification_output_alternatives/Tile/multiples"
+  input: "dnn/multi_class_head/ExpandDims"
+  input: "dnn/multi_class_head/Tile/multiples"
   attr {
     key: "T"
     value {
@@ -10680,66 +10520,10 @@ node {
             size: -1
           }
           dim {
-            size: -1
+            size: 3
           }
         }
       }
-    }
-  }
-}
-node {
-  name: "dnn/multi_class_head/_classification_output_alternatives/classes_tensor"
-  op: "AsString"
-  input: "dnn/multi_class_head/_classification_output_alternatives/Tile"
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "_output_shapes"
-    value {
-      list {
-        shape {
-          dim {
-            size: -1
-          }
-          dim {
-            size: -1
-          }
-        }
-      }
-    }
-  }
-  attr {
-    key: "fill"
-    value {
-      s: ""
-    }
-  }
-  attr {
-    key: "precision"
-    value {
-      i: -1
-    }
-  }
-  attr {
-    key: "scientific"
-    value {
-      b: false
-    }
-  }
-  attr {
-    key: "shortest"
-    value {
-      b: false
-    }
-  }
-  attr {
-    key: "width"
-    value {
-      i: -1
     }
   }
 }
@@ -13878,7 +13662,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "_temp_e7dc2e86db734c289a7e8641a7e247c3/part"
+        string_val: "_temp_acccc645e1574c1196cf5daa2501fbbe/part"
       }
     }
   }
@@ -16825,5 +16609,5 @@ node {
   input: "^save/restore_shard"
 }
 versions {
-  producer: 22
+  producer: 21
 }

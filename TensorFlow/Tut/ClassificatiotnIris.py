@@ -7,6 +7,7 @@ import urllib.request as urllib
 
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # Data sets
 IRIS_TRAINING = "iris_training.csv"
@@ -64,7 +65,7 @@ def main():
   def get_test_inputs():
     x = tf.constant(test_set.data)
     y = tf.constant(test_set.target)
-
+    
     return x, y
 
   # Evaluate accuracy.
@@ -72,7 +73,7 @@ def main():
                                        steps=1)["accuracy"]
 
   print("\nTest Accuracy: {0:f}\n".format(accuracy_score))
-
+ 
   # Classify two new flower samples.
   def new_samples():
     return np.array(
@@ -80,7 +81,7 @@ def main():
        [5.8, 3.1, 5.0, 1.7]], dtype=np.float32)
 
   predictions = list(classifier.predict(input_fn=new_samples))
-
+  
   print(
       "New Samples, Class Predictions:    {}\n"
       .format(predictions))

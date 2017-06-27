@@ -11,14 +11,14 @@
 
 # *************************************************
 
-# 1 NATPLOTLIB! 
+# 1 NATPLOTLIB! ''' comment
 
 #import matplotlib.pyplot as plt 
 import numpy as np 
 import pandas as pd
 import os
 
-'''year = [2010,2011,2012] # xinstall 
+year = [2010,2011,2012] # xinstall 
 plot = [10,20,30] # y
 
 # Print the last item from year and pop
@@ -34,7 +34,7 @@ plt.yticks([0, 10, 20, 30], ['0B', '10B', '20B', '30B'], ) # Billions
 
 plt.text(2010, 10, 'Hola')
 plt.grid(True)
-plt.show()'''
+plt.show()
 
 # documentation - help(plt.hist) // plt.plot
 # *************************************************

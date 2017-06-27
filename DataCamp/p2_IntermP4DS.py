@@ -46,3 +46,4 @@ if os.path.exists("iris_test.csv"):
     print(test) #Columns = variables; rows = observations!
     # test.sectosa // test["sectosa"] test[["sectosa"]]
     #test.loc["0"], test.loc["0","sectosa"]
+    # add new column test["newColumn "] = [a,b,c]...

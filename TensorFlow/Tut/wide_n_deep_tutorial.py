@@ -1,3 +1,17 @@
+# Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#  
 # Explanation future: https://docs.python.org/2/library/__future__.html
 # 
 # ==============================================================================
@@ -187,4 +201,37 @@ def main(_):
 
 
 if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.register("type", "bool", lambda v: v.lower() == "true")
+  parser.add_argument(
+      "--model_dir",
+      type=str,
+      default="",
+      help="Base directory for output models."
+  )
+  parser.add_argument(
+      "--model_type",
+      type=str,
+      default="wide_n_deep",
+      help="Valid model types: {'wide', 'deep', 'wide_n_deep'}."
+  )
+  parser.add_argument(
+      "--train_steps",
+      type=int,
+      default=200,
+      help="Number of training steps."
+  )
+  parser.add_argument(
+      "--train_data",
+      type=str,
+      default="",
+      help="Path to the training data."
+  )
+  parser.add_argument(
+      "--test_data",
+      type=str,
+      default="",
+      help="Path to the test data."
+  )
+  FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

@@ -13,7 +13,7 @@
 
 # 1 NATPLOTLIB! ''' comment
 
-#import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt 
 import numpy as np 
 import pandas as pd
 import os
@@ -34,7 +34,7 @@ plt.yticks([0, 10, 20, 30], ['0B', '10B', '20B', '30B'], ) # Billions
 
 plt.text(2010, 10, 'Hola')
 plt.grid(True)
-plt.show()
+#plt.show()
 
 # documentation - help(plt.hist) // plt.plot
 # *************************************************
@@ -42,6 +42,7 @@ plt.show()
 # 2 DICTIONARIES AND PANDAS.  
 # pandas - get data from excel, csv, read sql 
 if os.path.exists("iris_test.csv"):
+    print("read file")
     test = pd.read_csv("iris_test.csv") #index_col = 0
     print(test) #Columns = variables; rows = observations!
     # test.sectosa // test["sectosa"] test[["sectosa"]]

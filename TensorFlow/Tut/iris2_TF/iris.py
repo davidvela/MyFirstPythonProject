@@ -1,3 +1,5 @@
+#help(plt.hist)
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -48,13 +50,13 @@ def input_fn(df):
 
 def build_estimator(model_dir, model_type):
     # Continuous base columns. ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width" ]
-    SepalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[0])
-    SepalW = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[1])
-    PetalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[2])
-    PetalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[3])
+    SepalL = tf.contrib.layers.real_valued_column("Sepal_Length")
+    SepalW = tf.contrib.layers.real_valued_column("Sepal_Width")
+    PetalL = tf.contrib.layers.real_valued_column("Petal_Length")
+    PetalW = tf.contrib.layers.real_valued_column("Petal_Width")
     
     wide_columns = []
-    deep_columns = [SepalL, SepalW, PetalL,PetalL]
+    deep_columns = [SepalL, SepalW, PetalL,PetalW]
 
     if model_type == "wide":
             m = tf.contrib.learn.LinearClassifier(model_dir=model_dir,
@@ -72,7 +74,7 @@ def build_estimator(model_dir, model_type):
             fix_global_step_increment_bug=True)
     return m
 
-
+ 
 #*********************************************************************
 # paint 
 #*********************************************************************  
@@ -124,9 +126,9 @@ def main(_):
     m = build_estimator(model_dir, model_type)
 
     # Fit model.
-    classifier.fit(input_fn=lambda: input_fn(train), steps=2000)
+    m.fit(input_fn=lambda: input_fn(train), steps=2000)
     # Evaluate accuracy.
-    accuracy_score = classifier.evaluate(input_fn=lambda: input_fn(test), steps=1)["accuracy"]
+    accuracy_score = m.evaluate(input_fn=lambda: input_fn(test), steps=1)["accuracy"]
     print("\nTest Accuracy: {0:f}\n".format(accuracy_score))\
 
 

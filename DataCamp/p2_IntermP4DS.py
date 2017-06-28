@@ -32,6 +32,8 @@ plt.ylabel('Popuplation')
 plt.title('World Population Projections')
 plt.yticks([0, 10, 20, 30], ['0B', '10B', '20B', '30B'], ) # Billions
 
+#plt.xscale('log')
+
 plt.text(2010, 10, 'Hola')
 plt.grid(True)
 #plt.show()

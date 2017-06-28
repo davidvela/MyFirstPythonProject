@@ -15,11 +15,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tensorflow as tf
 
+model_types= ['wide', 'deep', 'wide_n_deep']
 file_name = "irisData.csv"
 COLUMNS = ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width", "Class" ]
 CONTINUOUS_COLUMNS = ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width" ]
 LABEL_COLUMN = "Class"
-Modeltypes: ['wide', 'deep', 'wide_n_deep'].
+
 def printTF(data):
     sess = tf.Session() #sess.close()
     with tf.Session() as sess:
@@ -46,11 +47,31 @@ def input_fn(df):
     return feature_cols, label
 
 def build_estimator(model_dir, model_type):
+    # Continuous base columns. ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width" ]
+    SepalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[0])
+    SepalW = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[1])
+    PetalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[2])
+    PetalL = tf.contrib.layers.real_valued_column(CONTINUOUS_COLUMNS[3])
     
-    m = tf.contrib.learn.DNNClassifier(model_dir=model_dir,
-                                       feature_columns=deep_columns,
-                                       hidden_units=[100, 50])
+    wide_columns = []
+    deep_columns = [SepalL, SepalW, PetalL,PetalL]
+
+    if model_type == "wide":
+            m = tf.contrib.learn.LinearClassifier(model_dir=model_dir,
+                                            feature_columns=wide_columns)
+    elif model_type == "deep":
+        m = tf.contrib.learn.DNNClassifier(model_dir=model_dir,
+                                        feature_columns=deep_columns,
+                                        hidden_units=[100, 50])
+    else:
+        m = tf.contrib.learn.DNNLinearCombinedClassifier(
+            model_dir=model_dir,
+            linear_feature_columns=wide_columns,
+            dnn_feature_columns=deep_columns,
+            dnn_hidden_units=[100, 50],
+            fix_global_step_increment_bug=True)
     return m
+
 
 #*********************************************************************
 # paint 
@@ -99,7 +120,7 @@ def main(_):
                                               model_dir="./iris_model")
                                            #   model_dir="/tmp/iris_model")
     model_dir  = "./iris_model"
-    model_type = modeltypes[1]
+    model_type = model_types[1]
     m = build_estimator(model_dir, model_type)
 
     # Fit model.

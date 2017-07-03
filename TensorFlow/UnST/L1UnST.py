@@ -6,7 +6,10 @@ import numpy as np
 # TensorFlow - lesson 1 and 2 Standfor University
 # # visualize graphs in tf: writer ​=​ tf​.​summary​.​FileWriter​(​'./graphs'​,​ sess​.​graph)
 # $ python ​[​yourprogram​.​py​]
-# $ tensorboard ​--​logdir​=​"./graphs
+# $ tensorboard ​--​logdir​=​"./graphs" --port 6006
+#   http://localhost:6006/
+
+# tensorboard ​--​logdir​="C:\_bd" --port 6006
 #----------------------------------------------
 
 hello = tf.constant('Hello, TensorFlow!')
@@ -15,7 +18,7 @@ b = tf.constant([3], name = "b")
 c = tf.add(a, b, name = "add")
 sess = tf.Session()
 with tf.Session() as sess:
-    writer ​=​ tf​.​summary​.​FileWriter​(​'./graphs'​,​ sess​.​graph)
+    writer = tf.summary.FileWriter('./graphs', sess.graph)
     result = sess.run(c)
     print(result)
 

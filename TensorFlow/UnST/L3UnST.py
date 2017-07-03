@@ -24,4 +24,4 @@ sheet = book.sheet_by_index(0)
 data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
 n_samples = sheet.nrows - 1
 
-print(n_samples)
+print(data)

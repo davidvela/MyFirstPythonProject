@@ -18,9 +18,10 @@ b = tf.constant([3], name = "b")
 c = tf.add(a, b, name = "add")
 sess = tf.Session()
 with tf.Session() as sess:
-    writer = tf.summary.FileWriter('./graphs', sess.graph)
+    writer = tf.summary.FileWriter('./my_graph/01', sess.graph)
     result = sess.run(c)
-    print(result)
+    writer.close( )
+print(result)
 
 # create tensors: 
 # tf.constant([2,2]), 

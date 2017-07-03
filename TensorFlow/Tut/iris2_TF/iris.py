@@ -19,8 +19,8 @@ import tensorflow as tf
 
 model_types= ['wide', 'deep', 'wide_n_deep']
 file_name = "irisData.csv"
-COLUMNS = ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width", "Class" ]
-CONTINUOUS_COLUMNS = ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width" ]
+COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width", "Class" ]
+CONTINUOUS_COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width" ]
 LABEL_COLUMN = "Class"
 
 def printTF(data):
@@ -44,8 +44,8 @@ def input_fn(df):
     #feature_cols.update(categorical_cols)
     # Converts the label column into a constant Tensor.
     label = tf.constant(df[LABEL_COLUMN].values)
-    printTF(feature_cols)
-    printTF(label)
+    #printTF(feature_cols)
+    #printTF(label)
     return feature_cols, label
 
 def build_estimator(model_dir, model_type):
@@ -114,8 +114,12 @@ def main(_):
     test  =df_iris.drop(train.index)
 
     # Specify that all features have real-value data
+    print("feature_columns")
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]
+
+    
     # Build 3 layer DNN with 10, 20, 10 units respectively.
+    print("classifier")
     classifier = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns,
                                               hidden_units=[10, 20, 10],
                                               n_classes=3,
@@ -126,10 +130,13 @@ def main(_):
     m = build_estimator(model_dir, model_type)
 
     # Fit model.
+    print("Fit model")
     m.fit(input_fn=lambda: input_fn(train), steps=2000)
     # Evaluate accuracy.
+    print("Evaluate Accuray")
     accuracy_score = m.evaluate(input_fn=lambda: input_fn(test), steps=1)["accuracy"]
-    print("\nTest Accuracy: {0:f}\n".format(accuracy_score))\
+    print("\nTest Accuracy: {0:f}\n".format(accuracy_score))
+    print("END")
 
 
 #*********************************************************************

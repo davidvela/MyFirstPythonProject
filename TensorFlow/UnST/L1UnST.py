@@ -9,7 +9,7 @@ import numpy as np
 # $ tensorboard ​--​logdir​=​"./graphs" --port 6006
 #   http://localhost:6006/
 
-# tensorboard ​--​logdir​="C:\_bd" --port 6006
+# tensorboard ​--​logdir​="C:\_bd\" --port 6006
 #----------------------------------------------
 
 hello = tf.constant('Hello, TensorFlow!')

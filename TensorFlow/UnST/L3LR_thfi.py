@@ -8,11 +8,12 @@
 # want: Predict thefts from fires 
 # model = W*x + b.   (Y-YP)^2 
 # . 
-# tensor board it: tensorboard --logdir='./my_graph' tensorboard --logdir=/my_graph/03/linear_reg
+# tensor board it: tensorboard --logdir='./my_graph' tensorboard --logdir='./my_graph/03/linear_reg'
 # http://localhost:6006/
+# it worked on mac
 #----------------------------------------------
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import tensorflow as tf
 import xlrd
 
@@ -62,7 +63,7 @@ print(b_value)
 
 # plot the results
 X, Y = data.T[0], data.T[1]
-plt.plot(X, Y, 'bo', label='Real data')
-plt.plot(X, X * w_value + b_value, 'r', label='Predicted data')
-plt.legend()
-plt.show()
+# plt.plot(X, Y, 'bo', label='Real data')
+# plt.plot(X, X * w_value + b_value, 'r', label='Predicted data')
+# plt.legend()
+# plt.show()

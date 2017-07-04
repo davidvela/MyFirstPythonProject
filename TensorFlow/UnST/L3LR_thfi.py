@@ -8,7 +8,7 @@
 # want: Predict thefts from fires 
 # model = W*x + b.   (Y-YP)^2 
 # . 
-# tensor board it: tensorboard --logdir='./my_graph'
+# tensor board it: tensorboard --logdir='./my_graph' tensorboard --logdir=/my_graph/03/linear_reg
 # http://localhost:6006/
 #----------------------------------------------
 import numpy as np

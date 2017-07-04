@@ -139,7 +139,7 @@ def res_net(x, y, activation=tf.nn.relu):
   target = tf.one_hot(y, depth=10, dtype=tf.float32)
   logits = tf.contrib.layers.fully_connected(net, 10, activation_fn=None)
   loss = tf.losses.softmax_cross_entropy(target, logits)
-  return tf.softmax(logits), loss
+  return tf.nn.softmax(logits), loss
 
 
 def res_net_model(x, y):
@@ -163,12 +163,14 @@ classifier = tf.contrib.learn.Estimator(model_fn=res_net_model)
 
 tf.logging.set_verbosity(tf.logging.INFO)  # Show training logs. (avoid silence)
 
+print("fit")
 # Train model and save summaries into logdir.
 classifier.fit(mnist.train.images,
                mnist.train.labels,
                batch_size=100,
                steps=1000)
 
+print("accuracy")
 # Calculate accuracy.
 result = classifier.evaluate(
     x=mnist.test.images,

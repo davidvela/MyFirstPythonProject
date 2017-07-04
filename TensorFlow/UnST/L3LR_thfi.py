@@ -8,7 +8,11 @@
 # want: Predict thefts from fires 
 # model = W*x + b.   (Y-YP)^2 
 # . 
-# tensor board it: tensorboard --logdir='./my_graph' tensorboard --logdir='./my_graph/03/linear_reg'
+# tensor board it: tensorboard --logdir='./my_graph' 
+# 		Linux/Mac: tensorboard --logdir='./my_graph/03/linear_reg'
+# 		Windows:   tensorboard --logdir=.\my_graph\03\linear_reg
+#				   tensorboard --logdir=C:\_bd	
+# 				   tensorboard --logdir=.\my_graph\03\linear_reg		
 # http://localhost:6006/
 # it worked on mac
 #----------------------------------------------

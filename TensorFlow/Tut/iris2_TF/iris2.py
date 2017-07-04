@@ -23,6 +23,9 @@ COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width", "Class"
 CONTINUOUS_COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width" ]
 LABEL_COLUMN = "Class"
 
+ClassElements = {'virginica':0,  'versicolor':1, 'setosa':2 }
+
+
 def printTF(data):
     sess = tf.Session() #sess.close()
     with tf.Session() as sess:
@@ -49,6 +52,17 @@ def input_fn(df):
     return feature_cols, label
 
 def build_estimator(model_dir, model_type):
+#     # Specify that all features have real-value data
+#     print("feature_columns")
+#     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]  
+#     # Build 3 layer DNN with 10, 20, 10 units respectively.
+#     print("classifier")
+#     classifier = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns,
+#                                               hidden_units=[10, 20, 10],
+#                                               n_classes=3,
+#                                               model_dir="./iris_model")
+#                                            #   model_dir="/tmp/iris_model")
+
     # Continuous base columns. ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width" ]
     SepalL = tf.contrib.layers.real_valued_column("Sepal_Length")
     SepalW = tf.contrib.layers.real_valued_column("Sepal_Width")
@@ -62,9 +76,11 @@ def build_estimator(model_dir, model_type):
             m = tf.contrib.learn.LinearClassifier(model_dir=model_dir,
                                             feature_columns=wide_columns)
     elif model_type == "deep":
-        m = tf.contrib.learn.DNNClassifier(model_dir=model_dir,
-                                        feature_columns=deep_columns,
-                                        hidden_units=[100, 50])
+        m = tf.contrib.learn.DNNClassifier( model_dir=model_dir,
+                                            feature_columns=deep_columns,
+                                            # hidden_units=[100, 50])
+                                            hidden_units=[10, 20, 10])
+                                        # n_classes=3        )
     else:
         m = tf.contrib.learn.DNNLinearCombinedClassifier(
             model_dir=model_dir,
@@ -111,23 +127,14 @@ def main(_):
             engine="python")
             
     #paint(df_iris)
-    train =df_iris.sample(frac=0.8,random_state=200)
+    train =df_iris.sample(frac=0.2,random_state=200)
     test  =df_iris.drop(train.index)
-    train[LABEL_COLUMN] = (
-      train["income_bracket"].apply(lambda x: ">50K" in x)).astype(int)
-      
-    # Specify that all features have real-value data
-    print("feature_columns")
-    feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]
+    # paint(test)
+    # return
+    # train[LABEL_COLUMN] = (  train["income_bracket"].apply(lambda x: ">50K" in x)).astype(int)
+    train[LABEL_COLUMN] = ( train[LABEL_COLUMN].apply(lambda x: ClassElements[x] )   ).astype(int)
+    test[LABEL_COLUMN] = ( test[LABEL_COLUMN].apply(lambda x: ClassElements[x] )   ).astype(int)
 
-    
-    # Build 3 layer DNN with 10, 20, 10 units respectively.
-    print("classifier")
-    classifier = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns,
-                                              hidden_units=[10, 20, 10],
-                                              n_classes=3,
-                                              model_dir="./iris_model")
-                                           #   model_dir="/tmp/iris_model")
     model_dir  = "./iris_model"
     model_type = model_types[1]
     m = build_estimator(model_dir, model_type)
@@ -141,6 +148,16 @@ def main(_):
     print("\nTest Accuracy: {0:f}\n".format(accuracy_score))
     print("END")
 
+    # Classify two new flower samples.
+    '''def new_samples():
+        return np.array(
+        [[6.4, 3.2, 4.5, 1.5],
+        [5.8, 3.1, 5.0, 1.7]], dtype=np.float32)
+   
+    predictions = list(m.predict(input_fn=new_samples)) 
+    print(
+        "New Samples, Class Predictions:    {}\n"
+        .format(predictions)) '''
 
 #*********************************************************************
 #*********************************************************************

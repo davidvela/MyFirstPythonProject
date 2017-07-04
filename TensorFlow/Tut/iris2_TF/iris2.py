@@ -79,8 +79,8 @@ def build_estimator(model_dir, model_type):
         m = tf.contrib.learn.DNNClassifier( model_dir=model_dir,
                                             feature_columns=deep_columns,
                                             # hidden_units=[100, 50])
-                                            hidden_units=[10, 20, 10])
-                                        # n_classes=3        )
+                                            hidden_units=[10, 20, 10],
+                                            n_classes=3        )
     else:
         m = tf.contrib.learn.DNNLinearCombinedClassifier(
             model_dir=model_dir,
@@ -109,12 +109,7 @@ def paint(df_iris):
     paint_plot(df_iris, COLUMNS[0], COLUMNS[1],'setosa',     'r','o','setosa')
     plt.show()
     #df_iris.plot(kind='scatter',x='Sepal Length',y='Sepal Width')
-
-#*********************************************************************
-#Main function
-#*********************************************************************
-def main(_):
-    print("Start main")
+def read_irisData():
     # Read my file
     if not os.path.exists(file_name): 
         print("Iris file not found")
@@ -129,11 +124,33 @@ def main(_):
     #paint(df_iris)
     train =df_iris.sample(frac=0.2,random_state=200)
     test  =df_iris.drop(train.index)
-    # paint(test)
-    # return
     # train[LABEL_COLUMN] = (  train["income_bracket"].apply(lambda x: ">50K" in x)).astype(int)
     train[LABEL_COLUMN] = ( train[LABEL_COLUMN].apply(lambda x: ClassElements[x] )   ).astype(int)
     test[LABEL_COLUMN] = ( test[LABEL_COLUMN].apply(lambda x: ClassElements[x] )   ).astype(int)
+    return train, test
+
+def read_irisDataT():
+    train = pd.read_csv(
+            tf.gfile.Open("irisDataTR.csv"),
+            #names=COLUMNS,
+            skipinitialspace=True,
+            engine="python")
+            
+    test = pd.read_csv(
+            tf.gfile.Open("irisDataTS.csv"),
+            #names=COLUMNS,
+            skipinitialspace=True,
+            engine="python")
+    return train, test 
+
+
+#*********************************************************************
+#Main function
+#*********************************************************************
+def main(_):
+    print("Start main")
+
+    train, test = read_irisData()
 
     model_dir  = "./iris_model"
     model_type = model_types[1]

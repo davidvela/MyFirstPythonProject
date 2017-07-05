@@ -26,7 +26,7 @@ LABEL_COLUMN = "Class"
 ClassElements = {'virginica':0,  'versicolor':1, 'setosa':2 }
 
 
-def printTF(data):
+def printTF(data): 
     sess = tf.Session() #sess.close()
     with tf.Session() as sess:
         result = sess.run(data)

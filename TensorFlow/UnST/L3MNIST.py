@@ -1,68 +1,84 @@
-# Linear Regr. - lesson 3 TF Standfor University
-# ph1 - assemble a graph
-# ph2 - use session to execute operations in a graph 
-#. 
-# Feed values into placeholders or variables 
-# .
-# 03_linear_regr. fire_thef.xls x = fires y = theft.
-# want: Predict thefts from fires 
-# model = W*x + b.   (Y-YP)^2 
-# . 
-# tensor board it: tensorboard --logdir='./my_graph'
-# http://localhost:6006/
-#----------------------------------------------
-import numpy as np
-import matplotlib.pyplot as plt
+"""
+Simple logistic regression model to solve OCR task 
+with MNIST in TensorFlow
+MNIST dataset: yann.lecun.com/exdb/mnist/
+
+"""
+
 import tensorflow as tf
-import xlrd
+import numpy as np
+from tensorflow.examples.tutorials.mnist import input_data
+import time
+# Define paramaters for the model
+learning_rate = 0.01
+batch_size = 128
+n_epochs = 30
 
-DATA_FILE = 'data/fire_theft.xls'
+# Step 1: Read in data
+# using TF Learn's built in function to load MNIST data to the folder data/mnist
+mnist = input_data.read_data_sets('/data/mnist', one_hot=True) 
 
-# Phase 1: Assemble the graph
-#------------------------------------------------
-# Step 1: read in data from the .xls file
-book = xlrd.open_workbook(DATA_FILE, encoding_override='utf-8')
-sheet = book.sheet_by_index(0)
-data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
-n_samples = sheet.nrows - 1
-# Step 2: create placeholders for input X (number of fire) and label Y (number of theft)
-X = tf.placeholder(tf.float32, name='X')
-Y = tf.placeholder(tf.float32, name='Y')
-# Step 3: create weight and bias, initialized to 0
-w = tf.Variable(0.0, name='weights')
-b = tf.Variable(0.0, name='bias')
-# Step 4: build model to predict Y
-Y_predicted = X * w + b 
-# Step 5: use the square error as the loss function
-loss = tf.square(Y - Y_predicted, name='loss')
-# Step 6: using gradient descent with learning rate of 0.01 to minimize loss
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss)
+# Step 2: create placeholders for features and labels
+# each image in the MNIST data is of shape 28*28 = 784
+# therefore, each image is represented with a 1x784 tensor
+# there are 10 classes for each image, corresponding to digits 0 - 9. 
+# each lable is one hot vector.
+X = tf.placeholder(tf.float32, [batch_size, 784], name='X_placeholder') 
+Y = tf.placeholder(tf.float32, [batch_size, 10], name='Y_placeholder')
 
-# Phase 1: Train our model - 
-#------------------------------------------------
+# Step 3: create weights and bias
+# w is initialized to random variables with mean of 0, stddev of 0.01
+# b is initialized to 0
+# shape of w depends on the dimension of X and Y so that Y = tf.matmul(X, w)
+# shape of b depends on Y
+w = tf.Variable(tf.random_normal(shape=[784, 10], stddev=0.01), name='weights')
+b = tf.Variable(tf.zeros([1, 10]), name="bias")
+
+# Step 4: build model
+# the model that returns the logits.
+# this logits will be later passed through softmax layer
+logits = tf.matmul(X, w) + b 
+
+# Step 5: define loss function
+# use cross entropy of softmax of logits as the loss function
+entropy = tf.nn.softmax_cross_entropy_with_logits(logits, Y, name='loss')
+loss = tf.reduce_mean(entropy) # computes the mean over all the examples in the batch
+
+# Step 6: define training op
+# using gradient descent with learning rate of 0.01 to minimize loss
+optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
+
 with tf.Session() as sess:
-	# Step 7: initialize the necessary variables, in this case, w and b
-	sess.run(tf.global_variables_initializer()) 
-	writer = tf.summary.FileWriter('./my_graph/03/linear_reg', sess.graph)
-	# Step 8: train the model
-	for i in range(100): # train the model 100 times
-		total_loss = 0
-		for x, y in data:
-			# Session runs train_op and fetch values of loss
-			_, l = sess.run([optimizer, loss], feed_dict={X: x, Y:y}) 
-			total_loss += l
-	#	print 'Epoch {0}: {1}'.format(i, total_loss/n_samples)
-	# close the writer when you're done using it
-	writer.close() 
-	# Step 9: output the values of w and b
-	w_value, b_value = sess.run([w, b]) 
-print("value and error: ") 
-print(w_value)
-print(b_value)
+	# to visualize using TensorBoard
+	writer = tf.summary.FileWriter('./my_graph/03/logistic_reg', sess.graph)
 
-# plot the results
-X, Y = data.T[0], data.T[1]
-plt.plot(X, Y, 'bo', label='Real data')
-plt.plot(X, X * w_value + b_value, 'r', label='Predicted data')
-plt.legend()
-plt.show()
+	start_time = time.time()
+	sess.run(tf.global_variables_initializer())	
+	n_batches = int(mnist.train.num_examples/batch_size)
+	for i in range(n_epochs): # train the model n_epochs times
+		total_loss = 0
+
+		for _ in range(n_batches):
+			X_batch, Y_batch = mnist.train.next_batch(batch_size)
+			_, loss_batch = sess.run([optimizer, loss], feed_dict={X: X_batch, Y:Y_batch}) 
+			total_loss += loss_batch
+		print 'Average loss epoch {0}: {1}'.format(i, total_loss/n_batches)
+
+	print 'Total time: {0} seconds'.format(time.time() - start_time)
+
+	print('Optimization Finished!') # should be around 0.35 after 25 epochs
+
+	# test the model
+	n_batches = int(mnist.test.num_examples/batch_size)
+	total_correct_preds = 0
+	for i in range(n_batches):
+		X_batch, Y_batch = mnist.test.next_batch(batch_size)
+		_, loss_batch, logits_batch = sess.run([optimizer, loss, logits], feed_dict={X: X_batch, Y:Y_batch}) 
+		preds = tf.nn.softmax(logits_batch)
+		correct_preds = tf.equal(tf.argmax(preds, 1), tf.argmax(Y_batch, 1))
+		accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32)) # need numpy.count_nonzero(boolarr) :(
+		total_correct_preds += sess.run(accuracy)	
+	
+	print 'Accuracy {0}'.format(total_correct_preds/mnist.test.num_examples)
+
+	writer.close()

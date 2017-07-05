@@ -17,7 +17,7 @@
 # it worked on mac
 #----------------------------------------------
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import xlrd
 
@@ -38,8 +38,15 @@ w = tf.Variable(0.0, name='weights')
 b = tf.Variable(0.0, name='bias')
 # Step 4: build model to predict Y
 Y_predicted = X * w + b 
-# Step 5: use the square error as the loss function
+# Step 4: Try a Quadratic function 
+u = tf.Variable(0.0, name="weights2")
+# Y_predicted = X*X*w + X*u + b
+
+# Step 5: use the square error
+#  as the loss function
 loss = tf.square(Y - Y_predicted, name='loss')
+# Step 5: Use Huber loss instead of MSE
+# loss = tf.losses.huber_loss(Y, Y_predicted)
 # Step 6: using gradient descent with learning rate of 0.01 to minimize loss
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss)
 
@@ -50,24 +57,27 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer()) 
 	writer = tf.summary.FileWriter('./my_graph/03/linear_reg', sess.graph)
 	# Step 8: train the model
+
 	for i in range(100): # train the model 100 times
 		total_loss = 0
 		for x, y in data:
 			# Session runs train_op and fetch values of loss
 			_, l = sess.run([optimizer, loss], feed_dict={X: x, Y:y}) 
 			total_loss += l
-	#	print 'Epoch {0}: {1}'.format(i, total_loss/n_samples)
+		# print 'Epoch {0}: {1}'.format(i, total_loss/n_samples)
+		print('Epoch %d: %d' % (i, total_loss/n_samples) )
+	
+	
+	
 	# close the writer when you're done using it
 	writer.close() 
 	# Step 9: output the values of w and b
 	w_value, b_value = sess.run([w, b]) 
-print("value and error: ") 
-print(w_value)
-print(b_value)
+print("value and error: ", w_value, b_value)
 
 # plot the results
 X, Y = data.T[0], data.T[1]
-# plt.plot(X, Y, 'bo', label='Real data')
-# plt.plot(X, X * w_value + b_value, 'r', label='Predicted data')
-# plt.legend()
-# plt.show()
+plt.plot(X, Y, 'bo', label='Real data')
+plt.plot(X, X * w_value + b_value, 'r', label='Predicted data')
+plt.legend()
+plt.show()

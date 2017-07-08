@@ -12,7 +12,7 @@
 # 		Linux/Mac: tensorboard --logdir='./my_graph/03/linear_reg'
 # 		Windows:   tensorboard --logdir=.\my_graph\03\linear_reg
 #				   tensorboard --logdir=C:\_bd	
-# 				   tensorboard --logdir=.\my_graph\03\linear_reg		
+# 				   tensorboard --logdir=.\my_graph		
 # http://localhost:6006/
 # it worked on mac
 #----------------------------------------------

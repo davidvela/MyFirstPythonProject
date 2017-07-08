@@ -7,6 +7,7 @@ import numpy as np
 # # visualize graphs in tf: writer ​=​ tf​.​summary​.​FileWriter​(​'./graphs'​,​ sess​.​graph)
 # $ python ​[​yourprogram​.​py​]
 # $ tensorboard ​--​logdir​=​"./graphs" --port 6006
+#   tensorboard --logdir=.\my_graph	
 #   http://localhost:6006/
 
 # tensorboard ​--​logdir​="C:\_bd\" --port 6006

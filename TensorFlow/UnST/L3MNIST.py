@@ -13,6 +13,7 @@ import time
 learning_rate = 0.01
 batch_size = 128
 n_epochs = 30
+logDir = './my_graph/03/logistic_reg'
 
 # Step 1: Read in data
 # using TF Learn's built in function to load MNIST data to the folder data/mnist
@@ -50,7 +51,7 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
 with tf.Session() as sess:
 	# to visualize using TensorBoard
-	writer = tf.summary.FileWriter('./my_graph/03/logistic_reg', sess.graph)
+	writer = tf.summary.FileWriter(logDir, sess.graph)
 
 	start_time = time.time()
 	sess.run(tf.global_variables_initializer())	

@@ -6,3 +6,8 @@ macbook commands for tensorflow - virtualenv
 $ source ./tensorflow/bin/activate      # bash, sh, ksh, or zsh
 $ source ./tensorflow/bin/activate.csh  # csh or tcsh 
 (tensorflow)$ deactivate 
+
+
+
+
+

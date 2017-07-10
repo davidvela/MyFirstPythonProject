@@ -1,9 +1,0 @@
-embeddings {
-  tensor_name: "test_embedding:0"
-  metadata_path: "C:\\Users\\a604080\\git\\MyfirstPythonProject\\TensorFlow\\UnST\\./data/labels_1024.tsv"
-  sprite {
-    image_path: "C:\\Users\\a604080\\git\\MyfirstPythonProject\\TensorFlow\\UnST\\./data/sprite_1024.png"
-    single_image_dim: 28
-    single_image_dim: 28
-  }
-}

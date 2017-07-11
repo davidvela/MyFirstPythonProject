@@ -10,10 +10,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 # Data sets
-IRIS_TRAINING = "iris_training.csv"
+IRIS_TRAINING = "./data/iris/iris_training.csv"
 IRIS_TRAINING_URL = "http://download.tensorflow.org/data/iris_training.csv"
 
-IRIS_TEST = "iris_test.csv"
+IRIS_TEST = "./data/iris/iris_test.csv"
 IRIS_TEST_URL = "http://download.tensorflow.org/data/iris_test.csv"
 
 def main():
@@ -48,8 +48,8 @@ def main():
   # Build 3 layer DNN with 10, 20, 10 units respectively.
   classifier = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns,
                                               hidden_units=[10, 20, 10],
-                                              n_classes=3,
-                                              model_dir="./iris_model")
+                                              n_classes=3)
+                                              #model_dir="./iris_model")
                                            #   model_dir="/tmp/iris_model")
   # Define the training inputs
   def get_train_inputs():

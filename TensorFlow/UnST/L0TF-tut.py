@@ -20,18 +20,24 @@
 # You can watch the tutorial [on YouTube](https://www.youtube.com/watch?v=eBbEDRsCmv4&t=1105s).
 
 # Happy TensorBoarding!
-# 
+# tensor board it: tensorboard --logdir='./my_graph' 
+# 		Linux/Mac: tensorboard --logdir='./my_graph/03/linear_reg'
+# 		Windows:   tensorboard --logdir=.\my_graph\03\linear_reg
+#				   tensorboard --logdir=C:\_bd	
+# 				   tensorboard --logdir=.\my_graph		
+# http://localhost:6006/
 # ==============================================================================
 import os
 import os.path
 import shutil
 import tensorflow as tf
 
+DATDIR = '.'
 LOGDIR = "./my_graph/00/"
 LABELS = os.path.join(os.getcwd(), "./data/labels_1024.tsv")
 SPRITES = os.path.join(os.getcwd(), "./data/sprite_1024.png")
 ### MNIST EMBEDDINGS ###
-mnist = tf.contrib.learn.datasets.mnist.read_data_sets(train_dir=LOGDIR + "\data", one_hot=True)
+mnist = tf.contrib.learn.datasets.mnist.read_data_sets(train_dir=DATDIR + "\data\mnist", one_hot=True)
 ### Get a sprite and labels file for the embedding projector ###
 
 if not (os.path.isfile(LABELS) and os.path.isfile(SPRITES)):

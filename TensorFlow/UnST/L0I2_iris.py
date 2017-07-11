@@ -16,9 +16,8 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 import tensorflow as tf
-
 model_types= ['wide', 'deep', 'wide_n_deep']
-file_name = "irisData.csv"
+file_name = "./data/iris/irisData.csv"
 COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width", "Class" ]
 CONTINUOUS_COLUMNS = ["Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width" ]
 LABEL_COLUMN = "Class"
@@ -73,10 +72,10 @@ def build_estimator(model_dir, model_type):
     deep_columns = [SepalL, SepalW, PetalL,PetalW]
 
     if model_type == "wide":
-            m = tf.contrib.learn.LinearClassifier(model_dir=model_dir,
-                                            feature_columns=wide_columns)
+            m = tf.contrib.learn.LinearClassifier(  #model_dir=model_dir,
+                                                    feature_columns=wide_columns)
     elif model_type == "deep":
-        m = tf.contrib.learn.DNNClassifier( model_dir=model_dir,
+        m = tf.contrib.learn.DNNClassifier( #model_dir=model_dir,
                                             feature_columns=deep_columns,
                                             # hidden_units=[100, 50])
                                             hidden_units=[10, 20, 10],
@@ -131,16 +130,17 @@ def read_irisData():
 
 def read_irisDataT():
     train = pd.read_csv(
-            tf.gfile.Open("irisDataTR.csv"),
+            tf.gfile.Open("./data/iris/irisDataTR.csv"),
             #names=COLUMNS,
             skipinitialspace=True,
             engine="python")
             
     test = pd.read_csv(
-            tf.gfile.Open("irisDataTS.csv"),
+            tf.gfile.Open("./data/iris/irisDataTS.csv"),
             #names=COLUMNS,
             skipinitialspace=True,
             engine="python")
+    print(train)
     return train, test 
 
 

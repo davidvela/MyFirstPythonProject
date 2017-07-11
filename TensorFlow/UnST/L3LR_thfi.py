@@ -28,15 +28,17 @@ DATA_FILE = 'data/fire_theft.xls'
 # Step 1: read in data from the .xls file
 book = xlrd.open_workbook(DATA_FILE, encoding_override='utf-8')
 sheet = book.sheet_by_index(0)
-# data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
+data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
 # generate test data: y = 3x + b
 n_samples = sheet.nrows - 1
 
-X_input = np.linspace(- 1 , 1 , 100)
-Y_input = X_input * 3 + np.random.randn( X_input.shape[ 0 ]) * 0.5
-data.T[0] = X_input
-data.T[1] = Y_input
-n_samples = 99
+# n_samples = 99
+# X_input = np.linspace(- 1 , 1 , 100)
+# Y_input = X_input * 3 + np.random.randn( X_input.shape[ 0 ]) * 0.5
+# data = np.column_stack((X_input, Y_input))
+# # data.T[0] = X_input
+# # data.T[1] = Y_input
+
 
 # Step 2: create placeholders for input X (number of fire) and label Y (number of theft)
 X = tf.placeholder(tf.float32, name='X')
@@ -60,13 +62,13 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss
 
 # Phase 1: Train our model - 
 #------------------------------------------------
-#with tf.Session() as sess:
-with tf.InteractiveSession() as sess: # Test interactive session.
+with tf.Session() as sess:
+# with tf.InteractiveSession() as sess: # Test interactive session.
 	# Step 7: initialize the necessary variables, in this case, w and b
 	sess.run(tf.global_variables_initializer()) 
 	writer = tf.summary.FileWriter('./my_graph/03/linear_reg', sess.graph)
 	# Step 8: train the model
-
+	print(data)
 	for i in range(100): # train the model 100 times
 		total_loss = 0
 		for x, y in data:

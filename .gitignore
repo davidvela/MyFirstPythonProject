@@ -1,15 +1,20 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+
+# data science
+/TensorFlow/UnST/my_graph
+fp1.py
+fp.py
+
+# NODEJS
+
 # compiled output
 /dist
 /tmp
 
 # dependencies
 /node_modules
-/TensorFlow/TuT/fp_model
-/TensorFlow/UnST/my_graph
-fp1.py
-fp.py
+
 
 # IDEs and editors
 /.idea

@@ -145,11 +145,12 @@ def mnist_model(learning_rate, use_two_fc, use_two_conv, hparam):
   # Specify the width and height of a single thumbnail.
   embedding_config.sprite.single_image_dim.extend([28, 28])
   tf.contrib.tensorboard.plugins.projector.visualize_embeddings(writer, config)
-
+  # train for 2000 steps
   for i in range(2001):
     batch = mnist.train.next_batch(100)
     if i % 5 == 0:
       [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: batch[0], y: batch[1]})
+      print("step %d, training accracy %g" %(i, train_accuracy))
       writer.add_summary(s, i)
     if i % 500 == 0:
       sess.run(assignment, feed_dict={x: mnist.test.images[:1024], y: mnist.test.labels[:1024]})
@@ -165,18 +166,25 @@ def make_hparam_string(learning_rate, use_two_fc, use_two_conv):
 
 # MAIN!
 def main():
-  # You can try adding some more learning rates
-  for learning_rate in [1E-3, 1E-4]:
+  dv = True    
+  if dv:           
+    learning_rate = 1E-3
+    use_two_fc = True
+    use_two_conv = True
+    hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
+    mnist_model(learning_rate, use_two_fc, use_two_conv, hparam)
+  else:
+    # You can try adding some more learning rates
+    for learning_rate in [1E-3, 1E-4]:
+      # Include "False" as a value to try different model architectures
+      for use_two_fc in [True]:
+        for use_two_conv in [False, True]:
+          # Construct a hyperparameter string for each one (example: "lr_1E-3,fc=2,conv=2")
+          hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
+          print('Starting run for %s' % hparam)
 
-    # Include "False" as a value to try different model architectures
-    for use_two_fc in [True]:
-      for use_two_conv in [False, True]:
-        # Construct a hyperparameter string for each one (example: "lr_1E-3,fc=2,conv=2")
-        hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
-        print('Starting run for %s' % hparam)
-
-        # Actually run with the new settings
-        mnist_model(learning_rate, use_two_fc, use_two_conv, hparam)
+          # Actually run with the new settings
+          mnist_model(learning_rate, use_two_fc, use_two_conv, hparam)
   print('Done training!')
   print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
   print('Running on mac? If you want to get rid of the dialogue asking to give '

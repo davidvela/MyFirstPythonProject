@@ -153,6 +153,10 @@ def mnist_model(learning_rate, use_two_fc, use_two_conv, hparam):
       print("step %d, training accracy %g" %(i, train_accuracy))
       writer.add_summary(s, i)
     if i % 500 == 0:
+      print("Testing Accuracy:", \
+            sess.run(accuracy, feed_dict={x: mnist.test.images[:1024],
+                                          y: mnist.test.labels[:1024],
+                                          keep_prob: 1.}))
       sess.run(assignment, feed_dict={x: mnist.test.images[:1024], y: mnist.test.labels[:1024]})
       saver.save(sess, os.path.join(LOGDIR, "model.ckpt"), i)
     sess.run(train_step, feed_dict={x: batch[0], y: batch[1]})

@@ -1,6 +1,5 @@
+# Classification Model [4885 rows x 1221 columns]
 # tensorboard --logdir=.\my_graph\0F\
-
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,18 +12,28 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+#Directories
 LOGDIR = "./my_graph/0F/"
-# [4885 rows x 1221 columns]
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
 TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
+
+# Datasets 
 xt          = [] 
 yt          = []
 xtt         = [] 
 ytt         = []
+xtp1        = []  
+ytp1        = []
+
+# Model variables
+
+# Run Parameters 
+dv = 2    
 batch_size = 128
 training_iters = 5000 #200000
 display_step = 5000*0.1 #10%
 record_step  = 5
+
 #----------------------------------------------------
 # DATA HANDLING... 
 #----------------------------------------------------
@@ -110,10 +119,13 @@ def run_simple_model2(learning_rate, use_two_fc, use_two_conv, hparam):
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     print(sess.run(accuracy, feed_dict={x: xt,  y_: yt }))
-
-# Architecture: 
-# Convolutional -> pooling -> convolutional -> pooling -> Fully Connected -> Fully Connected 
-
+    return
+# Architecture: Convolutional -> pooling -> convolutional -> pooling -> Fully Connected -> Fully Connected
+# String for the logs
+def make_hparam_string(learning_rate, use_two_fc, use_two_conv):
+    #conv_param = "conv=2" if use_two_conv else "conv=1"
+    fc_param = "fc=2" if use_two_fc else "fc=1"
+    return "lr_%.0E,%s" % (learning_rate, fc_param) 
 # Convolutional Layer
 def conv_layer(input, size_in, size_out, name="conv"):
     with tf.name_scope(name):
@@ -141,21 +153,23 @@ def fc_layer(input, size_in, size_out, name="fc"):
         return act  
 
 # Run model 
-def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
-    # xtt, ytt    = get_data(TEST_DS)
-    # return
 
+def run_pmodel():
+    sess = tf.Session()
+    saver = tf.train.import_meta_graph(LOGDIR + 'model.ckpt-4500.meta')
+    #saver.restore(sess,tf.train.latest_checkpoint('./'))
+    print("Testing Accuracy:", \
+        sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
+    #print("Printing Predictions:", \
+    #       sess.run(xent, feed_dict={x: xtp1}))
+    print("Real value: %d", ytp1[0]  )
+    sess.close()
+
+def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
     tf.reset_default_graph()
     sess = tf.Session()
-    
     x = tf.placeholder(tf.float32,   shape=[None, 1221], name="x")
     y = tf.placeholder(tf.int16,     shape=[None, 4], name="cat")
-
-    if use_two_conv: print("not yet")
-    else: print(" ") # print("I need a picture 4D")
-        #conv1 = conv_layer(x, 1, 64, "conv")
-        #conv_out = tf.nn.max_pool(conv1, ksize=[2, 2], strides=[2, 2], padding="SAME")
-    #flattened = tf.reshape(conv_out, [-1, 7 * 7 * 64])
 
     if use_two_fc: 
         fc1 = fc_layer(x, 1221, 500,    "fc1")
@@ -181,47 +195,49 @@ def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
     # merge summary
     summ = tf.summary.merge_all()
 
-    # Execution! 
-    saver = tf.train.Saver()
+    # Execution!
+    if dv == 2: 
+        saver = tf.train.import_meta_graph(LOGDIR + 'model.ckpt-4500.meta')
+        saver.restore(sess,tf.train.latest_checkpoint('./'))
+        print("Printing Predictions:", \
+             sess.run(xent, feed_dict={x: xtp1}))
+        print("Real value: %d", ytp1[0]  )
+        return
+    else: # training! 
+        saver = tf.train.Saver()
+        sess.run(tf.global_variables_initializer())
+        writer = tf.summary.FileWriter(LOGDIR + hparam)
+        writer.add_graph(sess.graph)
+        for i in range(training_iters):  
+            xtb, ytb = next_batch(batch_size, xt, yt)
+            if i % record_step == 0:
+                #[train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xt, y: yt }) 
+                [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
+                writer.add_summary(s, i)
+            if i % display_step == 0:
+                print("step %d, training accracy %g" %(i, train_accuracy))
+                if save_model == True:
+                    saver.save(sess, os.path.join(LOGDIR, "model.ckpt"), i)
+            sess.run(train_step, feed_dict={x: xtb, y: ytb})
+        print("Optimization Finished!")
 
-    sess.run(tf.global_variables_initializer())
-    writer = tf.summary.FileWriter(LOGDIR + hparam)
-    writer.add_graph(sess.graph)
-    for i in range(training_iters):  
-        xtb, ytb = next_batch(batch_size, xt, yt)
-        if i % record_step == 0:
-            #[train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xt, y: yt }) 
-            [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
-            writer.add_summary(s, i)
-        if i % display_step == 0:
-            print("step %d, training accracy %g" %(i, train_accuracy))
-            if save_model == True:
-                saver.save(sess, os.path.join(LOGDIR, "model.ckpt"), i)
-        sess.run(train_step, feed_dict={x: xtb, y: ytb})
-    print("Optimization Finished!")
-
-    print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
-
-
-# String for the logs
-def make_hparam_string(learning_rate, use_two_fc, use_two_conv):
-    #conv_param = "conv=2" if use_two_conv else "conv=1"
-    fc_param = "fc=2" if use_two_fc else "fc=1"
-    return "lr_%.0E,%s" % (learning_rate, fc_param)
+        print("Testing Accuracy:", \
+            sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
+    sess.close()
 
 # MAIN!
 def main():
-    dv = True    
-    if dv:
-        save_model = True           
-        learning_rate = 1E-3
-        use_two_fc = True
-        use_two_conv = True
+    save_model = True           
+    learning_rate = 1E-3
+    use_two_fc = True
+    use_two_conv = True
+    hparam  = ""
+
+    if dv == 0:
         hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
         print('Starting run for %s' % hparam)
         run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model)
-    else:
+    elif dv == 1:
         for learning_rate in [0.05, 1E-3]: # , 1E-4]:
             for use_two_fc in [False, True]:
                 for use_two_conv in [False]: #, True]:
@@ -231,18 +247,27 @@ def main():
                     run_model(learning_rate, use_two_fc, use_two_conv, hparam, False)
                     # run_simple_model2(learning_rate, False, False, hparam)
 
-    print('Done training!')
+        print('Done training!')
+    elif dv== 2: 
+        print("Real Test!")
+        hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
+        #run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model)
+        #run_pmodel()
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 
 if __name__ == "__main__":
     xtt, ytt    = get_data(TEST_DS)
     xt, yt      = get_data(TRAI_DS)
-    
+    xtp1.append(xtt[0]);    ytp1.append(ytt[0])
+    main()
     # for i in range(2):  
     #     xtb, ytb = next_batch(10, xt, yt)
     #     print(ytb)
     #     print("--new--")
     # return
-
-    main()
+    xtp={
+        'M' : 123456,
+        'FP'       : 24,
+        '111222'   : 0.1, 
+        '113322'   : 0.9    }

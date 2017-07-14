@@ -1,4 +1,4 @@
-# Regresion model! 
+# Classification Model [4885 rows x 1221 columns]
 # tensorboard --logdir=.\my_graph\0FR\
 
 
@@ -15,17 +15,21 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 LOGDIR = "./my_graph/0F/"
-# [4885 rows x 1221 columns]
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
 TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
+
 xt          = [] 
 yt          = []
 xtt         = [] 
 ytt         = []
+
 batch_size = 128
 training_iters = 5000 #200000
 display_step = 5000*0.1 #10%
 record_step  = 5
+
+
+
 #----------------------------------------------------
 # DATA HANDLING... 
 #----------------------------------------------------
@@ -203,7 +207,10 @@ def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
 
     print("Testing Accuracy:", \
         sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
-
+    
+    print("get Predictions:", \
+        sess.run(xent, feed_dict={x: xtt, y: ytt}))
+    
 
 # String for the logs
 def make_hparam_string(learning_rate, use_two_fc, use_two_conv):

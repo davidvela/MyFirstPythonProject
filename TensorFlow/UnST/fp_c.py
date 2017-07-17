@@ -13,7 +13,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 #Directories
-LOGDIR = "./my_graph/0F/"
+LOGDIR      = "./my_graph/0F/"
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
 TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
 
@@ -24,15 +24,19 @@ xtt         = []
 ytt         = []
 xtp1        = []  
 ytp1        = []
+batch_size = 128
 
 # Model variables
+x = tf.placeholder(tf.float32,   shape=[None, 1221], name="x")
+y = tf.placeholder(tf.int16,     shape=[None, 4], name="cat")
 
 # Run Parameters 
-dv = 2    
-batch_size = 128
-training_iters = 5000 #200000
-display_step = 5000*0.1 #10%
-record_step  = 5
+dv = 2   
+
+training_iters = 1000 #200000
+
+display_step = training_iters*0.1 #10%
+record_step  = training_iters*0.005
 
 #----------------------------------------------------
 # DATA HANDLING... 
@@ -152,24 +156,25 @@ def fc_layer(input, size_in, size_out, name="fc"):
         # act = tf.nn.dropout(act, dropout) # Apply Dropout 
         return act  
 
-# Run model 
-
+# Run Productive model 
 def run_pmodel():
     sess = tf.Session()
     saver = tf.train.import_meta_graph(LOGDIR + 'model.ckpt-4500.meta')
-    #saver.restore(sess,tf.train.latest_checkpoint('./'))
-    print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
-    #print("Printing Predictions:", \
-    #       sess.run(xent, feed_dict={x: xtp1}))
-    print("Real value: %d", ytp1[0]  )
-    sess.close()
+    rest  = saver.restore(sess, LOGDIR + 'model.ckpt-4500')
+    print("print variables!", rest)
 
+    all_vars = tf.get_collection( saver )
+    for v in all_vars:
+        v_ = sess.run(v)
+        print(v_)
+    return
+    print("Real value: %d", ytp1  )
+    print("Predicted value:", sess.run(logits, feed_dict={x: xtp1}) ) 
+    sess.close()
+# Run  model 
 def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
     tf.reset_default_graph()
     sess = tf.Session()
-    x = tf.placeholder(tf.float32,   shape=[None, 1221], name="x")
-    y = tf.placeholder(tf.int16,     shape=[None, 4], name="cat")
 
     if use_two_fc: 
         fc1 = fc_layer(x, 1221, 500,    "fc1")
@@ -180,8 +185,8 @@ def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
 
     with tf.name_scope("xent"):
         xent = tf.reduce_mean(
-            tf.nn.softmax_cross_entropy_with_logits(
-                logits=logits, labels=y), name="xent")
+            tf.nn.softmax_cross_entropy_with_logits( logits=logits, labels=y), 
+            name="xent")
         tf.summary.scalar("xent", xent)
 
     with tf.name_scope("train"):
@@ -223,6 +228,10 @@ def run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model):
 
         print("Testing Accuracy:", \
             sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
+        
+        # predict = tf.argmax(y ,1)
+        print("Real Value:", ytp1 )
+        print("Predicted value:", sess.run(logits, feed_dict={x: xtp1}) ) # sess.run(predict, feed_dict={y: yp }))
     sess.close()
 
 # MAIN!
@@ -233,11 +242,11 @@ def main():
     use_two_conv = True
     hparam  = ""
 
-    if dv == 0:
+    if dv == 1:
         hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
         print('Starting run for %s' % hparam)
         run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model)
-    elif dv == 1:
+    elif dv == 0:
         for learning_rate in [0.05, 1E-3]: # , 1E-4]:
             for use_two_fc in [False, True]:
                 for use_two_conv in [False]: #, True]:
@@ -252,7 +261,7 @@ def main():
         print("Real Test!")
         hparam = make_hparam_string(learning_rate, use_two_fc, use_two_conv)
         #run_model(learning_rate, use_two_fc, use_two_conv, hparam, save_model)
-        #run_pmodel()
+        run_pmodel()
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 

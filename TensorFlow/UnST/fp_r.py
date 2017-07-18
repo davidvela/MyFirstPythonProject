@@ -37,7 +37,7 @@ model_path  = LOGDIR + "model.ckpt"
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 1000 #200000
+training_iters = 10000 #200000
 display_step = training_iters*0.1 #10%
 record_step  = training_iters*0.005
 # Network Parameters
@@ -92,9 +92,9 @@ with tf.name_scope("R2"):
     R_squared = tf.subtract(tf.to_float(1), tf.div(total_error, unexplained_error))
     tf.summary.scalar("R2", R_squared)
 with tf.name_scope("xent"):
-    #cost = tf.reduce_mean(tf.square(pred-y))
+    cost = tf.reduce_mean(tf.square(pred-y))
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-    cost = tf.reduce_sum(tf.pow(pred-y, 2))/(2*batch_size)
+    # cost = tf.reduce_sum(tf.pow(pred-y, 2))/(2*batch_size)
     # cost = tf.reduce_mean(tf.pow(pred - y, 2)) / 2  
     tf.summary.scalar("xent", cost)
 with tf.name_scope("train"):
@@ -145,10 +145,10 @@ def test_model():
         print("Model restored from file: %s" % model_path)
         # test the model
         print("Testing R_squared:", sess.run(R_squared, feed_dict={x: xtt, y: ytt}))
-        #pred_val = sess.run(pred, feed_dict={x: xtt, y: ytt})
+        pred_val = sess.run(pred, feed_dict={x: xtt, y: ytt})
         #print(type(pred_val))
         #print("Testing Accuracy: \n", pred_val)
-        #np.savetxt(LOGDIR + 'test.out', pred_val, delimiter=',')   # X is an array
+        np.savetxt(LOGDIR + 'test_FFl_R.csv', pred_val, delimiter=',')   # X is an array
         print("Real value: %d", ytp1  )
         print("Predicted value:", sess.run(pred, feed_dict={x: xtp1}) ) 
 #

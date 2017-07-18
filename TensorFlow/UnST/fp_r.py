@@ -10,6 +10,17 @@ import urllib.request as urllib7m
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+
+
+dv = 0 # tests 
+if len(sys.argv) > 1:
+    dv = int(sys.argv[1])
+    if dv > 0 and dv < 3 :
+        print("training")    
+
+
+#end 1 train 2 test
+
 # Datasets 
 xt          = [] 
 yt          = []
@@ -26,7 +37,7 @@ model_path  = LOGDIR + "model.ckpt"
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 10000 #200000
+training_iters = 100 #200000
 display_step = training_iters*0.1 #10%
 record_step  = training_iters*0.005
 # Network Parameters
@@ -81,9 +92,10 @@ with tf.name_scope("R2"):
     R_squared = tf.subtract(tf.to_float(1), tf.div(total_error, unexplained_error))
     tf.summary.scalar("R2", R_squared)
 with tf.name_scope("xent"):
-    cost = tf.reduce_mean(tf.square(pred-y))
+    #cost = tf.reduce_mean(tf.square(pred-y))
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
     # cost = tf.reduce_sum(tf.pow(pred-y, 2))/(2*n_samples)
+    cost = tf.reduce_mean(tf.pow(pred - y, 2)) / 2  # try to use this instead of reduce sum
     tf.summary.scalar("xent", cost)
 with tf.name_scope("train"):
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
@@ -103,16 +115,22 @@ def train_model(hparam):
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
         writer.add_graph(sess.graph)
-        for i in range(training_iters):  
-            xtb, ytb = next_batch(batch_size, xt, yt)
+        for i in range(training_iters): 
+            for p in  range(100):
+                xtb, ytb = next_batch(batch_size, xt, yt)
+                sess.run(optimizer, feed_dict={x: xtb, y: ytb})
+
             if i % record_step == 0:
-                [training_ac, s, r_sq, vp] = sess.run([cost, summ, R_squared, pred], feed_dict={x: xtb, y: ytb }) 
+                [training_ac, s] = sess.run([cost, summ], feed_dict={x: xtt, y: ytt }) 
                 writer.add_summary(s, i)
             if i % display_step == 0:
-                print("step %d, training_cost: %g R2 = %g" %(i, training_ac, r_sq))
-                print('Training accuracy: {:.1f}'.format(accuracy(vp, ytb )))            
-            sess.run(optimizer, feed_dict={x: xtb, y: ytb})
+                print("step %d, training_cost: %g" %(i, training_ac))
+                #print('Training accuracy: {:.1f}'.format(accuracy(vp, ytt )))            
+
         print("Optimization Finished!")
+        print("R2 Training: %g", sess.run([R_squared], feed_dict={x: xt, y: yt })  )
+        print("R2 Test:     %g", sess.run([R_squared], feed_dict={x: xtt, y: ytt })  )
+        
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path)
         #print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
@@ -142,21 +160,10 @@ def main(dv):
     xtp1.append(xtt[2]);    ytp1.append(ytt[2])
     hparam = make_hparam_string(learning_rate, 3)
 
-    if dv == 1:
-        #loop for different possibillities   
+    if dv == 0: test_model()
+    else :         #loop for different possibillities   
         train_model(hparam)
-    
-    
-    elif dv == 2: 
-        test_model()
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        dv = int(sys.argv[1])
-        if dv > 0 and dv < 3 :
-            main(dv)    
-        else: print ("please type 1 for training and 2 for testing")
-    else: print ("please type 1 for training and 2 for testing")
-
-#end 1 train 2 test
+    main(dv)

@@ -20,24 +20,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import xlrd
+import sys
 
-DATA_FILE = 'data/fire_theft.xls'
+dv = 0
+if len(sys.argv) > 1:
+    dv = int(sys.argv[1])
+    if dv > 0 and dv < 2:
+	    print("ok")
+else: dv = 0    
 
 # Phase 1: Assemble the graph
 #------------------------------------------------
 # Step 1: read in data from the .xls file
-book = xlrd.open_workbook(DATA_FILE, encoding_override='utf-8')
-sheet = book.sheet_by_index(0)
-data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
-# generate test data: y = 3x + b
-n_samples = sheet.nrows - 1
-
-# n_samples = 99
-# X_input = np.linspace(- 1 , 1 , 100)
-# Y_input = X_input * 3 + np.random.randn( X_input.shape[ 0 ]) * 0.5
-# data = np.column_stack((X_input, Y_input))
-# # data.T[0] = X_input
-# # data.T[1] = Y_input
+if dv == 0:
+	DATA_FILE = 'data/fire_theft.xls'
+	book = xlrd.open_workbook(DATA_FILE, encoding_override='utf-8')
+	sheet = book.sheet_by_index(0)
+	data = np.asarray([sheet.row_values(i) for i in range(1, sheet.nrows)])
+	# generate test data: y = 3x + b
+	n_samples = sheet.nrows - 1
+else: 
+	 n_samples = 99
+	 X_input = np.linspace(- 1 , 1 , 100)
+	 Y_input = X_input * 3 + np.random.randn( X_input.shape[ 0 ]) * 0.5
+	 data = np.column_stack((X_input, Y_input))
+	#  data.T[0] = X_input
+	#  data.T[1] = Y_input
 
 
 # Step 2: create placeholders for input X (number of fire) and label Y (number of theft)
@@ -60,6 +68,11 @@ loss = tf.square(Y - Y_predicted, name='loss')
 # Step 6: using gradient descent with learning rate of 0.01 to minimize loss
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss)
 
+y_mean = tf.reduce_mean(Y)
+total_error = tf.reduce_sum(tf.square(tf.subtract(Y, tf.reduce_mean(Y))))
+unexplained_error = tf.reduce_sum(tf.square(tf.subtract(Y, Y_predicted)))
+R_squared = tf.subtract(tf.to_float(1), tf.div(total_error, unexplained_error))
+
 # Phase 1: Train our model - 
 #------------------------------------------------
 with tf.Session() as sess:
@@ -73,10 +86,13 @@ with tf.Session() as sess:
 		total_loss = 0
 		for x, y in data:
 			# Session runs train_op and fetch values of loss
-			_, l = sess.run([optimizer, loss], feed_dict={X: x, Y:y}) 
+			_, l = sess.run([optimizer, loss ], feed_dict={X: x, Y:y}) 
 			total_loss += l
 		# print 'Epoch {0}: {1}'.format(i, total_loss/n_samples)
 		print('Epoch %d: %d' % (i, total_loss/n_samples) )
+		R2 = sess.run([R_squared], feed_dict={X: data[0], Y:data[1]}) 
+		print(R2 )
+
 	
 	
 	

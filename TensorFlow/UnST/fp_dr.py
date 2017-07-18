@@ -41,6 +41,8 @@ def get_data(path, type):
         #print(cat)
         catL = cat.as_matrix().tolist()
         datL = dat.as_matrix().tolist()
+    elif type == 2:     # separate T and E 
+        print("in process")
     
     return datL, catL
 

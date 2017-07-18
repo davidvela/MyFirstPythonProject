@@ -37,7 +37,7 @@ model_path  = LOGDIR + "model.ckpt"
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 100 #200000
+training_iters = 1000 #200000
 display_step = training_iters*0.1 #10%
 record_step  = training_iters*0.005
 # Network Parameters
@@ -94,8 +94,8 @@ with tf.name_scope("R2"):
 with tf.name_scope("xent"):
     #cost = tf.reduce_mean(tf.square(pred-y))
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-    # cost = tf.reduce_sum(tf.pow(pred-y, 2))/(2*n_samples)
-    cost = tf.reduce_mean(tf.pow(pred - y, 2)) / 2  # try to use this instead of reduce sum
+    cost = tf.reduce_sum(tf.pow(pred-y, 2))/(2*batch_size)
+    # cost = tf.reduce_mean(tf.pow(pred - y, 2)) / 2  
     tf.summary.scalar("xent", cost)
 with tf.name_scope("train"):
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
@@ -103,9 +103,7 @@ summ = tf.summary.merge_all()
 init = tf.global_variables_initializer()
 saver = tf.train.Saver()
 # accuracy
-def accuracy(predictions, labels):
-    return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))
-            / predictions.shape[0])
+
 #
 def train_model(hparam): 
     # Running first session
@@ -116,9 +114,9 @@ def train_model(hparam):
         writer = tf.summary.FileWriter(LOGDIR + hparam)
         writer.add_graph(sess.graph)
         for i in range(training_iters): 
-            for p in  range(100):
-                xtb, ytb = next_batch(batch_size, xt, yt)
-                sess.run(optimizer, feed_dict={x: xtb, y: ytb})
+            # for p in  range(100):
+            xtb, ytb = next_batch(batch_size, xt, yt)
+            sess.run(optimizer, feed_dict={x: xtb, y: ytb})
 
             if i % record_step == 0:
                 [training_ac, s] = sess.run([cost, summ], feed_dict={x: xtt, y: ytt }) 

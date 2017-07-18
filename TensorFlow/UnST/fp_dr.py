@@ -43,7 +43,7 @@ def get_data(path, type):
         datL = dat.as_matrix().tolist()
     elif type == 2:     # separate T and E 
         print("in process")
-    
+        dst = [rows for _, rows in df.groupby('type')]
     return datL, catL
 
 # test logic: 

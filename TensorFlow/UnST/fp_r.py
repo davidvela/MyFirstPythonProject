@@ -67,7 +67,6 @@ n_samples   = 4724
 # String for the logs
 def make_hparam_string(learning_rate, no_fc):
     return "lr_%.0E,fc=%d" % (learning_rate, no_fc) 
-
 # Create model
 def multilayer_perceptron(x, weights, biases):
     # Hidden layer with RELU activation

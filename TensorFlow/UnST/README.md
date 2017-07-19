@@ -4,3 +4,4 @@
 * Separate Pandas DS between T and E 
 * Measure accuracy for Regression algorithms 
 * loop different options in Regression and Classif 
+* create a class for my code

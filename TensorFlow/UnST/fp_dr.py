@@ -3,6 +3,11 @@ import pandas as pd
 import tensorflow as tf 
 import numpy as np 
 
+# Ordered batch... 
+def next_sbatch(num, data, labels):
+    return True
+    
+# Random batch... 
 def next_batch(num, data, labels):
     '''
     Return a total of `num` random samples and labels. 
@@ -15,6 +20,7 @@ def next_batch(num, data, labels):
 
     return np.asarray(data_shuffle), np.asarray(labels_shuffle)
 
+# Normalization
 def normalization(type,  dts ):
     if type == "min_max":
         max = np.max(dts)
@@ -22,19 +28,39 @@ def normalization(type,  dts ):
     else:     
         return 0
 
+# List formatting 
 def classif(df):
     if( df < 40 ): return [0,0,0,1] 
     elif( df >= 40 and df < 60 ): return [0,0,1,0]
     elif( df >= 60 and df < 90 ): return [0,1,0,0] 
     elif( df >= 90 ): return [1,0,0,0]
-def regress(df):
+
+def regress(df):#
     return [df]
 
-def get_data(path, type):
+# Split 
+def split_lab_dat(dst, label_col, col_dn):
+    cat  = dst.loc[:, label_col]
+    dat  = dst.iloc[:, col_dn:]
+    return {'label' : cat, 'data' : dat}
+
+''' ----------     Get data      ----------
+    this is the main method of this file. 
+    it will read a csv file pased in the path parameter where: 
+        1st column = ID, 2ndC = class, 3rdC = Class normalized and restC => inputs 
+    type:   1 =  Classificaiton(C)  => 4Categories(C);  Return(rr) = tupple data list and class list 
+            2 =  Regression(R) => 1C; rr = tupple training list and evaluation list 
+            3 =  R - reading improved separated by 3 column type = T or E; => 1C; rr = tupple T dict and E dict *data 0, class 1 (norm) 
+            4 =  C => 100C; rr T and E dict. 
+
+    norm:   1 = min - max 
+            2 =  
+'''
+def get_data(path, type, norm = 1):
     dst =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
     dst = dst.fillna(0)
 
-    if type == 0:       # Classification in categories
+    if type == 0:       # Classification in 4 categories
         dst.insert(2, 'FP_C', dst['FP'].map(lambda x: classif(x)))
         cat  = dst.loc[:,'FP_C']
         dat  = dst.iloc[:, 3:]
@@ -50,14 +76,14 @@ def get_data(path, type):
         catL = cat.as_matrix().tolist()
         datL = dat.as_matrix().tolist()
         return datL, catL
-    elif type == 2:     # separate T and E 
+    elif type == 2:     # separate T and E and then -> Regression with normalization! 
         print("in process")
         dst_tmp = [rows for _, rows in dst.groupby('Type')]
         cat_n  = dst.loc[:,'FP']#.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
         cat_nmin = np.min(cat_n)
         cat_nmax = np.max(cat_n) 
         cat_m  = np.mean(cat_n)
-        cat_nn  = cat_n.apply(lambda x: ((x - cat_nmin)) / (cat_nmax - cat_nmin) )
+        cat_nn = cat_n.apply(lambda x: ((x - cat_nmin)) / (cat_nmax - cat_nmin) )
        
 
         dst.insert(2, 'FP_R', dst['FP'].map(lambda x: regress(x)))
@@ -68,11 +94,6 @@ def get_data(path, type):
         for idx in range(40):
             print("{} -> {}".format(cat_n[idx], cat_nn[idx]))        
         return data_t, data_e
-
-def split_lab_dat(dst, label_col, col_dn):
-    cat  = dst.loc[:, label_col]
-    dat  = dst.iloc[:, col_dn:]
-    return {'label' : cat, 'data' : dat}
 
 # test logic: 
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"

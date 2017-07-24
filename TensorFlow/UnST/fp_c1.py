@@ -71,6 +71,7 @@ def multilayer_perceptron(x, weights, biases):
 
 # - declaration of model and global attributes 
 pred = multilayer_perceptron(x, weights, biases)
+softmaxT = tf.nn.softmax(pred)
 
 with tf.name_scope("accuracy"):
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
@@ -81,7 +82,6 @@ with tf.name_scope("xent"):
     tf.summary.scalar("xent", cost)
 with tf.name_scope("train"):
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-
 summ = tf.summary.merge_all()
 init = tf.global_variables_initializer()
 saver = tf.train.Saver()
@@ -118,8 +118,8 @@ def test_model():
         print("Model restored from file: %s" % model_path)
         # test the model
         print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xt, y: yt}))
-        print("Real value: %d", ytp1  )
-        print("Predicted value:", sess.run(pred, feed_dict={x: xtp1}) ) 
+        print("Real value: {}", (ytp1)  )
+        print("Predicted:", (sess.run([pred, softmaxT], feed_dict={x: xtp1}) )) 
 #
 #
 def main(dv):

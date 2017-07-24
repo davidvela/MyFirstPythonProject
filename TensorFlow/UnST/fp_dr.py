@@ -93,7 +93,7 @@ def get_data(path, type, norm = 1):
         data_e  = split_lab_dat(dst_tmp[0], 'FP_R', 3)
         data_t  = split_lab_dat(dst_tmp[1], 'FP', 3)
 
-        print(cat_nn)
+        # print(cat_nn)
         # print( data_e['label']) #print( data_e['data'])
 
         # cat  = dst.loc[:,'FP_R']

@@ -23,10 +23,16 @@ def next_batch(num, data, labels):
 # Normalization
 def normalization(type,  dts ):
     if type == "min_max":
-        max = np.max(dts)
-        return 0
-    else:     
-        return 0
+        cat_nmax = np.max(dts)
+        cat_nmin = np.min(dts)
+        cat_m  = np.mean(dts)
+        cat_nn = dts.apply(lambda x: ( (x - cat_nmin)) / (cat_nmax - cat_nmin) )
+        return cat_nn
+    elif type == 'standardization': 
+        cat_m  = np.mean(dts)
+        cat_st = np.std(dts)
+        cat_nn = dts.apply(lambda x: ( (x - cat_m) /cat_st ))
+        return cat_nn
 
 # List formatting 
 def classif(df):
@@ -35,9 +41,8 @@ def classif(df):
     elif( df >= 60 and df < 90 ): return [0,1,0,0] 
     elif( df >= 90 ): return [1,0,0,0]
 
-def regress(df):#
+def regress(df): #
     return [df]
-
 # Split 
 def split_lab_dat(dst, label_col, col_dn):
     cat  = dst.loc[:, label_col]
@@ -78,27 +83,32 @@ def get_data(path, type, norm = 1):
         return datL, catL
     elif type == 2:     # separate T and E and then -> Regression with normalization! 
         print("in process")
-        dst_tmp = [rows for _, rows in dst.groupby('Type')]
-        cat_n  = dst.loc[:,'FP']#.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
-        cat_nmin = np.min(cat_n)
-        cat_nmax = np.max(cat_n) 
-        cat_m  = np.mean(cat_n)
-        cat_nn = cat_n.apply(lambda x: ((x - cat_nmin)) / (cat_nmax - cat_nmin) )
-       
 
+        cat_n  = dst.loc[:,'FP'] 
+        cat_nn = normalization( norm, cat_n )
+        dst['FP'] = cat_nn
         dst.insert(2, 'FP_R', dst['FP'].map(lambda x: regress(x)))
-        cat  = dst.loc[:,'FP_R']
-        data_e  = split_lab_dat(dst_tmp[0], 'FP', 3)
+
+        dst_tmp = [rows for _, rows in dst.groupby('Type')]
+        data_e  = split_lab_dat(dst_tmp[0], 'FP_R', 3)
         data_t  = split_lab_dat(dst_tmp[1], 'FP', 3)
 
-        for idx in range(40):
-            print("{} -> {}".format(cat_n[idx], cat_nn[idx]))        
+        print(cat_nn)
+        # print( data_e['label']) #print( data_e['data'])
+
+        # cat  = dst.loc[:,'FP_R']
+        # for idx in range(40):
+        #     print("{} -> {}".format(cat_n[idx], cat_nn[idx]))  
+        
         return data_t, data_e
 
 # test logic: 
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
+
 ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
-dtt, dte = get_data( ALL_DS, 2)
+dtt, dte = get_data( ALL_DS, 2, 'min_max') #'standardization'
+
+  
 
 # xt, yt      = get_data( TRAI_DS, 1)
 # print(yt)

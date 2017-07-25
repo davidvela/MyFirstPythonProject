@@ -86,8 +86,12 @@ class fpDataModel:
         return {'label' : cat, 'data' : dat}
 
     #Get Data
-    def get_data(self, typeSep = True):
-        dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
+    def get_data(self, typeSep = True, pathA = ""):
+        if pathA != "":
+            dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
+        else: 
+            dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
+        
         dst = dst.fillna(0)
         
         if self.norm != "":

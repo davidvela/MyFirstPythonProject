@@ -31,7 +31,7 @@ model_path  = LOGDIR + "model.ckpt"
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 1000 #200000
+training_iters = 10000 #200000
 display_step = training_iters*0.1 #10%
 record_step  = training_iters*0.005
 # Network Parameters
@@ -55,7 +55,7 @@ biases = {
     'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="Bias_2"),
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
-dataClass = fpDataModel(ALL_DS, 'min_max', 128, 2)
+dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
 dataTrain,  dataTest =  dataClass.get_data( ) 
 
 # n_samples   = xt.shape[0]

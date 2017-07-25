@@ -1,11 +1,11 @@
 # MyFirstPythonProject
 Test in Python - Data Science &amp; Big Data  Introduction! 
-This project will keep all my tests during my learning process towards DataScience in particular Deep Learning
+This project aims to keep all my tests on my learning process towards DataScience in particular Deep Learning
 
 
 ## Index 
 * DataCamp courses: 
-    * Intro to Python for Data Science - Python Basis, lists, functions, numpy 
+    * Intro to Python for Data Science - Python Basis, lists, functions, numpy / Certificate
     * Python Data Science Toolbox (Part 1) - matplolib, pandas, logic, loops 
     * Python Data Science Toolbox (Part 2) - iterators, zip, unzip, twitter 
     * Supervised Learning with scikit-learn 
@@ -15,7 +15,7 @@ This project will keep all my tests during my learning process towards DataScien
 * University of Standford 
 * TensorFlow tutorials : iris, MNIST, tensorboard 
 * Big Data University (Cognitive Class.ai)
-    * Deep Learning with TensorFlow ML0120EN - all types of NN -> code
+    * Deep Learning with TensorFlow ML0120EN - all types of NN -> code / Certificate
     * Python 101
     * Deep Learning 101  ML0120EN - theory 
 

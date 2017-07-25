@@ -55,6 +55,7 @@ biases = {
     'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="Bias_2"),
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
+#normalization - min_max => not working! probably because of the random values of Wegights 
 dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
 dataTrain,  dataTest =  dataClass.get_data( ) 
 

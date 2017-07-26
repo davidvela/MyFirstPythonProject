@@ -1,5 +1,4 @@
-# Classification Model [4885 rows x 1221 columns]
-# tensorboard --logdir=.\my_graph\0FR\
+# Regression with FRGR - reader class Type
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

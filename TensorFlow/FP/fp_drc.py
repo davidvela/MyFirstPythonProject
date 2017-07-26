@@ -112,6 +112,11 @@ class fpDataModel:
             data_t  = self.split_lab_dat(dst_tmp[1])
             return data_t, data_e
         else :   return  self.split_lab_dat(dst_tmp[0])
+    
+    # WS - Conversion
+    def get_data(self, url)
+
+    
 # main 
 def main():
     # test logic: 

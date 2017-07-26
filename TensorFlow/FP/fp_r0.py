@@ -1,4 +1,6 @@
-# Classification Model [4885 rows x 1221 columns]
+# Regresion Reuse model - FRFL T and E - new datareader class 
+
+
 # tensorboard --logdir=.\my_graph\0FR\
 from __future__ import absolute_import
 from __future__ import division

@@ -1,3 +1,5 @@
+# basic model trying to use the tf.contrib package. (similar to sckit-learn)
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -7,7 +9,6 @@ import urllib.request as urllib7m
 
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 # Data sets
 IRIS_TRAINING = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"

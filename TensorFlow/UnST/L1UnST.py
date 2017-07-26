@@ -1,7 +1,5 @@
 import tensorflow as tf
 import numpy as np
-#import matplotlib.patches as mpatches 
-#import matplotlib.pyplot as plt 
 
 # TensorFlow - lesson 1 and 2 Standfor University
 # # visualize graphs in tf: writer ​=​ tf​.​summary​.​FileWriter​(​'./graphs'​,​ sess​.​graph)

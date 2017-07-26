@@ -1,4 +1,6 @@
 # Classification Model [4885 rows x 1221 columns]
+# with a loop of elements -> tensorboard; compare learning rates and network models
+
 # tensorboard --logdir=.\my_graph\0F\
 from __future__ import absolute_import
 from __future__ import division
@@ -10,7 +12,6 @@ import urllib.request as urllib7m
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 #Directories
 LOGDIR      = "./my_graph/0F/"

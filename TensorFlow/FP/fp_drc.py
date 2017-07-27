@@ -3,6 +3,9 @@ import pandas as pd
 import tensorflow as tf 
 import numpy as np 
 
+import requests
+import json
+
 class fpDataModel:
     def __init__(self, path, norm, batch_size, dType, labelCol, dataCol = 4, nC=100, nRange=1 , toList = True):
         self.path           = path
@@ -98,7 +101,7 @@ class fpDataModel:
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )
 
-        if self.dType == 'class':       # Classification in 4 categories
+        if   self.dType == 'class':       # Classification in 4 categories
             dst.insert(2, 'FP_C', dst['FP'].map(lambda x: self.classif(x)))
         elif self.dType == 'reg':       # Regression
             dst.insert(2, 'FP_R', dst['FP'].map(lambda x: self.regress(x)))
@@ -114,7 +117,24 @@ class fpDataModel:
         else :   return  self.split_lab_dat(dst_tmp[0])
     
     # WS - Conversion
-    def get_data(self, url)
+    def feed_data(self, url):
+        url_oData_people = "http://services.odata.org/TripPinRESTierService/(S(pk4yy1pao5a2nngmm2ecx0hy))/People"
+        # response = requests.get( url_oData_people )
+        # people   = response.json()
+        # print(people)
+
+        # CONVERT JOSN into object -> Pandas or dictionary array.7
+        movie_json = """
+        {
+        "Title":"Johnny 5",
+        "Year":"2001",
+        "Runtime":"119 min",
+        "Country":"USA"
+        }
+        """
+        movie_data = json.loads(movie_json) # <class 'dict'>
+        print("The title is {}".format(movie_data.get('Title')))
+
 
     
 # main 

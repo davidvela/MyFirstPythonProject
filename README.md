@@ -12,8 +12,16 @@ This project aims to keep all my tests on my learning process towards DataScienc
     * Unsupervised Learning in Python - Clustering - KMeans
     * Deep Learning in Python - NN Keras 2.0. 
 * Udacity 
+    * Writing READMEs
+    * Linear Algebra Refresher Course
+    * Deep Learning 
+    * Deep Learning Nanodegree Foundation
 * University of Standford 
+    * CS 20SI: TensorFlow for Deep Learning Research
+    * CS 231 Convolutional Neural Networks for Visual Recognition
 * TensorFlow tutorials : iris, MNIST, tensorboard 
+    * MNIST - Conv NN
+    * TensorFlow Wide & Deep Learning Tutorial
 * Big Data University (Cognitive Class.ai)
     * Deep Learning with TensorFlow ML0120EN - all types of NN -> code / Certificate
     * Python 101

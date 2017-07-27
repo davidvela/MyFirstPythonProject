@@ -32,7 +32,7 @@ ytt         = []
 xtp1        = []  
 ytp1        = []
 
-LOGDIR      = "./my_graph/0FR/"
+LOGDIR      = "./my_graph/0FR0/"
 TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
 TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
 ALL_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"

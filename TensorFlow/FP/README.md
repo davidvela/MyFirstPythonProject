@@ -25,5 +25,5 @@ extract new data - threshold 100% - all comp.
 maybe filter FP < 23
 
 apply new method to get json and convert it to pandas -> list struct! 
-plot all fp and materials in FRA
+plot all fp and M in FRA
 

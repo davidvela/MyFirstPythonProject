@@ -212,4 +212,29 @@ if __name__ == "__main__":
     # generator_com()
     check_memory()
 
-# min 55
+# questions: 
+# 
+# better way to read files in pandas (aside the chunk option)
+#   chunks - read file bit by bit; problem = file in memory! 
+#   change type - category
+#   read only columns that you are interested in 
+#       specify this in read csv or read table
+#   read random 
+#   
+# tools to visualize models: 
+#   visual diagnostic in machine learning 
+#   how to make sure that your model still works on te future 
+#   check accurary; and avoid degration - training again... 
+#   
+# spark - econsystem tool for big data - ML lib - slower, sciket-learn - mature product
+# hadoop - distributed computations 
+# 
+# best practises for lists and dictionaries 
+# dictionaries faster for search! sorted values .. 
+# 
+# how to launch your data science career 
+# 
+# convert jupyter notebooks to python script - np convert
+# .
+# 
+# .

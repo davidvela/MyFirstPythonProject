@@ -26,6 +26,8 @@ This project aims to keep all my tests on my learning process towards DataScienc
     * Deep Learning with TensorFlow ML0120EN - all types of NN -> code / Certificate
     * Python 101
     * Deep Learning 101  ML0120EN - theory 
+* Python Learning 
+    * Data School - Write Pythonic Code for Better Data Science
 
 
 

@@ -1,3 +1,4 @@
+# Data School - Write Pythonic Code for Better Data Science
 # Topics: 
 # 1. string formatting
 # 2. merge dicts
@@ -10,6 +11,9 @@
 # 9. slots - memory search! 
 
 # intro PEP8 - guide style python! - 4 spaces, class declarations... 
+
+import collections
+import datetime
 
 name = 'David'
 age  = 26
@@ -129,15 +133,83 @@ def ign():
 #---------------------------------------------------------------
 # 5. LAMBDA 
 # ---------------------------------------------------------------
+def filter_numbers(test):
+    data = []
+    for n in range (50):
+        if test(n): 
+            data.append(n)
+    return data
 def lambdaa():
+    evens = filter_numbers(lambda x: x % 2 == 0)
+    print(evens)
+    data = [1,9,-1,20,5,-100]
+    data.sort(key=lambda x: abs(x) )
+    print(data)
+#---------------------------------------------------------------
+# 6. GENERATORS  
+# ---------------------------------------------------------------
+def fib():
+    data = []
+    nxt, current = 1, 0
+    # 1 try
+    # while nxt < 1000:
+    #         data.append(nxt)
+    #         nxt, current = nxt+current, nxt
+    # return data
+    # 2 - generator
+    while True: 
+        nxt, current = nxt+current, nxt
+        yield nxt
 
-
-
-    return 
-
+def odds(seq):
+    for n in seq: 
+        if n % 2 == 1:
+                yield n
+# the best part of it is working with infinite data and only keeping one in memory!
+# also working with lot of data and then loaded it all up and process it
+def generator_com(): 
+    # for f in fib():
+    for f in odds(fib()):
+        if f>1000: 
+            break
+        print(f, end=', ')
+#---------------------------------------------------------------
+# n9 slots -> Advance topic: PERFORMANCE - SLOTS! 
+# ---------------------------------------------------------------
+# - the longer the name of the variables, the more memory it will take.
+# 
+# slot based class -
+ImmutableThingTupple = collections.namedtuple("ImmutableThingTupple", "a b c d")
+class ImmutableThing:
+    #JUST 1 LINE! 
+    __slots__ = ['a', 'b', 'c', 'd'] # it frozen the structure of the class -> less memory
+    def __init__(self, a, b, c, d):
+        self.a = a
+        self.b = b 
+        self.c = c
+        self.d = d
+    
+def check_memory(): 
+    count = 1000 # New python: easy to visualize 1.000 or 1_000_000 1 million
+    data = []
+    print("tupple") # THE FASTER!                       time 1sec, memory 200Mb
+    # data.append((1+n, 2+n, 3+n, 4+n)) 
+    print("Named tupple") #ImmutableThingTupple class   TIME 3.5s memory 200Mb
+    print("Regular class") #mutable class               TIME 3.5s memory 400Mb - double memory
+    print("slot class") #immutable class                TIME 3s   memory 100Mb -> less memory!!!!!!!!!
+    
+    t0 = datetime.datetime.now()       
+    for n in range(count):
+        data.append(ImmutableThing(1+n, 2+n, 3+n, 4+n))
+    t1 = datetime.datetime.now()       
+    print(t1-t0)
 
 
 if __name__ == "__main__":
     # strings()
-    ign()
-    #min 55
+    # ign()
+    # lambdaa()
+    # generator_com()
+    check_memory()
+
+# min 55

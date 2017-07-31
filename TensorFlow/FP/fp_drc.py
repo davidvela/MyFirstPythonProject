@@ -135,6 +135,9 @@ class fpDataModel:
         movie_data = json.loads(movie_json) # <class 'dict'>
         print("The title is {}".format(movie_data.get('Title')))
 
+        d = {'one' : pd.Series([1., 2., 3.], index=['a', 'b', 'c']),
+             'two' : pd.Series([1., 2., 3., 4.], index=['a', 'b', 'c', 'd'])}
+        pandas 
 
     
 # main 

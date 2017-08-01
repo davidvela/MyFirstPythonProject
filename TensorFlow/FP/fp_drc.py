@@ -76,8 +76,8 @@ class fpDataModel:
         if dfIndex < self.nC:
             listofzeros[dfIndex] = 1 
         return listofzeros
-    def deClassifN(self, df):
-        return df.index(1)
+    def deClassifN(self, df, val = 1 ):
+        return df.index(val)
     # Split  
     def split_lab_dat(self, dst):
         cat  = dst.loc[:, self.labelCol]
@@ -152,7 +152,8 @@ def main():
     ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
     # dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )#'standardization'
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
-    dtt, dte = dataClass.get_data( False ) 
+    # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
+    dtt, dte = dataClass.get_data( True ) 
     # print(dte['label'])
     print(dataClass.deClassifN(dte['label'][1]))
     # print( dataClass.denormalize(dte['label']))

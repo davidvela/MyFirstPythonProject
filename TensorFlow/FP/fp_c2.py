@@ -10,27 +10,33 @@ import urllib.request as urllib7m
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-# Datasets 
+
+dv = 0 # tests 
+if len(sys.argv) > 1:
+    dv = int(sys.argv[1])
+
+# Datasets  
 xtp1        = []  
 ytp1        = []
 
 LOGDIR      = "./my_graph/0FCR2/"
-ALL_DS      = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
+ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
 model_path  = LOGDIR + "model.ckpt"
 
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 1000 #200000
+training_iters = 10000 #200000
 display_step = training_iters*0.1 #10%
-record_step  = training_iters*0.005
+record_step  = training_iters*0.005 
 # Network Parameters
 n_hidden_1  = 256   # 1st layer number of features
 n_hidden_2  = 256   # 2nd layer number of features
-n_input     = 969   # data input (img shape: 28*28)
-n_classes   = 4     # total classes 
+# n_input     = 969   # data input: FRFL
+n_input     = 969   # data input: FRAL
+n_classes   = 100     # total classes 
 
-dataClass = fpDataModel( path= ALL_DS, norm = ' ', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=3, toList = True )
 dataTrain,  dataTest =  dataClass.get_data( ) 
 
 
@@ -47,8 +53,7 @@ biases = {
     'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="Bias_2"),
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
-xt, yt      = get_data(TRAI_DS, 0)
-xtt, ytt    = get_data(TEST_DS, 0)
+
 # String for the logs
 def make_hparam_string(learning_rate, no_fc):
     return "lr_%.0E,fc=%d" % (learning_rate, no_fc) 
@@ -71,6 +76,7 @@ def multilayer_perceptron(x, weights, biases):
 # - declaration of model and global attributes 
 pred = multilayer_perceptron(x, weights, biases)
 softmaxT = tf.nn.softmax(pred)
+prediction=tf.reduce_max(y,1)
 
 with tf.name_scope("accuracy"):
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
@@ -93,8 +99,8 @@ def train_model(hparam):
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
         writer.add_graph(sess.graph)
-        for i in range(training_iters):  
-            xtb, ytb = next_batch(batch_size, xt, yt)
+        for i in range(training_iters): 
+            xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
             if i % record_step == 0:
                 [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
                 writer.add_summary(s, i)
@@ -104,7 +110,8 @@ def train_model(hparam):
         print("Optimization Finished!")
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path)
-        print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
+        print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'], y: dataTest['label']}))
+
 #
 def test_model():
     # Running a new session
@@ -116,29 +123,28 @@ def test_model():
         saver.restore(sess, model_path)
         print("Model restored from file: %s" % model_path)
         # test the model
-        print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xt, y: yt}))
-        print("Real value: {}", (ytp1)  )
-        print("Predicted:", (sess.run([pred, softmaxT], feed_dict={x: xtp1}) )) 
+        print("Testing  Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'],  y: dataTest['label']}))
+        print("Training Accuracy:", sess.run(accuracy, feed_dict={x: dataTrain['data'], y: dataTrain['label']}))
+
+        # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
+        predv, softv = sess.run([pred, softmaxT], feed_dict={x: dataTest['data']}) 
+        # print("Real value: {}", dataClass.deClassifN( ytp1[i])  )
+        for i in range(20):
+            print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+            # maxa = sess.run([prediction], feed_dict={y: predv })
+
 #
 #
 def main(dv):
     # Construct model
-    xtp1.append(xtt[1]);    ytp1.append(ytt[1])
     hparam = make_hparam_string(learning_rate, 3)
 
-    if dv == 1:
-        train_model(hparam)
-    elif dv == 2: 
-        test_model()
+    if dv == 0:         train_model(hparam)
+    else :              test_model()
         
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        dv = int(sys.argv[1])
-        if dv > 0 and dv < 3 :
-            main(dv)    
-        else: print ("please type 1 for training and 2 for testing")
-    else: print ("please type 1 for training and 2 for testing")
+    main(dv)    
 
 #end 

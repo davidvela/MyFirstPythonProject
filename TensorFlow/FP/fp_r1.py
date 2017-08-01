@@ -55,7 +55,7 @@ biases = {
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
 #normalization - min_max => not working! probably because of the random values of Wegights 
-dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
 dataTrain,  dataTest =  dataClass.get_data( ) 
 
 # n_samples   = xt.shape[0]
@@ -107,10 +107,11 @@ def train_model(hparam):
         # Initialize variables
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
-        writer.add_graph(sess.graph)
+        writer.add_graph(sess.graph)       
         for i in range(training_iters): 
             # for p in  range(100):
             xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label'])
+    
             sess.run(optimizer, feed_dict={x: xtb, y: ytb})
 
             if i % record_step == 0:

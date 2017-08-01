@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from fp_dr import get_data, next_batch
+from fp_drc     import fpDataModel
 import sys
 import os
 import urllib.request as urllib7m   
@@ -11,16 +11,11 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 # Datasets 
-xt          = [] 
-yt          = []
-xtt         = [] 
-ytt         = []
 xtp1        = []  
 ytp1        = []
 
-LOGDIR      = "./my_graph/0FCR/"
-TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
-TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
+LOGDIR      = "./my_graph/0FCR2/"
+ALL_DS      = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
 model_path  = LOGDIR + "model.ckpt"
 
 # Parameters
@@ -32,8 +27,12 @@ record_step  = training_iters*0.005
 # Network Parameters
 n_hidden_1  = 256   # 1st layer number of features
 n_hidden_2  = 256   # 2nd layer number of features
-n_input     = 1221  # data input (img shape: 28*28)
+n_input     = 969   # data input (img shape: 28*28)
 n_classes   = 4     # total classes 
+
+dataClass = fpDataModel( path= ALL_DS, norm = ' ', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
+dataTrain,  dataTest =  dataClass.get_data( ) 
+
 
 # Model variables
 x = tf.placeholder(tf.float32,   shape=[None, n_input],   name="x")
@@ -131,6 +130,7 @@ def main(dv):
         train_model(hparam)
     elif dv == 2: 
         test_model()
+        
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 if __name__ == "__main__":

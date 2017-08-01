@@ -18,24 +18,14 @@ import tensorflow as tf
 dv = 0 # tests 
 if len(sys.argv) > 1:
     dv = int(sys.argv[1])
-    if dv > 0 and dv < 3 :
-        print("training")    
 
-
-#end 1 train 2 test
-
-# Datasets 
-xt          = [] 
-yt          = []
-xtt         = [] 
-ytt         = []
 xtp1        = []  
 ytp1        = []
 
 LOGDIR      = "./my_graph/0FR0/"
-TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
-TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
-ALL_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
+# TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"
+# TEST_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNE.csv"
+ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
 model_path  = LOGDIR + "model.ckpt"
 
 # Parameters
@@ -48,7 +38,7 @@ record_step  = training_iters*0.005
 n_hidden_1  = 256   # 1st layer number of features
 n_hidden_2  = 256   # 2nd layer number of features
 
-n_input     = 1221  # data input
+n_input     = 969  # data input
 n_classes   = 1     # total classes
 
 # Model variables
@@ -65,11 +55,11 @@ biases = {
     'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="Bias_2"),
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
-
-dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
+#normalization - min_max => not working! probably because of the random values of Wegights 
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
 dataTrain,  dataTest =  dataClass.get_data( ) 
-xt, yt      = get_data(TRAI_DS, 1)
-xtt, ytt    = get_data(TEST_DS, 1)
+# xt, yt      = get_data(TRAI_DS, 1)
+# xtt, ytt    = get_data(TEST_DS, 1)
 
 # n_samples   = xt.shape[0]
 n_samples   = 4724
@@ -123,24 +113,24 @@ def train_model(hparam):
         writer.add_graph(sess.graph)
         for i in range(training_iters): 
             # for p in  range(100):
-            xtb, ytb = next_batch(batch_size, xt, yt)
+           
+            xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label'])
             sess.run(optimizer, feed_dict={x: xtb, y: ytb})
-
+          
             if i % record_step == 0:
-                [training_ac, s] = sess.run([cost, summ], feed_dict={x: xtt, y: ytt }) 
+                [training_ac, s] = sess.run([cost, summ], feed_dict={x: dataTest['data'], y: dataTest['label'] }) 
                 writer.add_summary(s, i)
             if i % display_step == 0:
                 print("step %d, training_cost: %g" %(i, training_ac))
-                #print('Training accuracy: {:.1f}'.format(accuracy(vp, ytt )))            
 
         print("Optimization Finished!")
-        print("R2 Training: %g", sess.run([R_squared], feed_dict={x: xt, y: yt })  )
-        print("R2 Test:     %g", sess.run([R_squared], feed_dict={x: xtt, y: ytt })  )
-        
+
+        print("R2 Training: %g", sess.run([R_squared], feed_dict={x: dataTrain['data'], y: dataTrain['label'] })  )
+        print("R2 Test:     %g", sess.run([R_squared], feed_dict={x: dataTest['data'], y: dataTest['label'] })  )
+
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path)
-        #print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
-    
+   
 #
 def test_model():
     # Running a new session
@@ -152,23 +142,24 @@ def test_model():
         saver.restore(sess, model_path)
         print("Model restored from file: %s" % model_path)
         # test the model
-        print("Testing R_squared:", sess.run(R_squared, feed_dict={x: xtt, y: ytt}))
-        pred_val = sess.run(pred, feed_dict={x: xtt, y: ytt})
-        #print(type(pred_val))
+        print("Testing R_squared:", sess.run(R_squared, feed_dict={x: dataTest['data'], y: dataTest['label']}))
+        pred_val = sess.run(pred, feed_dict={x: dataTest['data'], y: dataTest['label']})
+        # pred_dval = dataClass.denormalize(pred_val)
+        print( pred_val )
+
         #print("Testing Accuracy: \n", pred_val)
-        np.savetxt(LOGDIR + 'test_FFl_R.csv', pred_val, delimiter=',')   # X is an array
-        print("Real value: %d", ytp1  )
-        print("Predicted value:", sess.run(pred, feed_dict={x: xtp1}) ) 
+        np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
+
 #
 #
 def main(dv):
     # Construct model
-    xtp1.append(xtt[2]);    ytp1.append(ytt[2])
+    # xtp1.append(xtt[2]);    ytp1.append(ytt[2])
     hparam = make_hparam_string(learning_rate, 3)
+    if dv == 0:         train_model(hparam)
+    else :              test_model()
 
-    if dv == 0: test_model()
-    else :         #loop for different possibillities   
-        train_model(hparam)
+
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 if __name__ == "__main__":

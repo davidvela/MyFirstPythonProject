@@ -3,8 +3,8 @@
 Overview of Programs: 
 * fp_ b  - Basic -  tf.contrib package and no tensorboard
 * fp_c   - Classification      - .\my_graph\0F\ - FOR lr 1E-3, 1E-4    FRFL T&E
-* fp_c1  - Class - reuse model -  .\my_graph\0FCR\ - dr    -           FRFL T&E
-* *fp_c2 - Class - reuse model -  .\my_graph\0FCR\ - drc   -           FR   Typ      **
+* fp_c1  - Class - reuse model -  .\my_graph\0FCR\  - dr    -           FRFL T&E
+* *fp_c2 - Class - reuse model -  .\my_graph\0FCR2\ - drc   -           FR   Typ      **
 * fp_r   - Regression - ./my_graph/0FR/   - dr                         FRFL T&E
 * *fp_r0 - Regr       - ./my_graph/0FR0/  - dr                         FR   Typ      ** 
 * fp_r1  - Regr       - ./my_graph/0FR1/  - drc                        FRGR Type Norm! X

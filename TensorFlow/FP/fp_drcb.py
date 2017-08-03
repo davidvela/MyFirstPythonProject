@@ -1,4 +1,5 @@
-# DATA HANDLING... 
+# DATA HANDLING...  IN BATCH!!! 
+
 import pandas as pd 
 import tensorflow as tf 
 import numpy as np 
@@ -114,8 +115,6 @@ class fpDataModel:
         elif self.dType == 'classN':    # Classification in N categories  
             dst.insert(2, 'FP_C', dst['FP'].map(lambda x: self.classifN(x))) 
         
-        self.dst = dst
-
         # 3 if no type and 4 if type
         if typeSep == True:
             dst_tmp = [rows for _, rows in dst.groupby('Type')]
@@ -130,7 +129,6 @@ class fpDataModel:
         # response = requests.get( url_oData_people )
         # people   = response.json();   # print(people)
         # CONVERT JOSN into object -> Pandas or dictionary array.7
-                
         movie_json = """
         {
         "Title":"Johnny 5",
@@ -141,8 +139,8 @@ class fpDataModel:
         """
         movie_data = json.loads(movie_json) # <class 'dict'>
         print("The title is {}".format(movie_data.get('Title')))
-
-
+        d = {'one' : pd.Series([1., 2., 3.], index=['a', 'b', 'c']),
+             'two' : pd.Series([1., 2., 3., 4.], index=['a', 'b', 'c', 'd'])}
          
 
         # add new elements to the dataset
@@ -176,3 +174,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# ttps://stackoverflow.com/questions/39549426/read-multiple-lines-from-a-file-batch-by-batch
+# def get_next_batch():
+# with open(filename, 'rb') as f:
+#     for n_lines in f:
+#         process(n_lines)

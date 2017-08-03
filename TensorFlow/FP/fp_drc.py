@@ -89,7 +89,7 @@ class fpDataModel:
         return {'label' : cat, 'data' : dat}
 
     #Get Data
-    def get_data(self, typeSep = True, pathA = ""):
+    def get_data(self, typeSep = True, pathA = "", filter = ""):
         if pathA != "":
             dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
         else: 
@@ -97,6 +97,12 @@ class fpDataModel:
         
         dst = dst.fillna(0)
         
+        if filter == '>23':
+            dst = dst[dst["FP"]>23]
+        elif filter == '>60':
+            dst = dst[dst["FP"]>60]
+
+
         if self.norm != "":
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )
@@ -120,9 +126,7 @@ class fpDataModel:
     def feed_data(self, url):
         url_oData_people = "http://services.odata.org/TripPinRESTierService/(S(pk4yy1pao5a2nngmm2ecx0hy))/People"
         # response = requests.get( url_oData_people )
-        # people   = response.json()
-        # print(people)
-
+        # people   = response.json();   # print(people)
         # CONVERT JOSN into object -> Pandas or dictionary array.7
         movie_json = """
         {
@@ -134,10 +138,11 @@ class fpDataModel:
         """
         movie_data = json.loads(movie_json) # <class 'dict'>
         print("The title is {}".format(movie_data.get('Title')))
-
         d = {'one' : pd.Series([1., 2., 3.], index=['a', 'b', 'c']),
              'two' : pd.Series([1., 2., 3., 4.], index=['a', 'b', 'c', 'd'])}
-        pandas 
+         
+
+        # add new elements to the dataset
 
     
 # main 
@@ -150,12 +155,12 @@ def main():
 
 
     ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
-    # dataClass = fpDataModel( path= ALL_DS, norm = 'min_max', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )#'standardization'
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = False )#'standardization'
+    # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
-    dtt, dte = dataClass.get_data( True ) 
-    # print(dte['label'])
-    print(dataClass.deClassifN(dte['label'][1]))
+    dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
+    print(dte['data'])
+    # print(dataClass.deClassifN(dte['label'][0]))
     # print( dataClass.denormalize(dte['label']))
         
 

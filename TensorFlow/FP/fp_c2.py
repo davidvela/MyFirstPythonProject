@@ -1,5 +1,5 @@
 # Classification Model [4885 rows x 1221 columns] - reuse the model! 
-# and use the data reader class! - normalization and different categories
+# and use the data reader class! - normalization and different categories / Type S
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

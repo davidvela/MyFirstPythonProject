@@ -1,4 +1,4 @@
-# Regression with FRGR - reader class Type
+# Regression with FRGR - reader class - without Type Separation! 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

@@ -142,10 +142,13 @@ def test_model():
         saver.restore(sess, model_path)
         print("Model restored from file: %s" % model_path)
         # test the model
-        print("Testing R_squared:", sess.run(R_squared, feed_dict={x: dataTest['data'], y: dataTest['label']}))
+        print("Training R_squared:", sess.run(R_squared, feed_dict={x: dataTrain['data'], y: dataTrain['label']}))
+        print("Testing  R_squared:", sess.run(R_squared, feed_dict={x: dataTest['data'],  y: dataTest['label']}))
         pred_val = sess.run(pred, feed_dict={x: dataTest['data'], y: dataTest['label']})
         # pred_dval = dataClass.denormalize(pred_val)
-        print( pred_val )
+        for i in range(20):
+            # print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+            print("RealVal: {}  - PP value: {}".format( dataTest['label'][i], pred_val.tolist()[i] ))
 
         #print("Testing Accuracy: \n", pred_val)
         np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array

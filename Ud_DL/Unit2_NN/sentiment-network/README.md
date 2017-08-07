@@ -12,7 +12,7 @@ Activate a python3 conda environment. In this environment, you'll need to have i
 1. Create Conda environment: sent_a
 `conda create --name sen_a python=3.5`
 `activate sen_a `
-`conda install numpy matplotlib pandas cikit-learn bokeh jupyter notebook`
+`conda install numpy matplotlib pandas scikit-learn bokeh jupyter notebook`
 `jupyter notebook`
 
 

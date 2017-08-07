@@ -17,10 +17,11 @@ class fpDataModel:
         self.nC             = nC
         self.nRange         = nRange
         self.toList         = toList 
+    
     # Ordered batch... 
     def next_obatch(self, num, data, labels):
         return True
-
+    
     # Random batch... 
     def next_batch(self, num, data, labels):
         '''
@@ -33,7 +34,7 @@ class fpDataModel:
         labels_shuffle = [labels[i] for i in idx]
 
         return np.asarray(data_shuffle), np.asarray(labels_shuffle)
-
+    
     # Normalization
     def normalization(self, dts ):
         if self.norm == "min_max":
@@ -47,6 +48,7 @@ class fpDataModel:
             self._cat_st = np.std(dts)
             cat_nn = dts.apply(lambda x: ( (x - self._cat_m) /self._cat_st ))
             return cat_nn
+    #
     def denormalize(self, x):
         x_pd= pd.DataFrame(x)
         if self.norm == "min_max":
@@ -55,20 +57,24 @@ class fpDataModel:
         elif self.norm == 'standardization': 
             cat_nn = x_pd.apply(lambda x: ( (x * self._cat_st ) + self._cat_m  ))
             return cat_nn
-
+    
     # List formatting 
     def classif(self, df):
         if( df < 40 ): return [0,0,0,1] 
         elif( df >= 40 and df < 60 ): return [0,0,1,0]
         elif( df >= 60 and df < 90 ): return [0,1,0,0] 
         elif( df >= 90 ): return [1,0,0,0] 
+    #
     def declassif(self, df): 
         if  ( df == [0,0,0,1] ):   return 1 
         elif( df == [0,0,1,0] ):   return 2
         elif( df == [0,1,0,0] ):   return 3  
         elif( df == [1,0,0,0] ):   return 4      
+    #
     def regress(self, df): #
         return [df]
+    
+    #
     def classifN(self, df):
         listofzeros = [0] * self.nC
         dfIndex = df//self.nRange
@@ -76,8 +82,11 @@ class fpDataModel:
         if dfIndex < self.nC:
             listofzeros[dfIndex] = 1 
         return listofzeros
+    
+    #
     def deClassifN(self, df, val = 1 ):
         return df.index(val)
+    
     # Split  
     def split_lab_dat(self, dst):
         cat  = dst.loc[:, self.labelCol]
@@ -87,7 +96,7 @@ class fpDataModel:
             dat = dat.as_matrix().tolist()
 
         return {'label' : cat, 'data' : dat}
-
+    
     #Get Data
     def get_data(self, typeSep = True, pathA = "", filter = ""):
         if pathA != "":
@@ -130,7 +139,6 @@ class fpDataModel:
         # response = requests.get( url_oData_people )
         # people   = response.json();   # print(people)
         # CONVERT JOSN into object -> Pandas or dictionary array.7
-                
         movie_json = """
         {
         "Title":"Johnny 5",
@@ -140,15 +148,14 @@ class fpDataModel:
         }
         """
         movie_data = json.loads(movie_json) # <class 'dict'>
-        print("The title is {}".format(movie_data.get('Title')))
-
-
-         
-
+        print("The title is {}".format(movie_data.get('Title')))    
         # add new elements to the dataset
 
     
-# main 
+    #
+    def check_perf(self, lA, lB):
+        
+#  main 
 def main():
     # test logic: 
     TRAI_DS     = "../../knime-workspace/Data/FP/TFFRFL_ALSNT.csv"

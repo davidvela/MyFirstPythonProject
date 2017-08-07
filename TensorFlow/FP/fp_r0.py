@@ -118,7 +118,7 @@ def train_model(hparam):
             sess.run(optimizer, feed_dict={x: xtb, y: ytb})
           
             if i % record_step == 0:
-                [training_ac, s] = sess.run([cost, summ], feed_dict={x: dataTest['data'], y: dataTest['label'] }) 
+                [training_ac, s] = sess.run([cost, summ], feed_dict={x: dataTrain['data'], y: dataTrain['label'] }) 
                 writer.add_summary(s, i)
             if i % display_step == 0:
                 print("step %d, training_cost: %g" %(i, training_ac))

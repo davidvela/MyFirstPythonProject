@@ -15,5 +15,9 @@ Activate a python3 conda environment. In this environment, you'll need to have i
 `conda install numpy matplotlib pandas scikit-learn bokeh jupyter notebook`
 `jupyter notebook`
 
-
 Open Sentiment_Classification_Projects.ipynb.
+
+
+use this v.env for tf too: 
+conda install pandas matplotlib jupyter notebook scipy scikit-learn
+pip install tensorflow

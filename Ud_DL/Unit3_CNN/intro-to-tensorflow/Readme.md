@@ -1,14 +1,14 @@
-#TensorFlow Neural Network Lab
+# TensorFlow Neural Network Lab
 
 ## initialization
 create a new conda environment 
 
-###WINDOWS 
+### WINDOWS 
 conda env create -f environment_win.yml
 This will create an environment called dlnd-tf-lab. You can enter the environment with the command
 activate dlnd-tf-lab
 
-###MAC/LINUX 
+### MAC/LINUX 
 conda env create -f environment.yml
 This will create an environment called dlnd-tf-lab. You can enter the environment with the command
 source activate dlnd-tf-lab

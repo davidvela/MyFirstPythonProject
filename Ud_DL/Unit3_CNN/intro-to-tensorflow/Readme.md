@@ -14,7 +14,6 @@ This will create an environment called dlnd-tf-lab. You can enter the environmen
 source activate dlnd-tf-lab
 
 ## 3 problems for you to solve:
-
-Problem 1: Normalize the features
-Problem 2: Use TensorFlow operations to create features, labels, weight, and biases tensors
-Problem 3: Tune the learning rate, number of steps, and batch size for the best accuracy
+* Problem 1: Normalize the features
+* Problem 2: Use TensorFlow operations to create features, labels, weight, and biases tensors
+* Problem 3: Tune the learning rate, number of steps, and batch size for the best accuracy

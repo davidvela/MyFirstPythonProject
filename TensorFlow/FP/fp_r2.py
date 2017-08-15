@@ -1,4 +1,5 @@
-# Regression with FRGR - reader class - without Type Separation! 
+# Regresion Reuse model - FRFL T and E - new datareader class 
+# tensorboard --logdir=.\my_graph\0FR\
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -9,38 +10,33 @@ import urllib.request as urllib7m
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-
-
 dv = 0 # tests 
 if len(sys.argv) > 1:
     dv = int(sys.argv[1])
-    if dv > 0 and dv < 3 :
-        print("test")    
-
-
-#end 1 train 2 test
-
 xtp1        = []  
 ytp1        = []
-
-LOGDIR      = "./my_graph/0FR1/"
-ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
+LOGDIR      = "./my_graph/0FR2/"
 model_path  = LOGDIR + "model.ckpt"
-
-# Parameters
-learning_rate = 0.001
+        # Parameters
 batch_size = 128
-training_iters = 10000 #200000
-display_step = training_iters*0.01 #10%
+ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
+#ALL_DS      = "../../knime-workspace/Data/FP/TFFRAL_ALSNN.csv"
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = batch_size, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
+
+
+
+learning_rate = 0.01
+training_iters = 5000 #200000
+display_step = training_iters*0.1 #10%
 record_step  = training_iters*0.005
-# Network Parameters
+        # Network Parameters
 n_hidden_1  = 256   # 1st layer number of features
 n_hidden_2  = 256   # 2nd layer number of features
-
-n_input     = 147   # data input
+n_input     = 969   # data input FL
+#n_input     = 1801  # data input AL
 n_classes   = 1     # total classes
 
-# Model variables
+        # Model variables
 x = tf.placeholder(tf.float32,   shape=[None, n_input],   name="x")
 y = tf.placeholder(tf.float32,   shape=[None, n_classes], name="cat")
 
@@ -54,10 +50,9 @@ biases = {
     'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="Bias_2"),
     'out': tf.Variable(tf.random_normal([n_classes]), name="Bias_out"),
 }
-#normalization - min_max => not working! probably because of the random values of Wegights 
-dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = True )
-dataTrain,  dataTest =  dataClass.get_data( ) 
-
+        #normalization - min_max => not working! probably because of the random values of Wegights 
+# xt, yt      = get_data(TRAI_DS, 1)
+# xtt, ytt    = get_data(TEST_DS, 1)
 # n_samples   = xt.shape[0]
 n_samples   = 4724
 # String for the logs
@@ -102,18 +97,18 @@ saver = tf.train.Saver()
 #
 def train_model(hparam): 
     # Running first session
+    dataTrain,  dataTest =  dataClass.get_data( ) 
     print("Starting 1st session...")
     with tf.Session() as sess:
         # Initialize variables
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
-        writer.add_graph(sess.graph)       
+        writer.add_graph(sess.graph)
         for i in range(training_iters): 
             # for p in  range(100):
             xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label'])
-    
             sess.run(optimizer, feed_dict={x: xtb, y: ytb})
-
+          
             if i % record_step == 0:
                 [training_ac, s] = sess.run([cost, summ], feed_dict={x: dataTrain['data'], y: dataTrain['label'] }) 
                 writer.add_summary(s, i)
@@ -123,14 +118,14 @@ def train_model(hparam):
         print("Optimization Finished!")
         print("R2 Training: %g", sess.run([R_squared], feed_dict={x: dataTrain['data'], y: dataTrain['label'] })  )
         print("R2 Test:     %g", sess.run([R_squared], feed_dict={x: dataTest['data'], y: dataTest['label'] })  )
-        
+
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path)
-        #print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: xtt, y: ytt}))
-    
+   
 #
-def test_model():
+def evaluate_model():
     # Running a new session
+    dataTrain,  dataTest =  dataClass.get_data( ) 
     print("Starting 2nd session...")
     with tf.Session() as sess:
         # Initialize variables
@@ -139,26 +134,33 @@ def test_model():
         saver.restore(sess, model_path)
         print("Model restored from file: %s" % model_path)
         # test the model
-        print("Testing R_squared:", sess.run(R_squared, feed_dict={x: dataTest['data'], y: dataTest['label']}))
-        pred_val = sess.run(pred, feed_dict={x: dataTest['data'], y: dataTest['label']})
-        pred_dval = dataClass.denormalize(pred_val)
-        print(pred_val)
-        print(dataTest['label'])
-        #np.savetxt(LOGDIR + 'test_FFl_R.csv', pred_dval, delimiter=',')   # X is an array
-        l3, l15 = dataClass.check_perf(pred_val, dataTest['label'])  
-        print(l3, l15)    
+        print("Training R_squared:", sess.run(R_squared, feed_dict={x: dataTrain['data'], y: dataTrain['label']}))
+        print("Testing  R_squared:", sess.run(R_squared, feed_dict={x: dataTest['data'],  y: dataTest['label']}))\
+        
 
-        # print("Real value: %d", ytp1  )
-        # print("Predicted value:", sess.run(pred, feed_dict={x: xtp1}) ) 
-#
+        pred_val = sess.run(pred, feed_dict={x: dataTest['data'], y: dataTest['label']})
+        # pred_dval = dataClass.denormalize(pred_val)
+   
+        for i in range(20):
+            # print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+            print("RealVal: {}  - PP value: {}".format( dataTest['label'][i], pred_val.tolist()[i] ))
+
+        l3, l15 = dataClass.check_perf(pred_val, dataTest['label'])  
+        print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15)) 
+
+        #print("Testing Accuracy: \n", pred_val)
+        #np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
+def test_model():
+    pass      
 #
 def main(dv):
     # Construct model
-    #xtp1.append(xtt[2]);    ytp1.append(ytt[2])
+    # xtp1.append(xtt[2]);    ytp1.append(ytt[2])
     hparam = make_hparam_string(learning_rate, 3)
-
     if dv == 0:         train_model(hparam)
-    else :              test_model()
+    else :              evaluate_model()
+
+
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 if __name__ == "__main__":

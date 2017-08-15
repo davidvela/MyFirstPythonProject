@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # 1- Ger data: 
 
-path = "../../knime-workspace/Data/FP/TFFRAL_ALSNAC.csv" 
+path = "../../knime-workspace/Data/FP/TFFRAL_ALSN.csv" 
 dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
 #C1 M; C2 FP; C3 FN; C4 SFM; C5 AP
 Y  = dst.loc[:,'FP'].as_matrix().tolist()

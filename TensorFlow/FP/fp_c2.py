@@ -27,7 +27,7 @@ model_path  = LOGDIR + "model.ckpt"
 learning_rate = 0.001
 batch_size = 128
 training_iters = 10000 #200000
-display_step = training_iters*0.1 #10%
+display_step = training_iters*0.01 #10%
 record_step  = training_iters*0.005 
 # Network Parameters
 n_hidden_1  = 256   # 1st layer number of features
@@ -133,6 +133,19 @@ def test_model():
             print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
             # maxa = sess.run([prediction], feed_dict={y: predv })
 
+        pred_val = []
+        data_val = []
+        for i in range(len(predv)):
+        #for i in range(100):
+            if (i % 10==0): print(i)
+            pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
+            data_vali = dataClass.deClassifN( dataTest['label'][i])
+           
+            pred_val.append(pred_vali)
+            data_val.append(data_vali)
+
+        l3, l15 = dataClass.check_perf(pred_val, data_val)  
+        print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15))    
 #
 #
 def main(dv):

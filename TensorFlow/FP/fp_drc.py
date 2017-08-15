@@ -154,7 +154,16 @@ class fpDataModel:
     
     #
     def check_perf(self, lA, lB):
-        
+        assert(len(lA) == len(lB))
+        gt3  = 0
+        gtM = 0
+        num = 0
+        for i in range(len(lA)):
+            num = abs(lA[i]-lB[i])
+            if num > 3: gt3+=1
+            if num > 10: gtM+=1
+        return gt3, gtM
+    
 #  main 
 def main():
     # test logic: 
@@ -180,6 +189,16 @@ def main():
     #   xtb, ytb = next_batch(10, xt, yt)
     #   print(ytb)
     #   print("--new--")
+def read_json():    
+    json_data=open(file_directory).read()
+
+    data = json.loads(json_data)
+    print(data)
+
+def test_iris():
+    dst  =  pd.read_csv( tf.gfile.Open('./data/iris_test.csv'), sep=None, skipinitialspace=True,  engine="python")
+    print(dst)
 
 if __name__ == '__main__':
-    main()
+    # main()
+    read_json()

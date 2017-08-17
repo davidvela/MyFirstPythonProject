@@ -17,7 +17,7 @@ class fpDataModel:
         self.nC             = nC
         self.nRange         = nRange
         self.toList         = toList 
-    
+
     # Ordered batch... 
     def next_obatch(self, num, data, labels):
         return True
@@ -134,24 +134,27 @@ class fpDataModel:
         else :   return  self.split_lab_dat(dst_tmp[0])
     
     # WS - Conversion
-    def feed_data(self, url):
-        url_oData_people = "http://services.odata.org/TripPinRESTierService/(S(pk4yy1pao5a2nngmm2ecx0hy))/People"
-        # response = requests.get( url_oData_people )
-        # people   = response.json();   # print(people)
-        # CONVERT JOSN into object -> Pandas or dictionary array.7
-        movie_json = """
-        {
-        "Title":"Johnny 5",
-        "Year":"2001",
-        "Runtime":"119 min",
-        "Country":"USA"
-        }
-        """
-        movie_data = json.loads(movie_json) # <class 'dict'>
-        print("The title is {}".format(movie_data.get('Title')))    
-        # add new elements to the dataset
-
     
+    def set_columns(self, url="" ):        # set the main data frame from the class: 
+        url = "../../knime-workspace/Data/FP2/TFFRAL_COL.csv" 
+        self.df  =  pd.read_csv(url)
+        print(self.df['Columns'])
+
+    def feed_data(self, url="", type=""):
+        url  = "../../knime-workspace/Data/FP2/JSON.txt"
+
+        if(isinstance( url, dict)):data = url
+        else:   
+            json_data=open(url).read()
+            data = json.loads(json_data)
+        
+        for i in range(len(data)):
+            entry = pd.Series(index=self.df['Columns'])
+            entry = entry.fillna(0)            
+            for key in data[i]:
+                entry[key] = data[key]
+            dst = dst.append(entry,ignore_index=True)
+        return dst    
     #
     def check_perf(self, lA, lB):
         assert(len(lA) == len(lB))
@@ -177,8 +180,14 @@ def main():
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = False )#'standardization'
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
-    dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
-    print(dte['data'])
+    
+    dataClass.set_columns()
+    # print(dataClass.feed_data())
+
+   
+    # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
+    # print(dte['data'])
+    
     # print(dataClass.deClassifN(dte['label'][0]))
     # print( dataClass.denormalize(dte['label']))
         
@@ -189,13 +198,29 @@ def main():
     #   xtb, ytb = next_batch(10, xt, yt)
     #   print(ytb)
     #   print("--new--")
+
 def read_json():    
     file_directory    = "../../knime-workspace/Data/FP2/JSON.txt"
     json_data=open(file_directory).read()
     data = json.loads(json_data)
     # print(data)
     print(data[1]['m'])
-
+def read_json_url(url):
+        url_oData_people = "http://services.odata.org/TripPinRESTierService/(S(pk4yy1pao5a2nngmm2ecx0hy))/People"
+        # response = requests.get( url_oData_people )
+        # people   = response.json();   # print(people)
+        # CONVERT JOSN into object -> Pandas or dictionary array.7
+        movie_json = """
+        {
+        "Title":"Johnny 5",
+        "Year":"2001",
+        "Runtime":"119 min",
+        "Country":"USA"
+        }
+        """
+        movie_data = json.loads(movie_json) # <class 'dict'>
+        print("The title is {}".format(movie_data.get('Title')))    
+        # add new elements to the dataset
 
 def test_iris():
     dst  =  pd.read_csv( tf.gfile.Open('./data/iris/iris_test.csv'), sep=None, skipinitialspace=True,  engine="python")
@@ -243,6 +268,6 @@ iris_json = """
     }
 """
 if __name__ == '__main__':
-    # main()
-    read_json()
-    test_iris()
+    main()
+    # read_json()
+    # test_iris()

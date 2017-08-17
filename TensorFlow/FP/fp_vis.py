@@ -6,11 +6,11 @@ import time
 
 start = time.time()
 # 1- Get data: 
-# path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.csv" # 30seconds! memory? 
-# dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
+path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.csv" # 30seconds! memory? 
+dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
 
-path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.xlsx"  #160s longer! 
-dst  =  pd.read_excel( path )
+# path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.xlsx"  #160s longer! 
+# dst  =  pd.read_excel( path )
 #end reading 
 elapsed_time = float(time.time() - start)
 print(elapsed_time)

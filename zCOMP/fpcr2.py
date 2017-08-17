@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
     dv = int(sys.argv[1])
 xtp1        = []  
 ytp1        = []
-LOGDIR      = "./my_graph/0FR2/"
+LOGDIR      = "./my_graph/0F2R2/"
 model_path  = LOGDIR + "model.ckpt"
         # Parameters
 batch_size = 128
@@ -147,6 +147,10 @@ def evaluate_model():
 
         l3, l15 = dataClass.check_perf(pred_val, dataTest['label'])  
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15)) 
+        #Track down the errors and test it with experiment numbers
+        
+
+
 
         #print("Testing Accuracy: \n", pred_val)
         #np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array

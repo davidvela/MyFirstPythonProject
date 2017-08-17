@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from fpdrc     import fpDataModel
+from fp_drc     import fpDataModel
 import sys
 import os
 import urllib.request as urllib7m   

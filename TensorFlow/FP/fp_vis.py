@@ -2,11 +2,29 @@ import pandas as pd
 import numpy as np 
 import tensorflow as tf 
 import matplotlib.pyplot as plt
+import time 
 
-# 1- Ger data: 
+start = time.time()
+# 1- Get data: 
+# path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.csv" # 30seconds! memory? 
+# dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
 
-path = "../../knime-workspace/Data/FP/TFFRAL_ALSNN.csv" 
-dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
+path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.xlsx"  #160s longer! 
+dst  =  pd.read_excel( path )
+#end reading 
+elapsed_time = float(time.time() - start)
+print(elapsed_time)
+# reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
+# sys.stdout.write("\rProgress:" + str(100 * i/float(len(training_reviews)))[:4] \
+#                 + "% Speed(reviews/sec):" + str(reviews_per_second)[0:5] \
+#                 + " #Correct:" + str(correct_so_far) + " #Trained:" + str(i+1) \
+#                 + " Training Accuracy:" + str(correct_so_far * 100 / float(i+1))[:4] + "%")
+# if(i % 2500 == 0):
+# print("")
+
+
+
+
 #C1 M; C2 FP; C3 FN; C4 SFM; C5 AP
 Y  = dst.loc[:,'FP'].as_matrix().tolist()
 X  = dst.loc[:, 'M'].as_matrix().tolist()

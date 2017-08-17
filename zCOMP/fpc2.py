@@ -19,7 +19,7 @@ if len(sys.argv) > 1:
 xtp1        = []  
 ytp1        = []
 
-LOGDIR      = "./my_graph/0FCR2/"
+LOGDIR      = "./my_graph/0F2CR2/"
 ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
 model_path  = LOGDIR + "model.ckpt"
 

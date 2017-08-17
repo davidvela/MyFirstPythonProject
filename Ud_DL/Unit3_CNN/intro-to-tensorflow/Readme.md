@@ -8,6 +8,9 @@ conda env create -f environment_win.yml
 This will create an environment called dlnd-tf-lab. You can enter the environment with the command
 activate dlnd-tf-lab
 
+conda install --yes --file requirements.txt
+
+
 ### MAC/LINUX 
 conda env create -f environment.yml
 This will create an environment called dlnd-tf-lab. You can enter the environment with the command

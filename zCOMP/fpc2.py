@@ -20,7 +20,9 @@ xtp1        = []
 ytp1        = []
 
 LOGDIR      = "./my_graph/0F2CR2/"
-ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
+ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv" #cas no
+ALL_DS     = "../_zfp/data/TFFRFLO_ALSN.csv"
+
 model_path  = LOGDIR + "model.ckpt"
 
 # Parameters
@@ -33,7 +35,7 @@ record_step  = training_iters*0.005
 n_hidden_1  = 256   # 1st layer number of features
 n_hidden_2  = 256   # 2nd layer number of features
 # n_input     = 969   # data input: FRFL
-n_input     = 969   # data input: FRAL
+n_input     = 1221   # data input: FRAL
 n_classes   = 100     # total classes 
 
 dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=3, toList = True )
@@ -113,7 +115,7 @@ def train_model(hparam):
         print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'], y: dataTest['label']}))
 
 #
-def test_model():
+def evaluate_model():
     # Running a new session
     print("Starting 2nd session...")
     with tf.Session() as sess:
@@ -147,13 +149,22 @@ def test_model():
         l3, l15 = dataClass.check_perf(pred_val, data_val)  
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15))    
 #
+def test_model():
+    dataTrain,  dataTest =  dataClass.get_data( ) 
+    print(len(dataTest['data'][0]))
+    with tf.Session() as sess:
+        sess.run(init)
+        saver.restore(sess, model_path)
+        print("Model restored from file: %s" % model_path)
+        pred_val = sess.run(pred, feed_dict={x: dataTest['data']})
 #
 def main(dv):
     # Construct model
     hparam = make_hparam_string(learning_rate, 3)
 
     if dv == 0:         train_model(hparam)
-    else :              test_model()
+    elif dv == 1 :      evaluate_model()
+    elif dv == 2 :      test_model()
         
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 

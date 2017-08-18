@@ -5,6 +5,7 @@ import numpy as np
 import requests
 import json
 from types import *
+from collections import Counter
 
 class fpDataModel:
     def __init__(self, path, norm, batch_size, dType, labelCol, dataCol = 4, nC=100, nRange=1 , toList = True):
@@ -136,23 +137,30 @@ class fpDataModel:
     # WS - Conversion
     
     def set_columns(self, url="" ):        # set the main data frame from the class: 
-        url = "../../knime-workspace/Data/FP2/TFFRAL_COL.csv" 
+        url = "../_zfp/data/TFFRAL_COL.csv" 
         self.df  =  pd.read_csv(url)
-        print(self.df['Columns'])
+        print(self.df['columns'])
 
     def feed_data(self, url="", type=""):
-        url  = "../../knime-workspace/Data/FP2/JSON.txt"
+        url  = "../_zfp/data/JSON.txt"
 
+        dst = pd.DataFrame(columns=self.df['columns'] ) 
         if(isinstance( url, dict)):data = url
         else:   
             json_data=open(url).read()
             data = json.loads(json_data)
-        
+
         for i in range(len(data)):
-            entry = pd.Series(index=self.df['Columns'])
+            entry = pd.Series(index=self.df['columns'])
             entry = entry.fillna(0)            
             for key in data[i]:
-                entry[key] = data[key]
+                if key == "m":  
+                    print(data[i][key])
+                    entry[key] =  data[i][key]
+                else: 
+
+                    entry[str(int(key))] =  data[i][key]  #str(int(s))
+            print(entry)
             dst = dst.append(entry,ignore_index=True)
         return dst    
     #
@@ -177,16 +185,19 @@ def main():
 
 
     ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = False )#'standardization'
-    # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
+    ALL_DS     = "../_zfp/data/TFFRFLO_ALSN.csv"
+
+    # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = False )#'standardization'
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     
-    dataClass.set_columns()
-    # print(dataClass.feed_data())
+    # dataClass.set_columns()
+    # dst = dataClass.feed_data()
 
    
-    # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
+    dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
     # print(dte['data'])
+    # print(len(dtt[0])   )
     
     # print(dataClass.deClassifN(dte['label'][0]))
     # print( dataClass.denormalize(dte['label']))

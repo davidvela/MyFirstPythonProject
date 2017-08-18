@@ -155,8 +155,14 @@ def evaluate_model():
         #print("Testing Accuracy: \n", pred_val)
         #np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
 def test_model():
-    pass      
-#
+    dataTrain,  dataTest =  dataClass.get_data( ) 
+    with tf.Session() as sess:
+        sess.run(init)
+        saver.restore(sess, model_path)
+        print("Model restored from file: %s" % model_path)
+        pred_val = sess.run(pred, feed_dict={x: dataTest['data']})
+
+
 def main(dv):
     # Construct model
     # xtp1.append(xtt[2]);    ytp1.append(ytt[2])

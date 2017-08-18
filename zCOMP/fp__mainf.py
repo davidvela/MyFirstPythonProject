@@ -40,6 +40,8 @@ p = {
 # init network - data prop -> len(columns); labels -> depend on model! 
 
 init = tf.global_variables_initializer()
+summ = tf.summary.merge_all()
+saver = tf.train.Saver()
 
 def train_model(hparam): 
     # Running first session
@@ -49,6 +51,7 @@ def train_model(hparam):
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
         writer.add_graph(sess.graph)
+
         for i in range(training_iters): 
             xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
             if i % record_step == 0:
@@ -65,8 +68,10 @@ def train_model(hparam):
 
 def main(dv):
     hparam = make_hparam_string(p["lr"], 3)
+    
     # if dv == 0:         train_model(hparam)
-    # else :              test_model()   
+    # elif dv == 1:              evaluate_model()   
+    # elif dv == 2:              test_model()   
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 def make_hparam_string(lr, no_fc):
@@ -75,3 +80,4 @@ def make_hparam_string(lr, no_fc):
 if __name__ == "__main__":
     main(dv)  
     print(p["lr"])  
+                                                                                                                                                                                                             

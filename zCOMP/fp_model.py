@@ -58,12 +58,6 @@ class fpModel:
             out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
         return out_layer
 
-
-
-
-
-
-
 # this is for training! 
 summ = tf.summary.merge_all()
 init = tf.global_variables_initializer()

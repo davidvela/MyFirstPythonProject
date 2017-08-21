@@ -162,8 +162,8 @@ def main(dv):
     # Construct model
     hparam = make_hparam_string(learning_rate, 3)
 
-    if dv == 0:         train_model(hparam)
-    elif dv == 1 :      evaluate_model()
+    if dv == 1:         train_model(hparam)
+    elif dv == 0 :      evaluate_model()
     elif dv == 2 :      test_model()
         
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)

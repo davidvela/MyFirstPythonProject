@@ -137,32 +137,42 @@ class fpDataModel:
     # WS - Conversion
     
     def set_columns(self, url="" ):        # set the main data frame from the class: 
-        url = "../_zfp/data/TFFRAL_COL.csv" 
-        self.df  =  pd.read_csv(url)
-        print(self.df['columns'])
+        columns_path = "../_zfp/data/TFFRAL_COL.csv" 
+        self.col_df = pd.read_csv(columns_path, index_col=0)
+        
+    def feed_data(self, url , type=""):
+        json_df = pd.DataFrame(columns=self.col_df.index) 
+        df_entry = pd.Series(index=self.col_df.index)
+        df_entry = df_entry.fillna(0) 
+        comp_out_count = Counter()
 
-    def feed_data(self, url="", type=""):
-        url  = "../_zfp/data/JSON.txt"
-
-        dst = pd.DataFrame(columns=self.df['columns'] ) 
-        if(isinstance( url, dict)):data = url
+        if(isinstance( url, dict)):json_data = url
         else:   
-            json_data=open(url).read()
-            data = json.loads(json_data)
+            json_str=open(url).read()
+            json_data = json.loads(json_str)
 
-        for i in range(len(data)):
-            entry = pd.Series(index=self.df['columns'])
-            entry = entry.fillna(0)            
-            for key in data[i]:
+        for i in range(len(json_data)):
+            df_entry *= 0
+            m = str(json_data[i]["m"])
+            df_entry.name = m
+            for key in json_data[i]:
                 if key == "m":  
-                    print(data[i][key])
-                    entry[key] =  data[i][key]
+                    pass            
                 else: 
-
-                    entry[str(int(key))] =  data[i][key]  #str(int(s))
-            print(entry)
-            dst = dst.append(entry,ignore_index=True)
-        return dst    
+        #             key_wz = str(int(key)
+                    key_wz = int(key)
+                    try:
+                        ds_col = col_df.loc[key_wz]
+        #                 df_entry.loc[key_wz]
+                        df_entry[key_wz] =  np.float32(json_data[i][key])
+        #                 print(key_wz)
+                    except: 
+        #                 print("column: {} not included in the input of: {}" .format(key_wz, m))
+                        comp_out_count[key_wz] +=1
+            json_df = json_df.append(df_entry,ignore_index=False)
+        print("Counter of comp. not included :")
+        print(len(comp_out_count))
+        return json_df    
     #
     def check_perf(self, lA, lB):
         assert(len(lA) == len(lB))
@@ -191,11 +201,14 @@ def main():
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     
-    # dataClass.set_columns()
-    # dst = dataClass.feed_data()
+    dataClass.set_columns()
+    json_path    = "../_zfp/data/JSON.txt"
+    json_path    = "../_zfp/data/json_fflo_ex.txt"
 
-   
-    dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
+    dst = dataClass.feed_data(json_path) 
+    print(dst)
+    
+    # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
     # print(dte['data'])
     # print(len(dtt[0])   )
     

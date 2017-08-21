@@ -1,11 +1,14 @@
 import pandas as pd 
 import tensorflow as tf 
 import numpy as np 
-
 import requests
 import json
 import sys
 import os
+
+from fp_drc     import fpDataModel
+from fp_modelf  import network
+
 
 dv = 0 # tests 
 if len(sys.argv) > 1:
@@ -29,10 +32,7 @@ p = {
     "n_h2"  : 256,   # 2nd layer number of features
     "n_ou"  : 100,     # total classes 
 }
-
-
-
-
+n_classes   = 100 
 
 # read data - data.txt, columns.txt, labels.txt
 # create pandas with columns and create data - pandas little by little. 
@@ -43,17 +43,20 @@ init = tf.global_variables_initializer()
 summ = tf.summary.merge_all()
 saver = tf.train.Saver()
 
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = p["bs"], dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
+n_input = dataClass.set_columns("../_zfp/data/TFFRAL_COL.csv" )
+pred, optimizer, accuracy = network(n_input, n_classes, p["lr"]): 
+
 def train_model(hparam): 
     # Running first session
     print("Starting 1st session...")
     with tf.Session() as sess:
-        # Initialize variables
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
         writer.add_graph(sess.graph)
 
         for i in range(training_iters): 
-            xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
+            xtb, ytb = dataClass.next_batch(p["bs"], dataTrain['data'], dataTrain['label']) 
             if i % record_step == 0:
                 [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
                 writer.add_summary(s, i)
@@ -65,13 +68,16 @@ def train_model(hparam):
         print("Model saved in file: %s" % save_path)
         print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'], y: dataTest['label']}))
 
+def evaluate_model(hparam): 
+    pass
+def test_model(hparam): 
+    pass
 
 def main(dv):
     hparam = make_hparam_string(p["lr"], 3)
-    
-    # if dv == 0:         train_model(hparam)
-    # elif dv == 1:              evaluate_model()   
-    # elif dv == 2:              test_model()   
+    if dv == 0:         train_model(hparam)
+    elif dv == 1:       evaluate_model()   
+    elif dv == 2:       test_model()   
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
 def make_hparam_string(lr, no_fc):

@@ -149,9 +149,6 @@ def evaluate_model():
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15)) 
         #Track down the errors and test it with experiment numbers
         
-
-
-
         #print("Testing Accuracy: \n", pred_val)
         #np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
 def test_model():

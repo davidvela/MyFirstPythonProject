@@ -136,16 +136,18 @@ class fpDataModel:
     
     # WS - Conversion
     
-    def set_columns(self, url="" ):        # set the main data frame from the class: 
-        columns_path = "../_zfp/data/TFFRAL_COL.csv" 
+    def set_columns(self, url ):        # set the main data frame from the class: 
+        columns_path = url
         self.col_df = pd.read_csv(columns_path, index_col=0)
+        return(len(self.col_df))
         
     def feed_data(self, url , type=""):
         json_df = pd.DataFrame(columns=self.col_df.index) 
         df_entry = pd.Series(index=self.col_df.index)
+
         df_entry = df_entry.fillna(0) 
         comp_out_count = Counter()
-
+        
         if(isinstance( url, dict)):json_data = url
         else:   
             json_str=open(url).read()
@@ -159,20 +161,20 @@ class fpDataModel:
                 if key == "m":  
                     pass            
                 else: 
-        #             key_wz = str(int(key)
+                    #key_wz = str(int(key)
                     key_wz = int(key)
                     try:
-                        ds_col = col_df.loc[key_wz]
-        #                 df_entry.loc[key_wz]
+                        ds_col = self.col_df.loc[key_wz]
+                        #df_entry.loc[key_wz]
                         df_entry[key_wz] =  np.float32(json_data[i][key])
-        #                 print(key_wz)
                     except: 
-        #                 print("column: {} not included in the input of: {}" .format(key_wz, m))
+                        #print("column: {} not included in the input of: {}" .format(key_wz, m))
                         comp_out_count[key_wz] +=1
             json_df = json_df.append(df_entry,ignore_index=False)
-        print("Counter of comp. not included :")
-        print(len(comp_out_count))
-        return json_df    
+        # print("Counter of comp. not included :")
+        # print(len(comp_out_count))
+        # return json_df  
+        return json_df.as_matrix().tolist()  
     #
     def check_perf(self, lA, lB):
         assert(len(lA) == len(lB))
@@ -201,13 +203,13 @@ def main():
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     
-    dataClass.set_columns()
+    print(dataClass.set_columns("../_zfp/data/TFFRAL_COL.csv"))
     json_path    = "../_zfp/data/JSON.txt"
     json_path    = "../_zfp/data/json_fflo_ex.txt"
 
-    dst = dataClass.feed_data(json_path) 
-    print(dst)
-    
+    json_df = dataClass.feed_data(json_path) 
+    el = json_df[:].as_matrix()[0]
+    print(np.max(el))    
     # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
     # print(dte['data'])
     # print(len(dtt[0])   )

@@ -28,7 +28,7 @@ model_path  = LOGDIR + "model.ckpt"
 # Parameters
 learning_rate = 0.001
 batch_size = 128
-training_iters = 10000 #200000
+training_iters = 20000 #200000
 display_step = training_iters*0.01 #10%
 record_step  = training_iters*0.005 
 # Network Parameters
@@ -38,9 +38,7 @@ n_hidden_2  = 256   # 2nd layer number of features
 n_input     = 1221   # data input: FRAL
 n_classes   = 100     # total classes 
 
-dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=3, toList = True )
-dataTrain,  dataTest =  dataClass.get_data( ) 
-
+dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
 
 # Model variables
 x = tf.placeholder(tf.float32,   shape=[None, n_input],   name="x")
@@ -94,6 +92,7 @@ init = tf.global_variables_initializer()
 saver = tf.train.Saver()
 #
 def train_model(hparam): 
+    dataTrain,  dataTest =  dataClass.get_data( ) 
     # Running first session
     print("Starting 1st session...")
     with tf.Session() as sess:
@@ -116,6 +115,7 @@ def train_model(hparam):
 
 #
 def evaluate_model():
+    dataTrain,  dataTest =  dataClass.get_data( ) 
     # Running a new session
     print("Starting 2nd session...")
     with tf.Session() as sess:
@@ -129,20 +129,20 @@ def evaluate_model():
         print("Training Accuracy:", sess.run(accuracy, feed_dict={x: dataTrain['data'], y: dataTrain['label']}))
 
         # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
-        predv, softv = sess.run([pred, softmaxT], feed_dict={x: dataTest['data']}) 
+        predv, softv = sess.run([pred, softmaxT], feed_dict={x: dataTrain['data']}) 
         # print("Real value: {}", dataClass.deClassifN( ytp1[i])  )
         for i in range(20):
-            print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+            print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTrain['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
             # maxa = sess.run([prediction], feed_dict={y: predv })
 
         pred_val = []
         data_val = []
         for i in range(len(predv)):
         #for i in range(100):
-            if (i % 10==0): print(i)
+            if (i % 100==0): print(i)
             pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
-            data_vali = dataClass.deClassifN( dataTest['label'][i])
-           
+            data_vali = dataClass.deClassifN( dataTrain['label'][i])
+            # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
             pred_val.append(pred_vali)
             data_val.append(data_vali)
 
@@ -150,13 +150,30 @@ def evaluate_model():
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15))    
 #
 def test_model():
-    dataTrain,  dataTest =  dataClass.get_data( ) 
+    dataTest = {'label' : [] , 'data' :  [] }
+    pred_val = []
+
+    dataClass.set_columns()
+    json_path    = "../_zfp/data/json_fflo_ex.txt"
+    dataTest['data'] = dataClass.feed_data(json_path) 
+
     print(len(dataTest['data'][0]))
+    
     with tf.Session() as sess:
         sess.run(init)
         saver.restore(sess, model_path)
         print("Model restored from file: %s" % model_path)
-        pred_val = sess.run(pred, feed_dict={x: dataTest['data']})
+        predv = sess.run(pred, feed_dict={x: dataTest['data']})
+        for i in range(len(predv)):
+            if (i % 10==0): print(i)
+            pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
+            # data_vali = dataClass.deClassifN( dataTest['label'][i])
+            # print("realVal: {}".format(pred_vali))
+            pred_val.append(pred_vali)
+            # data_val.append(data_vali)
+        # np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
+
+
 #
 def main(dv):
     # Construct model

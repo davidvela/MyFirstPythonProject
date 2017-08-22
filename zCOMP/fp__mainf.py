@@ -7,16 +7,19 @@ import sys
 import os
 
 from fp_drc     import fpDataModel
-from fp_modelf  import network
+from fp_modelf  import *
 
 
 dv = 0 # tests 
 if len(sys.argv) > 1:
     dv = int(sys.argv[1])
 
-LOGDIR      = "./my_graph/0FP2_1/"
-ALL_DS      = "../../knime-workspace/Data/FP/TFFRFL_ALSN.csv"
+LOGDIR      = "./my_graph/0F2CR2/"
+ALL_DS      = "../_zfp/data/TFFRFLO_ALSN.csv"
+COL_DS      = "../_zfp/data/TFFRAL_COL.csv"
 MODELP      = LOGDIR + "model.ckpt"
+json_path   = "../_zfp/data/json_fflo_ex.txt"
+JLA_DS      = "../_zfp/data/TFFRAL_LAB.csv"
 
 # Datasets  
 tra_it = 10000   #200000
@@ -41,15 +44,32 @@ n_classes   = 100
 
 init = tf.global_variables_initializer()
 summ = tf.summary.merge_all()
-saver = tf.train.Saver()
 
 dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = p["bs"], dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
-n_input = dataClass.set_columns("../_zfp/data/TFFRAL_COL.csv" )
-pred, optimizer, accuracy = network(n_input, n_classes, p["lr"]): 
+n_input = dataClass.set_columns(COL_DS)
+
+x           =  nn_input(n_input)
+y           =  nn_output(n_classes) 
+keep_prob   = nn_prob()
+pred        = nn(x, keep_prob, n_classes)
+softmaxT    = tf.nn.softmax(pred)
+
+with tf.name_scope("accuracy"):
+    correct_prediction = tf.equal(tf.argmax( pred, 1), tf.argmax(y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    tf.summary.scalar("accuracy", accuracy)
+
+with tf.name_scope("xent"):
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+    tf.summary.scalar("xent", cost)
+
+with tf.name_scope("train"):
+    optimizer = tf.train.AdamOptimizer(learning_rate=p["lr"]).minimize(cost)
+ 
+saver = tf.train.Saver()
 
 def train_model(hparam): 
-    # Running first session
-    print("Starting 1st session...")
+    print("Training")
     with tf.Session() as sess:
         sess.run(init)
         writer = tf.summary.FileWriter(LOGDIR + hparam)
@@ -64,19 +84,65 @@ def train_model(hparam):
                 print("step %d, training accracy %g" %(i, train_accuracy))
             sess.run(optimizer, feed_dict={x: xtb, y: ytb})
         print("Optimization Finished!")
-        save_path = saver.save(sess, model_path)
+        
+        save_path = saver.save(sess, MODELP)
         print("Model saved in file: %s" % save_path)
+        
         print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'], y: dataTest['label']}))
 
-def evaluate_model(hparam): 
-    pass
-def test_model(hparam): 
-    pass
+def evaluate_model( ): 
+    dataTrain,  dataTest =  dataClass.get_data( ) 
+    print("Evaluation")
+    with tf.Session() as sess:
+        sess.run(init)
+        saver.restore(sess, MODELP)
+        print("Model restored from file: %s" % MODELP)
+        print("Testing  Accuracy:", sess.run(accuracy, feed_dict={x: dataTest['data'],  y: dataTest['label']}))
+        print("Training Accuracy:", sess.run(accuracy, feed_dict={x: dataTrain['data'], y: dataTrain['label']}))
+        predv, softv = sess.run([pred, softmaxT], feed_dict={x: dataTest['data']}) 
+        # print("Real value: {}", dataClass.deClassifN( ytp1[i])  )
+        for i in range(20):
+            print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataTest['label'][i]), dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+            # maxa = sess.run([prediction], feed_dict={y: predv })
+        pred_val = [];      data_val = []
+        # return
+        for i in range(len(predv)):
+        #for i in range(100):
+            if (i % 100==0): print(i)
+            pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
+            data_vali = dataClass.deClassifN( dataTest['label'][i])
+            # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
+            pred_val.append(pred_vali)
+            data_val.append(data_vali)
 
+        l3, l15 = dataClass.check_perf(pred_val, data_val)  
+        print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), l3, l15))    
+def test_model( ): 
+    dataTest = {'label' : [] , 'data' :  [] }
+    pred_val = []
+
+    dataTest['data'] = dataClass.feed_data(json_path) 
+    print(len(dataTest['data'][0]))
+    with tf.Session() as sess:
+        sess.run(init)
+        saver.restore(sess, MODELP)
+        print("Model restored from file: %s" % MODELP)
+        predv = sess.run(pred, feed_dict={x: dataTest['data']})
+    for i in range(len(predv)):
+        # if (i % 10==0): print(i)
+        pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
+        # data_vali = dataClass.deClassifN( dataTest['label'][i])
+        print("{} realVal: {}".format(i,pred_vali))
+        pred_val.append(pred_vali)
+        # data_val.append(data_vali)
+    # np.savetxt(LOGDIR + 'test_FF0_R.csv', pred_val, delimiter=',')   # X is an array
+def print_stats(pb,rv):
+    pass
+        
 def main(dv):
     hparam = make_hparam_string(p["lr"], 3)
-    if dv == 0:         train_model(hparam)
-    elif dv == 1:       evaluate_model()   
+    if   dv == 1:       train_model(hparam)
+    elif dv == 0:       evaluate_model()   
     elif dv == 2:       test_model()   
     print('Run `tensorboard --logdir=%s` to see the results.' % LOGDIR)
 
@@ -84,6 +150,4 @@ def make_hparam_string(lr, no_fc):
     return "lr_%.0E,fc=%d" % (lr, no_fc) 
 
 if __name__ == "__main__":
-    main(dv)  
-    print(p["lr"])  
-                                                                                                                                                                                                             
+    main(dv)                                                                                                                                                                                                               

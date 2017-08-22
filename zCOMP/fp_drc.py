@@ -138,7 +138,7 @@ class fpDataModel:
     
     def set_columns(self, url ):        # set the main data frame from the class: 
         columns_path = url
-        self.col_df = pd.read_csv(columns_path, index_col=0)
+        self.col_df = pd.read_csv(columns_path, index_col=0, sep=',', usecols=[0,1,2,3])
         return(len(self.col_df))
         
     def feed_data(self, url , type=""):
@@ -176,6 +176,10 @@ class fpDataModel:
         # return json_df  
         return json_df.as_matrix().tolist()  
     #
+    def get_labels(self, url, type=""):
+        pass
+
+
     def check_perf(self, lA, lB):
         assert(len(lA) == len(lB))
         gt3  = 0
@@ -197,18 +201,18 @@ def main():
 
 
     ALL_DS     = "../../knime-workspace/Data/FP/TFFRGR_ALSN.csv"
-    ALL_DS     = "../_zfp/data/TFFRFLO_ALSN.csv"
+    ALL_COL     = "../_zfp/data/TFFRFLO_COL.csv"
 
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="reg", labelCol = 'FP_R', dataCol = 4,   nC=100, nRange=1, toList = False )#'standardization'
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="class", labelCol = 'FP_C', dataCol = 4,   nC=100, nRange=1, toList = True )
     
-    print(dataClass.set_columns("../_zfp/data/TFFRAL_COL.csv"))
+    print(dataClass.set_columns(ALL_COL))
     json_path    = "../_zfp/data/JSON.txt"
     json_path    = "../_zfp/data/json_fflo_ex.txt"
 
     json_df = dataClass.feed_data(json_path) 
-    el = json_df[:].as_matrix()[0]
+    el = json_df[0]
     print(np.max(el))    
     # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 
     # print(dte['data'])

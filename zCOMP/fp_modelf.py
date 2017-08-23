@@ -14,7 +14,7 @@ def nn(x_tensor, keep_prob, n_classes ):
     n_hidden_1  = 256   # 1st layer number of features
     n_hidden_2  = 256   # 2nd layer number of features
     weights = {
-        'h1': tf.Variable(tf.random_normal([ x_tensor.get_shape().as_list()[1],     n_hidden_1]),    name="Weights_1"),
+        'h1': tf.Variable(tf.random_normal([ x_tensor.get_shape().as_list()[1], n_hidden_1]),    name="Weights_1"),
         'h2': tf.Variable(tf.random_normal([n_hidden_1,  n_hidden_2]), name="Weights_2"),
         'out': tf.Variable(tf.random_normal([n_hidden_2, n_classes]), name="Weights_out"),
     }
@@ -24,6 +24,7 @@ def nn(x_tensor, keep_prob, n_classes ):
         'b2': tf.Variable(tf.zeros([n_hidden_2]), name="Bias_2"),
         'out': tf.Variable(tf.zeros([n_classes]), name="Bias_out"),
     }
+    
     # Hidden layer with RELU activation
     with tf.name_scope("fc_1"):
         layer_1 = tf.add(tf.matmul(x_tensor, weights['h1']), biases['b1'])
@@ -39,8 +40,6 @@ def nn(x_tensor, keep_prob, n_classes ):
         out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
 
     pred = out_layer
-
-
     return pred
 
 

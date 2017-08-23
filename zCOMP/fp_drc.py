@@ -141,14 +141,14 @@ class fpDataModel:
         self.col_df = pd.read_csv(columns_path, index_col=0, sep=',', usecols=[0,1,2,3])
         return(len(self.col_df))
         
-    def feed_data(self, url , type=""):
+    def feed_data(self, url , type="", d_st = False):
         json_df = pd.DataFrame(columns=self.col_df.index) 
         df_entry = pd.Series(index=self.col_df.index)
 
         df_entry = df_entry.fillna(0) 
         comp_out_count = Counter()
         
-        if(isinstance( url, dict)):json_data = url
+        if(isinstance( url, list)):json_data = url
         else:   
             json_str=open(url).read()
             json_data = json.loads(json_str)
@@ -168,8 +168,9 @@ class fpDataModel:
                         #df_entry.loc[key_wz]
                         df_entry[key_wz] =  np.float32(json_data[i][key])
                     except: 
-                        #print("column: {} not included in the input of: {}" .format(key_wz, m))
-                        comp_out_count[key_wz] +=1
+                        if d_st == True: 
+                            print("column: {} not included in the input of: {}" .format(key_wz, m))
+                        # comp_out_count[key_wz] +=1
             json_df = json_df.append(df_entry,ignore_index=False)
         # print("Counter of comp. not included :")
         # print(len(comp_out_count))
@@ -210,8 +211,11 @@ def main():
     print(dataClass.set_columns(ALL_COL))
     json_path    = "../_zfp/data/JSON.txt"
     json_path    = "../_zfp/data/json_fflo_ex.txt"
-
-    json_df = dataClass.feed_data(json_path) 
+    
+    json_str="""[{"m":"000","100214":1} ]"""
+    json_data = json.loads(json_str)
+    json_df = dataClass.feed_data(json_data) 
+    # json_df = dataClass.feed_data(json_path) 
     el = json_df[0]
     print(np.max(el))    
     # dtt, dte = dataClass.get_data( True,  filter = ">60" ) 

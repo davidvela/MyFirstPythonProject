@@ -18,7 +18,7 @@
 # 2017 TensorFlow Dev Summit.
 
 # You can watch the tutorial [on YouTube](https://www.youtube.com/watch?v=eBbEDRsCmv4&t=1105s).
-# -
+# --
 # Happy TensorBoarding!
 # tensor board it: tensorboard --logdir='./my_graph' 
 # 		Linux/Mac: tensorboard --logdir='./my_graph/03/linear_reg'

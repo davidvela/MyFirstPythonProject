@@ -44,7 +44,7 @@ else:
 	 X_input = np.linspace(- 1 , 1 , 100)
 	 Y_input = X_input * 3 + np.random.randn( X_input.shape[ 0 ]) * 0.5
 	 data = np.column_stack((X_input, Y_input))
-	#  data.T[0] = X_input
+	#  data.T[0] = X_input . 
 	#  data.T[1] = Y_input
 
 

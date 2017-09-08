@@ -303,6 +303,10 @@ iris_json = """
 """
 
 def log_param():
+    logf = open("../../_zfp/results.xlsx",'a')
+    # logf.newlines
+   
+   
     print("hello")
 
 if __name__ == '__main__':

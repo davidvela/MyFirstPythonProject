@@ -59,7 +59,7 @@ def make_hparam_string(learning_rate, no_fc):
     return "lr_%.0E,fc=%d" % (learning_rate, no_fc) 
 
 # Create model
-def multilayer_perceptron(x, weights, biases):
+def multilayer_perceptron(x, weights, biases): #this function sometimes can give me problems to get the model back 
     # Hidden layer with RELU activation
     with tf.name_scope("fc_1"):
         layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])

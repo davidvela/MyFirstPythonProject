@@ -301,7 +301,12 @@ iris_json = """
         "versicolor":"33"
     }
 """
+
+def log_param():
+    print("hello")
+
 if __name__ == '__main__':
-    main()
+    # main()
+    log_param()
     # read_json()
     # test_iris()

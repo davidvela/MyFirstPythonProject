@@ -302,15 +302,17 @@ iris_json = """
     }
 """
 
-def log_param():
-    logf = open("../../_zfp/results.xlsx",'a')
-    # logf.newlines
-   
-   
-    print("hello")
+LOG        = "../../_zfp/LOGT.txt"
+
+def recordLogF():
+    f= open(LOG ,"a+") #w,a,
+    f.write("This is \t line %d\n" % (1))
+    f.close()
+    print("test")
+
 
 if __name__ == '__main__':
     # main()
-    log_param()
+    recordLogF()
     # read_json()
     # test_iris()

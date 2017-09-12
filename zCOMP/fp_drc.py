@@ -303,10 +303,10 @@ iris_json = """
 """
 
 LOG        = "../../_zfp/LOGT.txt"
-
+from datetime import datetime
 def recordLogF():
     f= open(LOG ,"a+") #w,a,
-    f.write("This is \t line %d\n" % (1))
+    f.write("This is \t line %d\n" % (1)  + datetime.now().strftime('%d.%m.%Y %H:%M:%S'))
     f.close()
     print("test")
 

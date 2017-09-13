@@ -30,6 +30,7 @@ ALL_DSJ    = LOGDAT + DESC + DSJ #"../../_zfp/data/FRFLO/datac.csv"
 
 ALL_DS     = LOGDAT + DESC + DSC #"../../_zfp/data/FRFLO/TFFRFLO_ALSN.csv"
 
+get_datat = [ "", "class", "reg", "classN" ]
 
 
 def tests_json():
@@ -65,20 +66,21 @@ def tests_json():
 
 
 def tests_classif():
-    print("tests C4");     n_classes   = 100    
+    print("tests C4");     n_classes   = 4    
 
 
-def tests_classifN_100():
-    print("tests C100");     n_classes   = 100    
-
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', 
+def tests_classifN_100(filt=''):
+    n_classes   = 100    
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType=get_datat[3], labelCol = 'FP_C', 
                             dataCol = 4,   nC=n_classes, nRange=1, toList = True )
-    get data from type = T, E 
+    # get data from type = T, E 
     print("start reading...")
     start = time.time()
 
-    filter = ">23"
-    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS ) 
+    filt = filt 
+    print("tests C100 - filter:" + filt );    
+    # def get_data(self, typeSep = True, pathA = "", filter = ""):
+    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, filter=filt ) 
     
     
     elapsed_time = float(time.time() - start)
@@ -86,3 +88,12 @@ def tests_classifN_100():
         
 if __name__ == '__main__':
     # tests_json()
+    
+    filters = ["", ">23",">60"]
+    
+    for i in range(len(filters)):
+        tests_classifN_100(filters[i])
+    
+    
+    
+    # tests_classif()

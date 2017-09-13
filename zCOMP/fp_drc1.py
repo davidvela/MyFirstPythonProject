@@ -79,13 +79,12 @@ class fpDataModel:
         elif filter == '>60':
             dst = dst[dst["FP"]>60]
 
-    
 
         if self.norm != "":
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )
 
-        if   self.dType == 'class':       # Classification in 4 categories
+        if   self.dType == 'class':     # Classification in 4 categories
             dst.insert(2, 'FP_C', dst['FP'].map(lambda x: self.classif(x)))
         elif self.dType == 'reg':       # Regression
             dst.insert(2, 'FP_R', dst['FP'].map(lambda x: self.regress(x)))

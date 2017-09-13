@@ -32,23 +32,12 @@ ALL_DS     = LOGDAT + DESC + DSC #"../../_zfp/data/FRFLO/TFFRFLO_ALSN.csv"
 
 
 
-def tests():
-    print("tests")
-
-    learning_rate = 0.001
-    n_classes   = 100    
-    n_input     = 1814 #1221
-    n_hidden_1  = 256   
-    n_hidden_2  = 256   
-    xtp1        = []  
-    ytp1        = []
-    # col_df = pd.read_csv(COL_DS, index_col=0, sep=',', usecols=[0,1,2,3])
-    # print(col_df)
+def tests_json():
+    print("tests JSON");     n_classes   = 100    
+    # col_df = pd.read_csv(COL_DS, index_col=0, sep=',', usecols=[0,1,2,3])  #; print(col_df)
 
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', 
                             dataCol = 4,   nC=n_classes, nRange=1, toList = True )
-    print("data declared")
-
     # get data from type = T, E 
     # print("start reading...")
     # start = time.time()
@@ -73,8 +62,27 @@ def tests():
     
 
     # Create the excel with the new layout! 
+
+
+def tests_classif():
+    print("tests C4");     n_classes   = 100    
+
+
+def tests_classifN_100():
+    print("tests C100");     n_classes   = 100    
+
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', 
+                            dataCol = 4,   nC=n_classes, nRange=1, toList = True )
+    get data from type = T, E 
+    print("start reading...")
+    start = time.time()
+
+    filter = ">23"
+    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS ) 
     
-
-
+    
+    elapsed_time = float(time.time() - start)
+    print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
+        
 if __name__ == '__main__':
-    tests()
+    # tests_json()

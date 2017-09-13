@@ -79,6 +79,7 @@ class fpDataModel:
         elif filter == '>60':
             dst = dst[dst["FP"]>60]
 
+    
 
         if self.norm != "":
             cat_n  = dst.loc[:,'FP'] 

@@ -66,7 +66,7 @@ class fpDataModel:
         return {'label' : cat, 'data' : dat}
     
     #Get Data
-    def get_data(self, typeSep = True, pathA = "", filter = ""):
+    def get_data(self, typeSep = True, pathA = "", filt = "", filtn = 0 ):
         if pathA != "":
             dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
         else: 
@@ -74,10 +74,10 @@ class fpDataModel:
         
         dst = dst.fillna(0)
         
-        if filter == '>23':
-            dst = dst[dst["FP"]>23]
-        elif filter == '>60':
-            dst = dst[dst["FP"]>60]
+        if filt == '>':
+            dst = dst[dst["FP"]>filtn]
+        elif filt == '<':
+            dst = dst[dst["FP"]<filtn]
 
 
         if self.norm != "":

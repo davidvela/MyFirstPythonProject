@@ -78,17 +78,14 @@ def tests_classifN_100(filt=''):
     start = time.time()
 
     filt = filt 
-    print("tests C100 - filter:" + filt );    
+    print("tests C100 - filter:" + filt[0] + str(filt[1]) )
     # def get_data(self, typeSep = True, pathA = "", filter = ""):
-    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, filter=filt ) 
+    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, filt=filt[0], filtn=filt[1] ) 
     
-
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
 
-
     # recording log: ReadFile - total number - 
-
     # improve the batch reading - I am reading batchs (128) randomly ... I can do it sequential too...
     # test the results ...  implement the class 
 
@@ -96,8 +93,7 @@ def tests_classifN_100(filt=''):
 if __name__ == '__main__':
     # tests_json()
     
-    filters = ["", ">23",">60"]
-    
+    filters = [ ["", 0], ['>', 60], ['<', 93]]
     for i in range(len(filters)):
         tests_classifN_100(filters[i])
     

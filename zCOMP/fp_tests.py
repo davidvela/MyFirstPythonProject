@@ -96,7 +96,5 @@ if __name__ == '__main__':
     filters = [ ["", 0], ['>', 60], ['<', 93]]
     for i in range(len(filters)):
         tests_classifN_100(filters[i])
-    
-    
-    
+      
     # tests_classif()

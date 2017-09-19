@@ -49,7 +49,7 @@ def tests_json():
     dataAll  = {'label' : [] , 'data' :  [] }
     n_input2 = dataClass.set_columns(COL_DS)
     print("input-no={}".format( n_input2))
-    json_str = '''[{ "m":"8989", "c1" :0.5 },
+    json_str = '''[{ "m":"8989", "c1" :0.5, "c3" :0.5  },
                 { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     # json_data = json.loads(json_str)  #;print(json_data[0]['m'])
 
@@ -59,15 +59,10 @@ def tests_json():
     elapsed_time = float(time.time() - start)
     # separate between training and evaluation! 
     print("data read - time:{}" .format(elapsed_time ))
-
-    
-
     # Create the excel with the new layout! 
-
 
 def tests_classif():
     print("tests C4");     n_classes   = 4    
-
 
 def tests_classifN_100(filt=''):
     n_classes   = 100    
@@ -91,7 +86,7 @@ def tests_classifN_100(filt=''):
 
 
 if __name__ == '__main__':
-    # tests_json()
+    tests_json()
     
     filters = [ ["", 0], ['>', 60], ['<', 93]]
     for i in range(len(filters)):

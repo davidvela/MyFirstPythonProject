@@ -11,6 +11,7 @@ from types import *
 from collections import Counter
 from datetime import datetime
 
+#version 2
 #read data => class - COM or FP input // output - CAT 100 or 4! 
 class fpDataModel:
     def __init__(self, path, norm, batch_size, dType, labelCol, dataCol = 4, nC=100, nRange=1 , toList = True):

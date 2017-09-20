@@ -35,10 +35,10 @@ class fpDataModel:
         return np.asarray(data_shuffle), np.asarray(labels_shuffle)
     
     def classif(self, df):
-        if( df < 40 ): return [0,0,0,1] 
-        elif( df >= 40 and df < 60 ): return [0,0,1,0]
-        elif( df >= 60 and df < 90 ): return [0,1,0,0] 
-        elif( df >= 90 ): return [1,0,0,0] 
+        if( df < 23 ): return [0,0,0,1] 
+        elif( df >= 23 and df < 60 ): return [0,0,1,0]
+        elif( df >= 60 and df < 93 ): return [0,1,0,0] 
+        elif( df >= 93 ): return [1,0,0,0] 
     def declassif(self, df): 
         if  ( df == [0,0,0,1] ):   return 1 
         elif( df == [0,0,1,0] ):   return 2
@@ -81,7 +81,7 @@ class fpDataModel:
             dst = dst[dst["FP"]<filtn]
 
 
-        if self.norm != "":
+        if self.norm != "": # normalization not longer used since I am using always classification! 
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )
 

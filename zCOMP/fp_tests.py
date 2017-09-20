@@ -54,7 +54,7 @@ def tests_json():
 
 def tests_classif(filt=["", 0]):
     print("tests C4");     n_classes   = 4    
-    filt = ["<", 100] 
+    filt = ["<", 80] 
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_C', 
                              dataCol = 4,   nC=n_classes, nRange=1, toList = True )
     start = time.time()

@@ -10,7 +10,9 @@ import time
 from types import *
 from collections import Counter
 from datetime import datetime
+
 from fp_drc1     import fpDataModel
+from fp_drn1     import  *
 LOG        = "../../_zfp/LOG.txt"
 LOGDIR     = "../../_zfp/data/my_graph/"
 LOGDAT     = "../../_zfp/data/"
@@ -24,6 +26,9 @@ COL_DS     = LOGDAT + DESC + DC  #"../../_zfp/data/FRFLO/colcom.csv"
 ALL_DSJ    = LOGDAT + DESC + DSJ #"../../_zfp/data/FRFLO/datac.csv"
 ALL_DS     = LOGDAT + DESC + DSC #"../../_zfp/data/FRFLO/TFFRFLO_ALSN.csv"
 get_datat = [ "", "class", "reg", "classN" ]
+
+
+
 def tests_json():
     print("tests JSON");     n_classes   = 100    
     # col_df = pd.read_csv(COL_DS, index_col=0, sep=',', usecols=[0,1,2,3])  #; print(col_df)
@@ -36,14 +41,12 @@ def tests_json():
     # dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS ) 
     # elapsed_time = float(time.time() - start)
     # print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
-
-    dataAll  = {'label' : [] , 'data' :  [] }
     n_input2 = dataClass.set_columns(COL_DS)
     print("input-no={}".format( n_input2))
+    dataAll     = {'label' : [] , 'data' :  [] }
     json_str = '''[{ "m":"8989", "c1" :0.5, "c3" :0.5  },
                 { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     # json_data = json.loads(json_str)  #;print(json_data[0]['m'])
-
     print(ALL_DSJ)
     start = time.time()
     dataAll['data'] = dataClass.feed_data(ALL_DSJ);
@@ -51,7 +54,7 @@ def tests_json():
     # separate between training and evaluation! 
     print("data read - time:{}" .format(elapsed_time ))
     # Create the excel with the new layout! 
-
+    return dataClass
 def tests_classif(filt=["", 0]):
     print("tests C4");     n_classes   = 4    
     filt = ["<", 80] 
@@ -61,6 +64,7 @@ def tests_classif(filt=["", 0]):
     dataTrain,  dataEv =  dataClass.get_data( filt=filt[0], filtn=filt[1] ) 
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
+    return dataClass, dataTrain,  dataEv
 def tests_classifN_100(filt=["", 0]):
     print("tests C4");     n_classes   = 100   
     filt = filt 
@@ -74,21 +78,39 @@ def tests_classifN_100(filt=["", 0]):
     dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, filt=filt[0], filtn=filt[1] ) 
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
-
+    return dataClass
     # recording log: ReadFile - total number - 
     # improve the batch reading - I am reading batchs (128) randomly ... I can do it sequential too...
     # test the results ...  implement the class 
 
 
+#
+
+
+
+
+
+#
+
 if __name__ == '__main__':
     num = 3
 
     if num == 1:
-        tests_json()
+        dc = tests_json()
     if num == 2: 
         filters = [ ["", 0], ['>', 60], ['<', 93]]
+        # filters = [ ["", 0]
         for i in range(len(filters)):
-            tests_classifN_100(filters[i])
+            dc = tests_classifN_100(filters[i])
       
     if num == 3: 
-        tests_classif()
+        dc, dt, de = tests_classif()
+    
+    nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
+    print("network built")
+    model_path  = LOGDIR + "0F2CV4/model.ckpt"      
+    mlp =  fpModel(nc, model_path)
+    
+    print(mlp.get_nns())
+    mlp.train(dataClass = dc,  dataTrain=dt, it=1000, desc='C100 - FRAFLO')
+    # mlp.test(desc='C100 FRAFLO - c1; c3c4')

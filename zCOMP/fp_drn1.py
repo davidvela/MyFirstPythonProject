@@ -9,7 +9,10 @@ import time
 from types import *
 from collections import Counter
 from datetime import datetime
-from fp_drc1     import fpDataModel
+from fp_drc2     import fpDataModel
+
+DSC        = "/TFFRFLO_ALSN.csv"   
+
 #version 1 - network + model 
 class fpNN:
     def __init__(self, ncol, layers=2, hidden_nodes = [256 , 256], 
@@ -81,17 +84,15 @@ class fpNN:
 # nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1)
 # print("network built")
 class fpModel:
-    def __init__(self, nn, model_path ):
+    def __init__(self, nn, dataClass, model_path ):
         self.nn = nn
-        self.model_path = model_path
-
-        self.l3 = 0; self.l15 = 0; self.start=0; self.elapsed_time=0;
-        self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = '';
-
+        self.dc = dataClass
+        self.model_path = model_path 
+        self.l3 = 0; self.l15 = 0; 
+        # self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = ''; self.start=0; self.elapsed_time=0;
     def ini():
-        self.l3 = 0; self.l15 = 0; self.start=0; self.elapsed_time=0;
-        self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = '';
-
+        # self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = ''; self.start=0; self.elapsed_time=0;
+        pass
     def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
         if desc == '': print("Log not recorded"); return 
         LOG = "../../_zfp/LOGT2.txt"
@@ -114,24 +115,30 @@ class fpModel:
         f.write(line)
         f.close()
         print("___Log recorded")
-        
     def get_nns(self):
         ns = "n:" + str(self.nn.n_input) + "*"
         #for(i in range(self.layers) )                
         ns = ns + str(256) + "*" + str(256) + "*"
         ns = ns + str(self.nn.n_classes)
         return ns 
-    
     def dummy(self):
         print("hello")
         
     def restore_model(self, sess):
         print("Model restored from file: %s" % self.model_path)
         self.nn.saver.restore(sess, self.model_path)
-        
+    def check_perf(self, lA, lB):
+        assert(len(lA) == len(lB))
+        gt3  = 0
+        gtM = 0
+        num = 0
+        for i in range(len(lA)):
+            num = abs(lA[i]-lB[i])
+            if num > 3: gt3+=1
+            if num > 10: gtM+=1
+        return gt3, gtM    
     def check_perf_CN(self, predv, dataEv, sk_ev=False ):
-        pred_val = []
-        data_val = []
+        pred_val = []; data_val = []; self.l3 = 0; self.l15 = 0; 
         predvList = predv.tolist()
         print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
         for i in range(len(predv)):
@@ -139,22 +146,20 @@ class fpModel:
             if (i % 1000==0): print(i , end="")
             pred_vali = 0; data_vali = 0;
             try:
-                pred_vali = dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))
-                
+                pred_vali = self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))
                 if sk_ev == True:
                     data_vali = dataEv['label'][i]
-                else: data_vali = dataClass.deClassifN( dataEv['label'][i])
-                
+                else: data_vali = self.dc.deClassifN( dataEv['label'][i])
                 # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
                 pred_val.append(pred_vali)
                 data_val.append(data_vali)
             except:
                 print("error: i={}, pred={}, data={} -- ".format(i, pred_vali, data_vali))
 
-        self.l3, self.l15 = dataClass.check_perf(pred_val, data_val)  
+        self.l3, self.l15 = self.check_perf(pred_val, data_val)  
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), self.l3, self.l15)) 
 
-    def train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
+    def train(self, dataTrain, dataEv, it = 10000, desc=''):
         self.it = it # = 10000 #200000
         batch_size = 128
         display_step =  self.it*0.1 #10%
@@ -162,11 +167,10 @@ class fpModel:
 
         with tf.Session() as sess:
             sess.run(self.nn.init)
-            
             start = time.time()
             for i in range(self.it): 
                 
-                xtb, ytb = dataClass.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
+                xtb, ytb = self.dc.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
                 
                 elapsed_time = float(time.time() - start)
                 reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
@@ -181,7 +185,6 @@ class fpModel:
                     reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
                     rp_s = str(reviews_per_second)[0:5]
                     tr_ac = str(train_accuracy)[:5]  
-
                     print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
                 sess.run(self.nn.optimizer, feed_dict={self.nn.x: xtb, self.nn.y: ytb})
             print("Optimization Finished!")
@@ -191,10 +194,10 @@ class fpModel:
             ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'], self.nn.y: dataEv['label']}))[:5] 
             print("Eval Accuracy:", ev_ac)
             
-            recordLogF( it=self.it, nn=mlp.get_nns(), lr=mlp.nn.learning_rate, typ='TR', DS=DSC, AC=tr_ac,
+            recordLogF( it=self.it, nn=self.get_nns(), lr=self.nn.learning_rate, typ='TR', DS=DSC, AC=tr_ac,
                         num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
     
-    def evaluate(self, dataClass, dataTrain, dataEv,  desc='' ):
+    def evaluate(self, dataTrain, dataEv,  desc='' ):
         print("EVALUATION...")
         with tf.Session() as sess:
             sess.run(self.nn.init)
@@ -209,56 +212,54 @@ class fpModel:
 
             print("Preview the first predictions:")
             for i in range(20):
-                print("RealVal: {}  - PP value: {}".format( dataClass.deClassifN( dataEv['label'][i]), 
-                                                           dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
+                print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataEv['label'][i]), 
+                                                            self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
             # maxa = sess.run([prediction], feed_dict={y: predv })
-
             self.check_perf_CN(predv, dataEv )
-            
-            self.logr( it=0, nn=mlp.get_nns(), lr=mlp.nn.learning_rate, typ='EV', DS=DSC, AC=tr_ac, 
+            self.logr( it=0, nn=self.get_nns(), lr=self.nn.learning_rate, typ='EV', DS=DSC, AC=tr_ac, 
                        num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
         
-    def test(self, dataClass, p_json_str=0, p_label=0, desc=''):
+    def test(self, col, p_json_str=0, p_label=0, desc=''):
         print("TESTS...")    
         dataTest = {'label' : [] , 'data' :  [] }
         pred_val = []
-        print("input-no={}".format(dataClass.set_columns(COL_DS) ))
+        print("input-no={}".format(self.dc.set_columns(col) ))
         
         if p_json_str != 0: json_str = p_json_str
         else: 
             json_str = '''[{ "m":"8989", "c1" :0.5 },
             { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
 
-        if p_json_str != 0: dataTest['label'] = p_label
-        else: 
-            dataTest['label'] = [59,99]
+        if p_label != 0:  tmpLab= p_label
+        else: tmpLab = [59,99]
         
         json_data = json.loads(json_str)
-        dataTest['data'] = dataClass.feed_data(json_data) 
-        
+        dataTest['data']  = self.dc.feed_data(json_data) 
+        # dataTest['label'] = tmpLab.map( lambda x: self.dc.classify(x)) 
+        for x in tmpLab:
+            dataTest['label'].append(self.dc.classify(x))
+
         with tf.Session() as sess:
             sess.run(self.nn.init)
             self.restore_model(sess)
             predv = sess.run( self.nn.pred, feed_dict={self.nn.x: dataTest['data']}) 
-        #ts_acn= sess.run( [self.nn.pred], feed_dict={self.nn.x: dataTest['data'], self.nn.y: dataTest['label']}) 
-        #ts_ac = str(ts_acn)[:5]  
-        #print("test ac = {}".format(ts_ac))
+            #ts_acn= sess.run( [self.nn.pred], feed_dict={self.nn.x: dataTest['data'], self.nn.y: dataTest['label']}) 
+            #ts_ac = str(ts_acn)[:5]  
+            #print("test ac = {}".format(ts_ac))
         for i in range(len(predv)):
-            print("RealVal: {}  - PP value: {}".format( dataTest['label'][i], 
-                                                       dataClass.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))  
-        
+            print("RealVal: {}  - PP value: {}".format( self.dctmpLab[i], 
+                                                        self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))  
+        return
         self.check_perf_CN(predv, dataTest, True )
-        
-        desc=''
-        self.logr( it=0, nn=mlp.get_nns(), lr=mlp.nn.learning_rate, typ='TS', DS=DSC, AC=tr_ac, 
-                       num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)        
+        self.logr( it=0, nn=self.get_nns(), lr=self.nn.learning_rate, typ='TS', DS='matnrList:', 
+                   AC='ac', num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)        
     def dummy3(self): 
-        self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS=DSC, AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
+        self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
 # test:  
-LOGDIR     = "../../_zfp/data/my_graph/"        
-nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
-print("network built")
-model_path  = LOGDIR + "0F2CV4/model.ckpt"      
-mlp =  fpModel(nc, model_path)
-mlp.logr(desc = 'testVC - class')
+# LOGDIR     = "../../_zfp/data/my_graph/"        
+# nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
+# print("network built")
+# model_path  = LOGDIR + "0F2CV4/model.ckpt"      
+# mlp =  fpModel(nc, model_path)
+# mlp.logr(desc = 'testVC - class')
 

@@ -11,8 +11,9 @@ from types import *
 from collections import Counter
 from datetime import datetime
 
-from fp_drc1     import fpDataModel
+from fp_drc2     import fpDataModel
 from fp_drn1     import  *
+
 LOG        = "../../_zfp/LOG.txt"
 LOGDIR     = "../../_zfp/data/my_graph/"
 LOGDAT     = "../../_zfp/data/"
@@ -33,7 +34,7 @@ def tests_json():
     print("tests JSON");     n_classes   = 100    
     # col_df = pd.read_csv(COL_DS, index_col=0, sep=',', usecols=[0,1,2,3])  #; print(col_df)
 
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_C', 
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_P', 
                             dataCol = 4,   nC=n_classes, nRange=1, toList = True )
     # get data from type = T, E 
     # print("start reading...")
@@ -49,16 +50,18 @@ def tests_json():
     # json_data = json.loads(json_str)  #;print(json_data[0]['m'])
     print(ALL_DSJ)
     start = time.time()
-    dataAll['data'] = dataClass.feed_data(ALL_DSJ);
+    dataAll['data'] = dataClass.feed_data(ALL_DSJ, pand=True);
     elapsed_time = float(time.time() - start)
     # separate between training and evaluation! 
     print("data read - time:{}" .format(elapsed_time ))
     # Create the excel with the new layout! 
+
+
     return dataClass
 def tests_classif(filt=["", 0]):
     print("tests C4");     n_classes   = 4    
     filt = ["<", 80] 
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_C', 
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_P', 
                              dataCol = 4,   nC=n_classes, nRange=1, toList = True )
     start = time.time()
     dataTrain,  dataEv =  dataClass.get_data( filt=filt[0], filtn=filt[1] ) 
@@ -69,7 +72,7 @@ def tests_classifN_100(filt=["", 0]):
     print("tests C4");     n_classes   = 100   
     filt = filt 
     print("tests C100 - filter:" + filt[0] + str(filt[1]) ) 
-    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType=get_datat[3], labelCol = 'FP_C', 
+    dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType=get_datat[3], labelCol = 'FP_P', 
                              dataCol = 4,   nC=n_classes, nRange=1, toList = True )
     # get data from type = T, E 
     print("start reading...")
@@ -105,12 +108,19 @@ if __name__ == '__main__':
       
     if num == 3: 
         dc, dt, de = tests_classif()
-    
-    nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
+    #dc = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
+    nc  = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
     print("network built")
-    model_path  = LOGDIR + "0F2CV4/model.ckpt"      
-    mlp =  fpModel(nc, model_path)
     
+    model_path  = LOGDIR + "0F2CV4/model.ckpt"      
+    mlp =  fpModel(nc, dc, model_path)
     print(mlp.get_nns())
-    mlp.train(dataClass = dc,  dataTrain=dt, it=1000, desc='C100 - FRAFLO')
-    # mlp.test(desc='C100 FRAFLO - c1; c3c4')
+
+    # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
+    # mlp.train(dataClass = dc,  dataTrain=dt, it=1000, desc='C100 - FRAFLO')
+    
+    #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
+    json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+    label = [59,99]
+    desc='json-desc'  
+    mlp.test(COL_DS ,json_str, label, 'C100 FRAFLO - c1; c3c4')  

@@ -246,8 +246,9 @@ class fpModel:
             #ts_acn= sess.run( [self.nn.pred], feed_dict={self.nn.x: dataTest['data'], self.nn.y: dataTest['label']}) 
             #ts_ac = str(ts_acn)[:5]  
             #print("test ac = {}".format(ts_ac))
+        print(dataTest['label'])
         for i in range(len(predv)):
-            print("RealVal: {}  - PP value: {}".format( self.dctmpLab[i], 
+            print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataTest['label'][i] ), #self.dctmpLab[i], 
                                                         self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))  
         return
         self.check_perf_CN(predv, dataTest, True )

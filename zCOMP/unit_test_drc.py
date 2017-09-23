@@ -8,10 +8,15 @@ test_w_i_h = np.array([[0.1, -0.2],
 test_w_h_o = np.array([[0.3],
                        [-0.1]])
 
+
+
+
+
+
 class TestMethods(unittest.TestCase):
     
     ##########
-    # Unit tests for data loading
+    # Unit tests for data loading -
     ##########
     
     def test_data_path(self):

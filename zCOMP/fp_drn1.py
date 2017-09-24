@@ -133,6 +133,7 @@ class fpModel:
         num = 0
         if self.dc.dType == 'class': 
             for i in range(len(lA)):
+                # print( "comp {} and {}" .format(lA[i], lB[i]))
                 if lA[i] != lB[i]: gt3+=1; gtM+=1
         else:
             for i in range(len(lA)):
@@ -144,8 +145,8 @@ class fpModel:
         pred_val = []; data_val = []; self.l3 = 0; self.l15 = 0; 
         predvList = predv.tolist()
         print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
-        for i in range(len(predv)):
         #for i in range(100):
+        for i in range(len(predv)):
             if (i % 1000==0): print(i , end="")
             pred_vali = 0; data_vali = 0;
             try:
@@ -211,7 +212,7 @@ class fpModel:
                 print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataEv['label'][i]), 
                                                             self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
             # maxa = sess.run([prediction], feed_dict={y: predv })
-            self.check_perf_CN(predv, dataEv )
+            self.check_perf_CN(predv, dataEv , False)
 
             self.logr(  it=0, typ='EV', AC=ev_ac, 
                         DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
@@ -246,10 +247,9 @@ class fpModel:
         for i in range(len(predv)):
             print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataTest['label'][i] ), #self.dctmpLab[i], 
                                                         self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))  
-        return
-        self.check_perf_CN(predv, dataTest, True )
+        self.check_perf_CN(predv, dataTest, False )
         self.logr( it=0, typ='TS', 
-                         DS='matnrList...', AC='0',num=len(dataTest["label"]), AC3=0, AC10=0, desc=desc)      
+                         DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=self.l3, AC10=self.l15, desc=desc)      
     def dummy3(self): 
         self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
 # test:  

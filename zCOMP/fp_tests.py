@@ -132,7 +132,7 @@ def main():
     # return
     #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-    label = [60,99]
+    label = [100,60]
     desc='json-desc'  
     mlp.test(COL_DS ,json_str, label, 'C100 FRAFLO - c1; c3c4')  
 

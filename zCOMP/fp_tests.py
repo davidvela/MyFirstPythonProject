@@ -94,20 +94,17 @@ def tests_classifN_100(filt=["", 0]):
 
 
 #
-
-if __name__ == '__main__':
+def main():
     num = 3
 
-    if num == 1:
-        dc = tests_json()
+    if num == 1: dc = tests_json()
     if num == 2: 
         filters = [ ["", 0], ['>', 60], ['<', 93]]
         # filters = [ ["", 0]
         for i in range(len(filters)):
             dc = tests_classifN_100(filters[i])
       
-    if num == 3: 
-        dc, dt, de = tests_classif()
+    if num == 3: dc, dt, de = tests_classif()
     #dc = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_C', dataCol = 4,   nC=n_classes, nRange=1, toList = True )
     nc  = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
     print("network built")
@@ -117,10 +114,17 @@ if __name__ == '__main__':
     print(mlp.get_nns())
 
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
-    # mlp.train(dataClass = dc,  dataTrain=dt, it=1000, desc='C100 - FRAFLO')
-    
+    mlp.train(dataTrain=dt, it=1000, desc='C100 - FRAFLO')
+    return
+
+
     #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-    label = [59,99]
+    label = [60,99]
     desc='json-desc'  
     mlp.test(COL_DS ,json_str, label, 'C100 FRAFLO - c1; c3c4')  
+
+if __name__ == '__main__':
+    main()
+
+

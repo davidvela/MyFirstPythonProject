@@ -31,29 +31,25 @@ class fpDataModel:
         idx = idx[:num]
         data_shuffle = [data[i] for i in idx]
         labels_shuffle = [labels[i] for i in idx]
-
         return np.asarray(data_shuffle), np.asarray(labels_shuffle)
-    
     def classif(self, df, rv=False):
         if rv == False: 
-            if( df < 23 ): return [0,0,0,1] 
-            elif( df >= 23 and df < 60 ): return [0,0,1,0]
-            elif( df >= 60 and df < 93 ): return [0,1,0,0] 
-            elif( df >= 93 ): return [1,0,0,0] 
+            if( df < 23 ): return [1,0,0,0] 
+            elif( df >= 23 and df < 60 ): return [0,1,0,0]
+            elif( df >= 60 and df < 93 ): return [0,0,1,0] 
+            elif( df >= 93 ): return [0,0,0,1] 
         else: 
-            if( df < 23 ): return 1
-            elif( df >= 23 and df < 60 ): return 2
-            elif( df >= 60 and df < 93 ): return 3
-            elif( df >= 93 ): return 4
-
+            if( df < 23 ): return 0
+            elif( df >= 23 and df < 60 ): return 1
+            elif( df >= 60 and df < 93 ): return 2
+            elif( df >= 93 ): return 3
     def declassif(self, df): 
-        if  ( df == [0,0,0,1] ):   return 1 
-        elif( df == [0,0,1,0] ):   return 2
-        elif( df == [0,1,0,0] ):   return 3  
-        elif( df == [1,0,0,0] ):   return 4      
+        if  ( df == [1,0,0,0] ):   return 0 
+        elif( df == [0,1,0,0] ):   return 1
+        elif( df == [0,0,1,0] ):   return 2  
+        elif( df == [0,0,0,1] ):   return 3      
     def regress(self, df): #
         return [df]
-    
     def classifN(self, df):
         listofzeros = [0] * self.nC
         dfIndex = df//self.nRange
@@ -62,7 +58,6 @@ class fpDataModel:
             listofzeros[dfIndex] = 1 
         return listofzeros
     def deClassifN(self, df, val = 1 ):
-        
         if self.dType == 'class':     # Classification in 4 categories
             # return self.declassif(df) 
              return df.index(val)

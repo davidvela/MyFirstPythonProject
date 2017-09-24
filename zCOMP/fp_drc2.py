@@ -162,6 +162,7 @@ class fpDataModel:
                             print("m:{}-c:{} not included" .format(m, key_wz))
                             comp_out_count[key_wz] +=1
             json_df = json_df.append(df_entry,ignore_index=False)
+            if i % 1000 == 0: print("cycle: {}".format(i))
         print("Counter of comp. not included :"); print(comp_out_count) # print(len(comp_out_count))
         if pand == True:  return json_df  
         else:             return json_df.as_matrix().tolist()  
@@ -213,7 +214,7 @@ def main():
     print(  dataTest['data'][1]  )
 
 if __name__ == '__main__':
-    main()
+    # main()
 
 def backup(): pass
     # def write_data( ): #codes, labels): 

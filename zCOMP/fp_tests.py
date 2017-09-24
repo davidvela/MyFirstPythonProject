@@ -103,11 +103,11 @@ def main1():
     ex = executions[1]
     global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
     global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
-    global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + "/data_json2.txt"
     global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"
    
     num = ex['n'] 
     if num == 1: #JSON
+        global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + "/data_json.txt"
         dc = tests_json(ex['excel']); 
     if num == 2: #C4
         #filters = [ ["", 0], ['>', 60], ['<', 93]]

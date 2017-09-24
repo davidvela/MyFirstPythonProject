@@ -23,7 +23,7 @@ class fpDataModel:
         self.dataCol        = dataCol
         self.nC             = nC
         self.nRange         = nRange
-        self.toList         = toList 
+        self.toLs           = toList 
         self.DSC            = pathFile
     def next_batch(self, num, data, labels):
         idx = np.arange(0 , len(data))
@@ -74,12 +74,16 @@ class fpDataModel:
     def split_lab_dat(self, dst):
         cat  = dst.loc[:, self.labelCol]
         dat  = dst.iloc[:, self.dataCol:]
-        if (self.toList): 
+        if (self.toLs): 
             cat = cat.as_matrix().tolist()
             dat = dat.as_matrix().tolist()
         return {'label' : cat, 'data' : dat}
     #Get Data
-    def get_data(self, typeSep = True, pathA = "", filt = "", filtn = 0 ):
+    def convert_2List(self, dst):
+        cat = dst["label"].as_matrix().tolist()
+        dat = dst["data"].as_matrix().tolist()
+        return {'label' : cat, 'data' : dat}
+    def get_data(self, typeSep = True, pathA = "", filt = "", filtn = 0, pand=True ):
         if pathA != "": dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
         else: dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
         dst = dst.fillna(0)
@@ -147,7 +151,7 @@ class fpDataModel:
             json_df = json_df.append(df_entry,ignore_index=False)
         # print("Counter of comp. not included :")  # print(len(comp_out_count))
         if pand == True:  return json_df  
-        else:           return json_df.as_matrix().tolist()  
+        else:             return json_df.as_matrix().tolist()  
     def read_json(url_col, url_comp, url_lab, url_json=""):
         self.comp_df = pd.read_csv(url_comp, index_col=0, sep=',', usecols=[0,1,2,3])
         print("columns: " + str(len(self.col_df)))
@@ -177,7 +181,7 @@ class fpDataModel:
         return gt3, gtM    
 # Notes: 
 #       I don't really like the fact that I am returning lists! \
-#       I would like to have more flexibillity in my program (PANDAS!).
+#       I would like to have more flexibillity in my program (pd!).
 # test:  
 def main():
     COM_DS     = "../_zfp/data/TFFRFLO_COM.csv"

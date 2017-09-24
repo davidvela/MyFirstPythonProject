@@ -95,7 +95,7 @@ def tests_classifN_100(filt=["", 0]):
 
 #
 def build_desc(des='C4'):
-    return des + "filt"+str(40)+
+    return des + "  filt  "+str(40)+'  model  '
 def main():
     
     executions = [
@@ -127,10 +127,9 @@ def main():
     # mlp.dummy3(); return;
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
     # mlp.train(dataTrain=dt, dataEv = de, it=1000, desc='C4 - FRAFLO')
-    mlp.evaluate(dataTrain=dt, dataEv = de, desc='C4 - FRAFLO')
-    return
-
-
+    #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
+    # mlp.evaluate(dataTrain=dt, dataEv = de, desc='C4 - FRAFLO')
+    # return
     #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     label = [60,99]
@@ -139,5 +138,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+    # print(build_desc('test'))
 

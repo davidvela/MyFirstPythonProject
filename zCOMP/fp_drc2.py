@@ -14,7 +14,7 @@ from datetime import datetime
 #version 2
 #read data => class - COM or FP input // output - CAT 100 or 4! 
 class fpDataModel:
-    def __init__(self, path, norm, batch_size, dType, labelCol, dataCol = 4, nC=100, nRange=1 , toList = True):
+    def __init__(self, path, norm, batch_size, dType, labelCol, dataCol = 4, nC=100, nRange=1 , toList = True, pathFile= "/TFFRFLO_ALSN.csv"):
         self.path           = path
         self.norm           = norm
         self.batch_size     = batch_size
@@ -24,7 +24,7 @@ class fpDataModel:
         self.nC             = nC
         self.nRange         = nRange
         self.toList         = toList 
-
+        self.DSC            = pathFile
     def next_batch(self, num, data, labels):
         idx = np.arange(0 , len(data))
         np.random.shuffle(idx)
@@ -48,7 +48,7 @@ class fpDataModel:
         elif( df == [0,1,0,0] ):   return 1
         elif( df == [0,0,1,0] ):   return 2  
         elif( df == [0,0,0,1] ):   return 3      
-    def regress(self, df): #
+    def regress(self, df): 
         return [df]
     def classifN(self, df):
         listofzeros = [0] * self.nC
@@ -58,12 +58,11 @@ class fpDataModel:
             listofzeros[dfIndex] = 1 
         return listofzeros
     def deClassifN(self, df, val = 1 ):
-        if self.dType == 'class':     # Classification in 4 categories
-            # return self.declassif(df) 
-             return df.index(val)
+        if self.dType == 'class':       # CLASS in 4C
+            return df.index(val) #self.declassif(df) 
         elif self.dType == 'reg':       # Regression
             return df
-        elif self.dType == 'classN':    # Classification in N categories  
+        elif self.dType == 'classN':    # CLASS in NC  
             return df.index(val)
     def classify(self, x, rv=False):
         if  self.dType == 'class':     # Classification in 4 categories

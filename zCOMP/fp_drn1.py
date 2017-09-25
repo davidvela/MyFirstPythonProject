@@ -147,7 +147,7 @@ class fpModel:
         print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
         #for i in range(100):
         for i in range(len(predv)):
-            if (i % 1000==0): print(i , end="")
+            if (i % 1000==0): print('i='+str(i), end="")
             pred_vali = 0; data_vali = 0;
             try:
                 pred_vali = self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))
@@ -163,11 +163,11 @@ class fpModel:
         self.l3, self.l15 = self.check_perf(pred_val, data_val)  
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), self.l3, self.l15)) 
 
-    def train(self, dataTrain, dataEv, it = 10000, desc=''):
+    def train(self, dataTrain, dataEv, it = 10000, disp=0.1, desc=''):
         self.it = it # = 10000 #200000
         batch_size = 128
-        display_step =  self.it*0.1 #10%
-        record_step  =  self.it*0.05 
+        display_step =  self.it*disp #10%
+        record_step  =  self.it*(disp/2) 
         with tf.Session() as sess:
             sess.run(self.nn.init)
             start = time.time()
@@ -185,16 +185,17 @@ class fpModel:
                     rp_s = str(reviews_per_second)[0:5]
                     tr_ac = str(train_accuracy)[:5]  
                     print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
+                    ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'],    self.nn.y: dataEv['label']}))[:5] 
+                    print("Eval Accuracy:", ev_ac)
                 sess.run(self.nn.optimizer, feed_dict={self.nn.x: xtb, self.nn.y: ytb})
             print("Optimization Finished!")
             save_path = self.nn.saver.save(sess, self.model_path)
             print("Model saved in file: %s" % save_path) 
-            ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'], self.nn.y: dataEv['label']}))[:5] 
-            print("Eval Accuracy:", ev_ac)
+            # ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'], self.nn.y: dataEv['label']}))[:5] 
+            # print("Eval Accuracy:", ev_ac)
             # def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
-            self.logr( it=self.it, typ='TR', 
-                        DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
-    
+            self.logr( it=self.it, typ='TR', DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
+            self.logr( it=self.it, typ='EV', DS=self.dc.DSC, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
     def evaluate(self, dataTrain, dataEv,  desc='' ):
         print("EVALUATION...")
         with tf.Session() as sess:
@@ -212,10 +213,8 @@ class fpModel:
                 print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataEv['label'][i]), 
                                                             self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))
             # maxa = sess.run([prediction], feed_dict={y: predv })
-            self.check_perf_CN(predv, dataEv , False)
-
-            self.logr(  it=0, typ='EV', AC=ev_ac, 
-                        DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
+        self.check_perf_CN(predv, dataEv , False)
+        self.logr(  it=0, typ='EV', AC=ev_ac,DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
     def test(self, col, p_abs, p_json_str=0, p_label=0, desc=''):
         print("TESTS...")    
         dataTest = {'label' : [] , 'data' :  [] }

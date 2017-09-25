@@ -137,13 +137,13 @@ def main2(dc, dt, de ):
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
     # mlp.train(dataTrain=dt_l, dataEv = de_l, it=ex['it'], desc=ex['des'])
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
-    # mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
+    mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
     #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-    label = [99,60]
+    label = [99, 60]
     desc='json-desc'  
-    mlp.test(COL_DS, True, json_str, label, ex['des'] ) #'C100 FRAFLO - c1; c3c4')  
-    #_____________ test using the 
+    # mlp.test(COL_DS, True, json_str, label, ex['des'] ) #'C100 FRAFLO - c1; c3c4')  
+    #_____________ test using some part of ev. 
 
 if __name__ == '__main__':
     main1()

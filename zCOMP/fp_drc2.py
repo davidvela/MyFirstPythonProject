@@ -54,8 +54,9 @@ class fpDataModel:
         listofzeros = [0] * self.nC
         dfIndex = df//self.nRange
         # print('{} and {}', (df,dfIndex))
-        if dfIndex < self.nC:
-            listofzeros[dfIndex] = 1 
+        if 0 < dfIndex < self.nC:   listofzeros[dfIndex] = 1
+        elif dfIndex < 0:           listofzeros[0] = 1
+        elif  dfIndex >= self.nC:   listofzeros[self.nC-1] = 1
         return listofzeros
     def deClassifN(self, df, val = 1 ):
         if self.dType == 'class':       # CLASS in 4C

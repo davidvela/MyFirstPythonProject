@@ -19,8 +19,8 @@ DSC        = "/datasc.csv"
 DC         = "/datac.csv"
 DL         = "/datal.csv"
 
-def tests_json(excel):
-    print("tests JSON");     n_classes   = 100    
+def tests_json(excel, ex):
+    print("tests JSON");     n_classes   = 100  ; print(ALL_DSJ)  
     # col_df = pd.read_csv(COL_DS, index_col=0, sep=',', usecols=[0,1,2,3])  #; print(col_df)
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_P', 
                             dataCol = 4,   nC=n_classes, nRange=1, toList = True )
@@ -33,17 +33,17 @@ def tests_json(excel):
     n_input2 = dataClass.set_columns(COL_DS, p_abs = False)
     print("input-no={}".format( n_input2))
     dataAll     = {'label' : [] , 'data' :  [] }
-    json_str = '''[{ "m":"8989", "c1" :0.5, "c3" :0.5  },
-                { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+    # json_str = '''[{ "m":"8989", "c1" :0.5, "c3" :0.5  },
+    #             { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     # json_data = json.loads(json_str)  #;print(json_data[0]['m'])
-    print(ALL_DSJ)
     start = time.time()
-    dataAll['data'] = dataClass.feed_data(ALL_DSJ, pand=True, d_st=True,  p_exp=True);
+    dataAll['data'] = dataClass.feed_data(ALL_DSJ, pand=ex['returnPandas'], d_st=ex['display_status'],  p_exp=ex['experimental']);
     elapsed_time = float(time.time() - start)
-    # separate between training and evaluation! 
+    # TO DO: separate between training and evaluation! 
+
+
     print("data read - time:{}" .format(elapsed_time ))
-    # Create the excel with the new layout! 
-    if excel == True: 
+    if excel == True:# Create the excel with the new layout!  
         writer = pd.ExcelWriter(LOGDAT+'pandas.xlsx')
         dataAll['data'].to_excel(writer, sheet_name='Sheet1')
         writer.save()
@@ -77,45 +77,46 @@ def tests_classifN_100(filt=["", 0]):
     # improve the batch reading - I am reading batchs (128) randomly ... I can do it sequential too...
     # test the results ...  implement the class 
 #
+executions = [
+    {   'dType':'json', 'downExcel':True , 'des':'JSON Input100- execl generation FRAFLO',
+        'path':'FRFLO', 'experimental':True , 'display_status':True, 'returnPandas':True , 
+        'jsonFile':"/data_json2.txt"},   
+    {   'dType':'class', 'des':'C4 - FRAFLO','path':'FRFLO' ,
+        'filter' :[["", 0]], 'n_i':1814, 'n_o':4, 'batch_size':128,
+        'lr':0.01, 'it':1000, 'model': "0F2CV4" },
+     {  'dType':'classN', 'des':'C100 - FRAFLO','path':'FRFLO' ,
+        'filter' :[["", 0]], 'n_i':1814, 'n_o':4, 'batch_size':128,
+        'lr':0.01, 'it':1000, 'model': "0F2CV5" },
+]
+ex = executions[2]
+
 LOG        = "../../_zfp/LOG.txt"
 LOGDIR     = "../../_zfp/data/my_graph/"
 LOGDAT     = "../../_zfp/data/"
-DESC       = "tes"
+DESC       = "test"
 
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-get_datat = [ "", "class", "reg", "classN" ]
-
 #
 def build_desc(des='C4'):
     return des + "  filt  "+str(40)+'  model  '
 def main1():
-    
-    executions = [
-        {   'n':3, 'des':'C4 - FRAFLO','path':'FRFLO' ,
-            'filter' :[["", 0]], 'n_i':1814, 'n_o':4, 'dT':'class', 'batch_size':128,
-            'lr':0.01, 'it':1000, },
-        
-        {   'n':1, 'excel':True , 'path':'FRFLO'}  
-    ]
-    ex = executions[1]
+    # global ex;      ex       = executions[1]
     global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
     global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
-    global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"
-   
-    num = ex['n'] 
-    if num == 1: #JSON
-        global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + "/data_json.txt"
-        dc = tests_json(ex['excel']); 
-    if num == 2: #C4
+    global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"  
+    if ex['dType'] == 'json': #JSON
+        global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + ex['jsonFile']
+        dc = tests_json(ex['downExcel'], ex); 
+    if ex['dType'] == 'class': #C4
         #filters = [ ["", 0], ['>', 60], ['<', 93]]
-        filters = [ ["", 0]]
+        filters = ex['filter'][0]
         for i in range(len(filters)):
             dc = tests_classifN_100(filters[i])
             main2()
-    if num == 3: # C100
+    if ex['dType'] == 'classN': # C100
         dc, dt, de = tests_classif(ex['filter'][0] )
         main2()
     return
@@ -127,24 +128,21 @@ def main2():
     de_l = dc.convert_2List(de)
     # print(len(dt["data"].columns)) #1814
     ex['n_i'] = len(dt["data"].columns)
-    nc  = fpNN(n_input=1814, layers=2, hidden_nodes = [256 , 256],lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
-    print("network built")
-    # model  FLO  0F2CV4 - C4   
-    # model  FLO  0F2CV5 - C100   
-    #     
-    model_path  = LOGDIR + "0F2CV4" +"/model.ckpt"      
+    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [256 , 256],lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
+    print("network built") 
+    model_path  = LOGDIR + ex['model'] +"/model.ckpt"      
     mlp =  fpModel(nc, dc, model_path)
     print(mlp.get_nns())
     # mlp.dummy3(); return;
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
-    # mlp.train(dataTrain=dt, dataEv = de, it=1000, desc='C4 - FRAFLO')
+    mlp.train(dataTrain=dt, dataEv = de, it=ex['it'], desc=ex['des'])
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
-    mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc='C4 - FRAFLO')
+    # mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
     #_______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     label = [100,60]
     desc='json-desc'  
-    # mlp.test(COL_DS ,json_str, label, 'C100 FRAFLO - c1; c3c4')  
+    mlp.test(COL_DS ,json_str, label, ex['des'] ) #'C100 FRAFLO - c1; c3c4')  
     #_____________ test using the 
 
 if __name__ == '__main__':

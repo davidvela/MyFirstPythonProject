@@ -116,7 +116,7 @@ class fpDataModel:
         self.col_df = pd.read_csv(columns_path, index_col=n, sep=',', usecols=[0,1,2,3])
         return(len(self.col_df))
         
-    def feed_data(self, url , type="", d_st = False, p_exp=False, pand=False):
+    def feed_data(self, url, abstract, type="", d_st = False, p_exp=False, pand=False):
         if p_exp == True:  #fp key - 0-102  print(ds_comp['fp'])
             indx = []
             for i in range(103): indx.append(i) 
@@ -142,8 +142,8 @@ class fpDataModel:
                 if key == "m":  
                     pass            
                 else: 
-                    # key_wz = key #int(key)      #abstract == True
-                    key_wz = int(key) #str(int(key)) #abstract == False
+                    if abstract == True :  key_wz = key      #int(key)      #abstract == True
+                    else:                  key_wz = int(key) #str(int(key)) #abstract == False
                     try: #filling of key - experimental or components 
                         ds_comp = self.col_df.loc[key_wz]
                         if p_exp == True:  #fp key - 0-102   

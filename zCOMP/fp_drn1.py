@@ -216,7 +216,7 @@ class fpModel:
 
             self.logr(  it=0, typ='EV', AC=ev_ac, 
                         DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
-    def test(self, col, p_json_str=0, p_label=0, desc=''):
+    def test(self, col, p_abs, p_json_str=0, p_label=0, desc=''):
         print("TESTS...")    
         dataTest = {'label' : [] , 'data' :  [] }
         pred_val = []
@@ -231,7 +231,7 @@ class fpModel:
         else: tmpLab = [59,99]
         
         json_data = json.loads(json_str)
-        dataTest['data']  = self.dc.feed_data(json_data) 
+        dataTest['data']  = self.dc.feed_data(json_data, abstract = p_abs) 
         # dataTest['label'] = tmpLab.map( lambda x: self.dc.classify(x)) 
         for x in tmpLab:
             dataTest['label'].append(self.dc.classify(x))

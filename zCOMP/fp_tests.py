@@ -96,7 +96,7 @@ executions = [
     #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':4, 
     #     'lr':0.01, 'model': "0F2C41" }, 
 
-    # _____________________C4 
+    # _____________________C100
     {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
         'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100,
         'lr':0.01, 'model': "0F2CV5" },
@@ -133,7 +133,7 @@ def main1():
         ex['des'] = build_desc(ex)
         global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
         global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
-        global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"  
+        global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc_100.csv"  
         if ex['dType'] == 'json':       #JSON
             global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + ex['jsonFile']
             dc = tests_json(ex['downExcel'], ex); 
@@ -141,11 +141,12 @@ def main1():
             #filters = [ ["", 0], ['>', 60], ['<', 93]]
             filters = ex['filter']
             for i in range(len(filters)):
+                print(str(i))
                 dc, dt, de  = tests_classifN_100(filters[i])
                 main2(dc, dt, de )
         if ex['dType'] == 'class':      # C4
             dc, dt, de = tests_classif(ex['filter'][0] )
-        main2(dc, dt, de )
+            main2(dc, dt, de )
     return
 
 def main2(dc, dt, de ):
@@ -164,7 +165,7 @@ def main2(dc, dt, de ):
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
     mlp.train(dataTrain=dt_l, dataEv = de_l, it=ex['it'], disp=ex['dispIt'], desc=ex['des'])
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
-    mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
+    # mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
     # _______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     label = [99, 60]
@@ -173,8 +174,19 @@ def main2(dc, dt, de ):
     #_____________ test using some part of ev. 
 
 
-    # push to the next level - 
-    
+    #_____________ test using some part of ev. 
+
+
+
+    #______________ test push "c" to the next level - 
+    json_o = [{ "m":"8989", "c1":0.5 }]
+    label = [1]
+    incr = 0.1 # problem is that they are percentage... if I increase a "c", I need to reduce another "c"! 
+    # while mlp.test_push((COL_DS, True, json_str, label, ex['des'] ) != label :
+    #     json_o['c1']  = json_o['c1'] + incr
+    #     if
+        
+
 
 if __name__ == '__main__':
     main1()

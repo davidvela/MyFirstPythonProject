@@ -84,9 +84,9 @@ executions = [
     #     'jsonFile':"/data_json2.txt"},   
     
     # _____________________C4
-    # {   'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
-    #     'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':4, 
-    #     'lr':0.01, 'model': "0F2C41" },
+    {   'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
+        'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':4, 
+        'lr':0.01, 'model': "0F2C40" },
         
     # {   'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
     #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':4, 
@@ -94,20 +94,20 @@ executions = [
 
     #  {  'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
     #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':4, 
-    #     'lr':0.01, 'model': "0F2C41" }, 
+    #     'lr':0.01, 'model': "0F2C42" }, 
 
     # _____________________C100
-    {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-        'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100,
-        'lr':0.01, 'model': "0F2CV5" },
+    # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
+    #     'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100,
+    #     'lr':0.01, 'model': "0F2C10" },
 
-    {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-        'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':100,
-        'lr':0.01, 'model': "0F2CV5" },
+    # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
+    #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':100,
+    #     'lr':0.01, 'model': "0F2C11" },
 
-    {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-        'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':100,
-        'lr':0.01, 'model': "0F2CV5" },
+    # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
+    #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':100,
+    #     'lr':0.01, 'model': "0F2C12" },
     
     # {    'dType':'classN', 
     #          }
@@ -117,14 +117,15 @@ ex = executions[0]
 LOG        = "../../_zfp/LOG.txt"
 LOGDIR     = "../../_zfp/data/my_graph/"
 LOGDAT     = "../../_zfp/data/"
-DESC       = "test"
+DESC       = "FRFLO"
+MMF        = "0F2CV5"
 
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
+MODEL_P    = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"         
 #
-
 def main1():
     global ex;      #ex       = executions[1]
     
@@ -133,7 +134,8 @@ def main1():
         ex['des'] = build_desc(ex)
         global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
         global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
-        global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc_100.csv"  
+        global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"  
+        global MODEL_P; MODEL_P  = LOGDIR + DESC + '/' + DESC + ex['model'] +"/model.ckpt"    
         if ex['dType'] == 'json':       #JSON
             global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + ex['jsonFile']
             dc = tests_json(ex['downExcel'], ex); 
@@ -158,14 +160,14 @@ def main2(dc, dt, de ):
     ex['n_i'] = len(dt["data"].columns)
     nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [256 , 256],lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
     print("network built") 
-    model_path  = LOGDIR + ex['model'] +"/model.ckpt"      
-    mlp =  fpModel(nc, dc, model_path)
+    
+    mlp =  fpModel(nc, dc, MODEL_P)
     print(mlp.get_nns())
     # mlp.dummy3(); return;
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
     mlp.train(dataTrain=dt_l, dataEv = de_l, it=ex['it'], disp=ex['dispIt'], desc=ex['des'])
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
-    # mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
+    mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
     # _______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     label = [99, 60]

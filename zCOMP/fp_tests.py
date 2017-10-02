@@ -55,7 +55,12 @@ def tests_classif(filt=["", 0]):
     dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType='class', labelCol = 'FP_P', 
                              dataCol = 4,   nC=n_classes, nRange=1, toList = False, pathFile= ex['path'] )
     start = time.time()
-    dataTrain,  dataEv =  dataClass.get_data( typeSep = True, filt=filt[0], filtn=filt[1] ) 
+    if ex['typeSep'] == True: 
+        dataTrain,  dataEv =  dataClass.get_data( typeSep = True, filt=filt[0], filtn=filt[1] ) 
+    else: 
+        dataAll =  dataClass.get_data( typeSep = False, filt=filt[0], filtn=filt[1] ) 
+        # dataTrain 
+
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
     return dataClass, dataTrain,  dataEv
@@ -68,7 +73,13 @@ def tests_classifN_100(filt=["", 0]):
     print("start reading...")
     start = time.time()
     # def get_data(self, typeSep = True, pathA = "", filter = ""):
-    dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, typeSep = True, filt=filt[0], filtn=filt[1] ) 
+
+    if ex['typeSep'] == True: 
+        dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, typeSep = True, filt=filt[0], filtn=filt[1] ) 
+    else: 
+        dataAll    =  dataClass.get_data( typeSep = False, filt=filt[0], filtn=filt[1] ) 
+        dataTrain  = {'label' : dataAll['label'][-1:5000] , 'data' :  dataAll['data'][-1:5000] }
+        dataEv     = {'label' : dataAll['label'][:5000] , 'data' :  dataAll['data'][100:]  }
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
     return dataClass, dataTrain,  dataEv
@@ -78,41 +89,46 @@ def tests_classifN_100(filt=["", 0]):
 #
 def build_desc(ex):
     return  ex['des'] + "_" +  ex['path'] + "_filt:"+  ex['filter'][0][0]+str(ex['filter'][0][1])
-executions = [
+executionsFRFLO = [
     # {   'dType':'json', 'downExcel':True , 'des':'JSON Input100- execl generation FRAFLO',
     #     'path':'FRFLO', 'experimental':True , 'display_status':True, 'returnPandas':True , 
     #     'jsonFile':"/data_json2.txt"},   
     
     # _____________________C4
     {   'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
-        'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':4, 
+        'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':4, 'typeSep':True,
         'lr':0.01, 'model': "0F2C40" },
-        
     # {   'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
-    #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':4, 
+    #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':4, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C41" },
-
     #  {  'dType':'class', 'des':'C4',    'path':'FRFLO', 'it':1000, 'dispIt':0.025,
-    #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':4, 
+    #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':4, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C42" }, 
 
     # _____________________C100
+    {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':100, 'dispIt':0.025,
+        'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
+        'lr':0.01, 'model': "0F2C10" },
     # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-    #     'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100,
-    #     'lr':0.01, 'model': "0F2C10" },
-
-    # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-    #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':100,
+    #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C11" },
-
     # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
-    #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':100,
+    #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C12" },
-    
-    # {    'dType':'classN', 
-    #          }
 ]
-ex = executions[0]
+executionsFLALL = [
+    {   'dType':'class', 'des':'C4',  'path':'FLALL',   'it':1000,  'dispIt':0.025,
+        'filter' :[["", 0]], 'n_i':0, 'batch_size':128, 'n_o':4,    'typeSep':False,
+        'lr':0.01, 'model': "0F2C40" },
+    {   'dType':'classN',    'des':'C100','path':'FLALL' , 'it':1000, 'dispIt':0.025,
+        'filter' :[["", 0]], 'n_i':0, '    batch_size':128,'n_o':100, 'typeSep':False,
+        'lr':0.01, 'model': "0F2C10" },
+]
+
+# executions = executionsFRFLO
+# executions = executionsFRALL
+executions = executionsFLALL
+ex = executions[1]
 
 LOG        = "../../_zfp/LOG.txt"
 LOGDIR     = "../../_zfp/data/my_graph/"
@@ -126,27 +142,29 @@ ALL_DSJ    = LOGDAT + DESC + DSJ
 ALL_DS     = LOGDAT + DESC + DSC 
 MODEL_P    = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"         
 #
-def main1():
+
+def main0():
     global ex;      #ex       = executions[1]
-    
     for i in range(len(executions)):
         ex        = executions[i]
-        ex['des'] = build_desc(ex)
-        global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
-        global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
-        global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"  
-        global MODEL_P; MODEL_P  = LOGDIR + DESC + '/' + DESC + ex['model'] +"/model.ckpt"    
-        if ex['dType'] == 'json':       #JSON
-            global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + ex['jsonFile']
-            dc = tests_json(ex['downExcel'], ex); 
-        if ex['dType'] == 'classN':     #C100
-            #filters = [ ["", 0], ['>', 60], ['<', 93]]
-            filters = ex['filter']
-            for i in range(len(filters)):
-                print(str(i))
-                dc, dt, de  = tests_classifN_100(filters[i])
-                main2(dc, dt, de )
-        if ex['dType'] == 'class':      # C4
+        main1()
+def main1():
+    ex['des'] = build_desc(ex)
+    global LAB_DS;  LAB_DS   = LOGDAT + ex['path'] + "/datal.csv"
+    global COL_DS;  COL_DS   = LOGDAT + ex['path'] + "/datac.csv" 
+    global ALL_DS;  ALL_DS   = LOGDAT + ex['path'] + "/datasc.csv"  
+    global MODEL_P; MODEL_P  = LOGDIR + DESC + '/' + DESC + ex['model'] +"/model.ckpt"    
+    if ex['dType'] == 'json':       #JSON
+        global ALL_DSJ; ALL_DSJ  = LOGDAT + ex['path'] + ex['jsonFile']
+        dc = tests_json(ex['downExcel'], ex); 
+    if ex['dType'] == 'classN':     #C100
+        #filters = [ ["", 0], ['>', 60], ['<', 93]]
+        filters = ex['filter']
+        for i in range(len(filters)):
+            print(str(i))
+            dc, dt, de  = tests_classifN_100(filters[i])
+            # main2(dc, dt, de )
+    if ex['dType'] == 'class':      # C4
             dc, dt, de = tests_classif(ex['filter'][0] )
             main2(dc, dt, de )
     return
@@ -158,16 +176,19 @@ def main2(dc, dt, de ):
     de_l = dc.convert_2List(de)
     # print(len(dt["data"].columns)) #1814
     ex['n_i'] = len(dt["data"].columns)
-    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [256 , 256],lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
+    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [10 , 10] ,lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
     print("network built") 
     
     mlp =  fpModel(nc, dc, MODEL_P)
     print(mlp.get_nns())
     # mlp.dummy3(); return;
+    
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
-    mlp.train(dataTrain=dt_l, dataEv = de_l, it=ex['it'], disp=ex['dispIt'], desc=ex['des'])
+    mlp.train2(dataTrain=dt_l, dataEv = de_l, it=ex['it'], disp=ex['dispIt'], desc=ex['des'])
+    
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
     mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])
+    
     # _______DEFINITION test(self, dataClass, p_json_str=0, p_label=0, desc='')
     json_str = '''[{ "m":"8989", "c1" :0.5 }, { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
     label = [99, 60]

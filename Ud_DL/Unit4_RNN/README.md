@@ -8,10 +8,7 @@ Anna Karenina project - exercises!
 - create get_batches! L6
 - build network :8
 - RNN output + loss L10,11
-- Build network 
-
-
-RNN Output! 
+- Build network  
 
 
 tips and tricks from https://raw.githubusercontent.com/karpathy/char-rnn/

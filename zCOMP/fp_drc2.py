@@ -32,6 +32,12 @@ class fpDataModel:
         data_shuffle = [data[i] for i in idx]
         labels_shuffle = [labels[i] for i in idx]
         return np.asarray(data_shuffle), np.asarray(labels_shuffle)
+    
+    def get_batches(self, x, y, batch_size=128):
+        n_batches = len(y)//batch_size
+        x,y = x[:n_batches*batch_size], y[:n_batches*batch_size]
+        for ii in range(0, len(x), batch_size ):
+            yield x[ii:ii+batch_size], y[ii:ii+batch_size]
     def classif(self, df, rv=False):
         if rv == False: 
             if( df < 23 ): return [1,0,0,0] 
@@ -92,8 +98,6 @@ class fpDataModel:
             dst = dst[dst["FP"]>filtn]
         elif filt == '<':
             dst = dst[dst["FP"]<filtn]
-
-
         if self.norm != "": # normalization not longer used since I am using always classification! 
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )               
@@ -105,7 +109,8 @@ class fpDataModel:
             data_e  = self.split_lab_dat(dst_tmp[0])
             data_t  = self.split_lab_dat(dst_tmp[1])
             return data_t, data_e
-        else :   return  self.split_lab_dat(dst_tmp[0])
+        else :   
+            return  self.split_lab_dat(dst)
     def get_data2(self, colu="", datu=""):
         pass
     #json

@@ -16,31 +16,27 @@ from fp_drc2     import fpDataModel
 class fpNN:
     def __init__(self, n_input, layers=2, hidden_nodes = [256 , 256], 
                  lr = 0.1, min_count = 10, polarity_cutoff = 0.1, output = 100   ):
-        
-        self.hidden_nodes = hidden_nodes
-        
         self.init_network(n_input, layers, output, lr, hidden_nodes)
     
-    def init_network(self, n_input, layers, n_classes, learning_rate,  hidden_nodes= [256 , 256]):
+    def init_network(self, n_input, layers, n_classes, learning_rate,  hidden_nodes):
         self.learning_rate = learning_rate # 0.001
         self.n_input     = n_input #1814 #1221
         self.n_classes   = n_classes 
-        
-        h1 = 255
-        h2 = 255
+        self.n_h1 = hidden_nodes[0]
+        self.n_h2 = hidden_nodes[1]
         
         # cust - network 
         self.x = tf.placeholder(tf.float32,   shape=[None, n_input],   name="x")
         self.y = tf.placeholder(tf.int16,     shape=[None, n_classes], name="cat")
         self.biases = {
-            'b1': tf.Variable(tf.random_normal( [ h1 ]), name="Bias_1"),
-            'b2': tf.Variable(tf.random_normal( [ h2 ]), name="Bias_2"),
-            'out': tf.Variable(tf.random_normal( [n_classes] )   , name="Bias_out"),
+            'b1': tf.Variable(tf.random_normal( [ self.n_h1 ]), name="Bias_1"),
+            'b2': tf.Variable(tf.random_normal( [ self.n_h2 ]), name="Bias_2"),
+            'out': tf.Variable(tf.random_normal( [n_classes] ), name="Bias_out"),
         }
         self.weights = {
-            'h1': tf.Variable(tf.random_normal([n_input, h1 ]),    name="Weights_1"),
-            'h2': tf.Variable(tf.random_normal([ h1, h2 ]), name="Weights_2"),
-            'out': tf.Variable(tf.random_normal([h2, n_classes]), name="Weights_out"),
+            'h1': tf.Variable(tf.random_normal([n_input, self.n_h1 ]),    name="Weights_1"),
+            'h2': tf.Variable(tf.random_normal([ self.n_h1, self.n_h2 ]), name="Weights_2"),
+            'out': tf.Variable(tf.random_normal([self.n_h2, n_classes]),  name="Weights_out"),
         }
         
         #hidden_nodes = [1221,256,256,100]
@@ -117,7 +113,7 @@ class fpModel:
     def get_nns(self):
         ns = "n:" + str(self.nn.n_input) + "*"
         #for(i in range(self.layers) )                
-        ns = ns + str(256) + "*" + str(256) + "*"
+        ns = ns + str(self.nn.n_h1) + "*" + str(self.nn.n_h2) + "*"
         ns = ns + str(self.nn.n_classes)
         return ns 
     def dummy(self):
@@ -251,6 +247,50 @@ class fpModel:
                          DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=self.l3, AC10=self.l15, desc=desc)      
     def dummy3(self): 
         self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
+    def train2(self, dataTrain, dataEv, it = 10000, disp=0.1, desc=''):
+        self.it = it # = 10000 #200000
+        batch_size = 128
+        display_step =  self.it*disp #10%
+        record_step  =  self.it*(disp/2) 
+        with tf.Session() as sess:
+            sess.run(self.nn.init)
+            start = time.time()
+            for i in range(self.it):  
+                
+                for ii, (xtb,ytb) in enumerate(self.dc.get_batches(dataTrain['data'], dataTrain['label'],batch_size)):
+                    # xtb, ytb = self.dc.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
+                    sess.run(self.nn.optimizer, feed_dict={self.nn.x: xtb, self.nn.y: ytb})
+                    
+                elapsed_time = float(time.time() - start)
+                reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
+
+                if i % 5 ==0: #record_step == 0:
+                    [train_accuracy] = sess.run([self.nn.accuracy], feed_dict={self.nn.x: xtb, self.nn.y: ytb }) 
+                    elapsed_time = float(time.time() - start)
+                    reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
+                    rp_s = str(reviews_per_second)[0:5]
+                    tr_ac = str(train_accuracy)[:5]  
+                    print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
+                    #writer.add_summary(s, i)
+                if i % display_step == 0:
+                    #print("step %d, training accracy %g " %(i, train_accuracy))
+                    elapsed_time = float(time.time() - start)
+                    reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
+                    rp_s = str(reviews_per_second)[0:5]
+                    tr_ac = str(train_accuracy)[:5]  
+                    # print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
+                    ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'],    self.nn.y: dataEv['label']}))[:5] 
+                    print("Eval Accuracy:", ev_ac)
+
+            print("Optimization Finished!")
+            save_path = self.nn.saver.save(sess, self.model_path)
+            print("Model saved in file: %s" % save_path) 
+            # ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'], self.nn.y: dataEv['label']}))[:5] 
+            # print("Eval Accuracy:", ev_ac)
+            # def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
+            self.logr( it=self.it, typ='TR', DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
+            self.logr( it=self.it, typ='EV', DS=self.dc.DSC, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
+
 # test:  
 # LOGDIR     = "../../_zfp/data/my_graph/"        
 # nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)

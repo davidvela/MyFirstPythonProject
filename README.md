@@ -32,9 +32,15 @@ This project aims to keep all my tests on my learning process towards DataScienc
 
 
 # TensorFlow Information: 
-macbook commands for tensorflow - virtualenv
-`$ source ./tensorflow/bin/activate         `     # bash, sh, ksh, or zsh
-`$ source ./tensorflow/bin/activate.csh     ` # csh or tcsh 
-`(tensorflow)$ deactivate                   `
+macbook commands for tensorflow - virtualenv <br>
+Create virtual env in git folder: <br>
+virtualenv --system-site-packages -p python3 ~/git/activate <br>
 
+`$ source ~/git/activate/bin/activate       `     # bash, sh, ksh, or zsh<br>
+`$ source ~/git/activate/bin/activate.csh   ` # csh or tcsh <br>
+`(tensorflow)$ deactivate                   `<br>
+<br>
+tensor board it: tensorboard --logdir='./my_graph' <br>
+        Linux/Mac: tensorboard --logdir='./my_graph/03/linear_reg' <br>
+        Windows:   tensorboard --logdir=.\my_graph	<br>
 

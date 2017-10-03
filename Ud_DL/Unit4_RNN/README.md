@@ -11,6 +11,20 @@ Anna Karenina project - exercises!
 - Build network  
 
 
+## Notes - 
+### test summarization 
+summarize one text in one line using natural language processing... 
+encoder/decoder and attention mechanism (prioritizer)
+### Sequence2Sequence 
+download chatbot - standford chiphuyen/stanford-tensorflow-tutorials - understand code
++ https://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html 
+
+Reading the documentation for **tf.nn.dynamic_rnn** , you'll see tf.nn.dynamic_rnn(cell, inputs, sequence_length=None, initial_state=None, dtype=None, parallel_iterations=None, swap_memory=False, time_major=False, scope=None)
+
+So you need to at least pass in the RNN cell you built (for example tf.contrib.rnn.BasicLSTMCell). You'll also need to give it the inputs tensor, which in this case is the input text data, typically coming from the embedding layer. I also typically pass in an initial_state which you've seen in the previous RNN lessons.
+https://www.tensorflow.org/api_docs/python/tf/contrib/seq2seq 
+
+
 tips and tricks from https://raw.githubusercontent.com/karpathy/char-rnn/
 ## Tips and Tricks
 

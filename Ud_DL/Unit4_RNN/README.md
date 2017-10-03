@@ -12,10 +12,10 @@ Anna Karenina project - exercises!
 
 
 ## Notes - 
-### test summarization 
+### L8 test summarization 
 summarize one text in one line using natural language processing... 
 encoder/decoder and attention mechanism (prioritizer)
-### Sequence2Sequence 
+### L9 Sequence2Sequence 
 download chatbot - standford chiphuyen/stanford-tensorflow-tutorials - understand code
 + https://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html 
 

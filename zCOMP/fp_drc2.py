@@ -199,9 +199,9 @@ class fpDataModel:
             if num > 3: gt3+=1
             if num > 10: gtM+=1
         return gt3, gtM    
+# print("data class build")
 # Notes: 
-#       I don't really like the fact that I am returning lists! \
-#       I would like to have more flexibillity in my program (pd!).
+
 # test:  
 def main():
     COM_DS     = "../_zfp/data/TFFRFLO_COM.csv"

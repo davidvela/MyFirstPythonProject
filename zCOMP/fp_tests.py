@@ -14,6 +14,12 @@ from datetime import datetime
 from fp_drc2     import fpDataModel
 from fp_drn1     import  *
 
+
+LOG        = "../../_zfp/LOG.txt"
+LOGDIR     = "../../_zfp/data/my_graph/"
+LOGDAT     = "../../_zfp/data/"
+DESC       = "FRFLO"
+MMF        = "0F2CV5"
 DSJ        = "/data_json.txt"
 DSC        = "/datasc.csv"   
 DC         = "/datac.csv"
@@ -59,8 +65,10 @@ def tests_classif(filt=["", 0]):
         dataTrain,  dataEv =  dataClass.get_data( typeSep = True, filt=filt[0], filtn=filt[1] ) 
     else: 
         dataAll =  dataClass.get_data( typeSep = False, filt=filt[0], filtn=filt[1] ) 
-        # dataTrain 
-
+        spn = 5000
+        dataTrain  = {'label' : dataAll['label'][spn:] , 'data' :  dataAll['data'][spn:] }
+        dataEv     = {'label' : dataAll['label'][:spn] , 'data' :  dataAll['data'][:spn]  }
+        print("data all-{}: {}".format(ALL_DS, len(dataAll['label'])))
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
     return dataClass, dataTrain,  dataEv
@@ -78,14 +86,13 @@ def tests_classifN_100(filt=["", 0]):
         dataTrain,  dataEv =  dataClass.get_data(pathA=ALL_DS, typeSep = True, filt=filt[0], filtn=filt[1] ) 
     else: 
         dataAll    =  dataClass.get_data( typeSep = False, filt=filt[0], filtn=filt[1] ) 
-        dataTrain  = {'label' : dataAll['label'][-1:5000] , 'data' :  dataAll['data'][-1:5000] }
-        dataEv     = {'label' : dataAll['label'][:5000] , 'data' :  dataAll['data'][100:]  }
+        spn = 5000
+        dataTrain  = {'label' : dataAll['label'][spn:] , 'data' :  dataAll['data'][spn:] }
+        dataEv     = {'label' : dataAll['label'][:spn] , 'data' :  dataAll['data'][:spn]  }
+        print("data all-{}: {}".format(ALL_DS, len(dataAll['label'])))
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataTrain["label"]),len(dataEv["label"]),elapsed_time ))
     return dataClass, dataTrain,  dataEv
-    # recording log: ReadFile - total number - 
-    # improve the batch reading - I am reading batchs (128) randomly ... I can do it sequential too...
-    # test the results ...  implement the class 
 #
 def build_desc(ex):
     return  ex['des'] + "_" +  ex['path'] + "_filt:"+  ex['filter'][0][0]+str(ex['filter'][0][1])
@@ -122,19 +129,13 @@ executionsFLALL = [
         'lr':0.01, 'model': "0F2C40" },
     {   'dType':'classN',    'des':'C100','path':'FLALL' , 'it':1000, 'dispIt':0.025,
         'filter' :[["", 0]], 'n_i':0, '    batch_size':128,'n_o':100, 'typeSep':False,
-        'lr':0.01, 'model': "0F2C10" },
+        'lr':0.1, 'model': "0F2C10" },
 ]
 
 # executions = executionsFRFLO
 # executions = executionsFRALL
 executions = executionsFLALL
 ex = executions[1]
-
-LOG        = "../../_zfp/LOG.txt"
-LOGDIR     = "../../_zfp/data/my_graph/"
-LOGDAT     = "../../_zfp/data/"
-DESC       = "FRFLO"
-MMF        = "0F2CV5"
 
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
@@ -163,7 +164,7 @@ def main1():
         for i in range(len(filters)):
             print(str(i))
             dc, dt, de  = tests_classifN_100(filters[i])
-            # main2(dc, dt, de )
+            main2(dc, dt, de )
     if ex['dType'] == 'class':      # C4
             dc, dt, de = tests_classif(ex['filter'][0] )
             main2(dc, dt, de )
@@ -176,7 +177,7 @@ def main2(dc, dt, de ):
     de_l = dc.convert_2List(de)
     # print(len(dt["data"].columns)) #1814
     ex['n_i'] = len(dt["data"].columns)
-    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [10 , 10] ,lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
+    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [40 , 10] ,lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
     print("network built") 
     
     mlp =  fpModel(nc, dc, MODEL_P)

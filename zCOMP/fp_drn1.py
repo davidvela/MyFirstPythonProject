@@ -75,8 +75,6 @@ class fpNN:
         self.summ = tf.summary.merge_all()
         self.init = tf.global_variables_initializer()
         self.saver= tf.train.Saver()
-        
-# nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1)
 # print("network built")
 class fpModel:
     def __init__(self, nn, dataClass, model_path ):
@@ -290,7 +288,7 @@ class fpModel:
             # def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
             self.logr( it=self.it, typ='TR', DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
             self.logr( it=self.it, typ='EV', DS=self.dc.DSC, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
-
+# print("model class build")
 # test:  
 # LOGDIR     = "../../_zfp/data/my_graph/"        
 # nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)

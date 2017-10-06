@@ -90,10 +90,23 @@ class fpDataModel:
         cat = dst["label"].as_matrix().tolist()
         dat = dst["data"].as_matrix().tolist()
         return {'label' : cat, 'data' : dat}
+    def read_dst(self, pathA = ""):
+        if hasattr(self, 'dst'): go = 1 
+        else: go = 0
+
+        if go == 1 and  pathA != "" and pathA != self.path :
+            self.dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
+            self.dst = self.dst.fillna(0)
+        elif go == 0: 
+            self.dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
+            self.dst = self.dst.fillna(0)
+        return self.dst
     def get_data(self, typeSep = True, pathA = "", filt = "", filtn = 0, pand=True ):
-        if pathA != "": dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
-        else: dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
-        dst = dst.fillna(0)
+        dst = self.read_dst(pathA = pathA )
+        # if pathA != "": dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
+        # else: dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
+        # dst = dst.fillna(0)
+
         if filt == '>':
             dst = dst[dst["FP"]>filtn]
         elif filt == '<':
@@ -105,11 +118,14 @@ class fpDataModel:
         self.dst = dst
         # 3 if no type and 4 if type
         if typeSep == True:
+            self.dataCol = 4 # M F T C1 ... 
             dst_tmp = [rows for _, rows in dst.groupby('Type')]
             data_e  = self.split_lab_dat(dst_tmp[0])
             data_t  = self.split_lab_dat(dst_tmp[1])
             return data_t, data_e
-        else :   
+        else :  
+            self.dataCol = 3 # M F C1...  
+            dst = dst.sample(frac=1).reset_index(drop=True)
             return  self.split_lab_dat(dst)
     def get_data2(self, colu="", datu=""):
         pass
@@ -206,10 +222,20 @@ class fpDataModel:
 def main():
     COM_DS     = "../_zfp/data/TFFRFLO_COM.csv"
     COL_DS     = "../_zfp/data/TFFRFLO_COL.csv"
+
     dataTest = {'label' : [] , 'data' :  [] }
     
+    # ALL_DS     = "../../_zfp/data/FRFLO/datasc.csv"
+    # dataClass = fpDataModel( path= ALL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_P', 
+    #                          dataCol = 4,   nC=101, nRange=1, toList = False, pathFile= 'FRFLO'  )
+    # dst = dataClass.read_dst()
+    # dt, de =  dataClass.get_data(pathA=ALL_DS, typeSep = True, ) 
+
+    return
+    # COL_DS
     dataClassTest = fpDataModel( path= COL_DS, norm = '', batch_size = 128, dType="classN", labelCol = 'FP_P', 
                             dataCol = 4,   nC=100, nRange=1, toList = True )
+    
     n_input2 = dataClassTest.set_columns(COL_DS, p_abs = False)
     print(n_input2)
     json_str="""[{"m":"000","100028":9}

@@ -12,7 +12,7 @@ from datetime import datetime
 from fp_drc2     import fpDataModel
 
 
-#version 1 - network + model 
+#version 2 - network + model 
 class fpNN:
     def __init__(self, n_input, layers=2, hidden_nodes = [256 , 256], 
                  lr = 0.1, min_count = 10, polarity_cutoff = 0.1, output = 100   ):
@@ -245,10 +245,12 @@ class fpModel:
                          DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=self.l3, AC10=self.l15, desc=desc)      
     def dummy3(self): 
         self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
-    def train2(self, dataTrain, dataEv, it = 10000, disp=0.1, desc='', batch_size = 128):
+    def train2(self, dataTrain, dataEv, it = 100, disp=50, desc='', batch_size = 128):
         self.it = it # = 10000 #200000
         display_step =  self.it*disp #10%
         record_step  =  self.it*(disp/2) 
+        total_batch  = len(dataTrain['label']) / batch_size
+        
         with tf.Session() as sess:
             sess.run(self.nn.init)
             start = time.time()
@@ -256,26 +258,16 @@ class fpModel:
                 for ii, (xtb,ytb) in enumerate(self.dc.get_batches(dataTrain['data'], dataTrain['label'],batch_size)):
                     # xtb, ytb = self.dc.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
                     sess.run(self.nn.optimizer, feed_dict={self.nn.x: xtb, self.nn.y: ytb})
-                elapsed_time = float(time.time() - start)
-                reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
-
-                if i % 5 ==0: #record_step == 0:
-                    [train_accuracy] = sess.run([self.nn.accuracy], feed_dict={self.nn.x: xtb, self.nn.y: ytb }) 
-                    elapsed_time = float(time.time() - start)
-                    reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
-                    rp_s = str(reviews_per_second)[0:5]
-                    tr_ac = str(train_accuracy)[:5]  
-                    print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
-                    #writer.add_summary(s, i)
-                if i % display_step == 0:
-                    #print("step %d, training accracy %g " %(i, train_accuracy))
-                    elapsed_time = float(time.time() - start)
-                    reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
-                    rp_s = str(reviews_per_second)[0:5]
-                    tr_ac = str(train_accuracy)[:5]  
-                    # print('step {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, rp_s, tr_ac ))
-                    ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'],    self.nn.y: dataEv['label']}))[:5] 
-                    print("Eval Accuracy:", ev_ac)
+                    if ii % display_step ==0: #record_step == 0:
+                        [train_accuracy] = sess.run([self.nn.accuracy], feed_dict={self.nn.x: xtb, self.nn.y: ytb }) 
+                        elapsed_time = float(time.time() - start)
+                        reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
+                        rp_s = str(reviews_per_second)[0:5]
+                        tr_ac = str(train_accuracy)[:5]  
+                        print('Epoch: {} batch: {} / {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, ii, total_batch, rp_s, tr_ac ))
+                        #writer.add_summary(s, i)
+                ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'],    self.nn.y: dataEv['label']}))[:5] 
+                print("Eval Accuracy:", ev_ac)
 
             print("Optimization Finished!")
             save_path = self.nn.saver.save(sess, self.model_path)

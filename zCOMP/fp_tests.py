@@ -12,7 +12,7 @@ from collections import Counter
 from datetime import datetime
 
 from fp_drc2     import fpDataModel
-from fp_drn1     import  *
+from fp_drn2     import  *
 
 
 LOG        = "../../_zfp/LOG.txt"
@@ -115,22 +115,19 @@ executionsFRFLO = [
     # _____________________C100
     {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':100, 'dispIt':0.025,
         'filter' :[["", 0]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
-        'lr':0.01, 'model': "0F2C10" },
+        'lr':0.01, 'model': "0F2C10" } ]
     # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
     #     'filter' :[[">", 60]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C11" },
     # {   'dType':'classN', 'des':'C100','path':'FRFLO' , 'it':10000, 'dispIt':0.025,
     #     'filter' :[["<", 93]], 'n_i':1814, 'batch_size':128,'n_o':100, 'typeSep':True,
     #     'lr':0.01, 'model': "0F2C12" },
-]
-executionsFLALL = [
-    {   'dType':'class', 'des':'C4',  'path':'FLALL',   'it':1000,  'dispIt':0.025,
+executionsFLALL = [ {   'dType':'class', 'des':'C4',  'path':'FLALL',   'it':1000,  'dispIt':0.025,
         'filter' :[["", 0]], 'n_i':0, 'batch_size':128, 'n_o':4,    'typeSep':False,
         'lr':0.01, 'model': "0F2C40" },
-    {   'dType':'classN',    'des':'C100','path':'FLALL' , 'it':1000, 'dispIt':0.025,
-        'filter' :[["", 0]], 'n_i':0, '    batch_size':128,'n_o':100, 'typeSep':False,
-        'lr':0.1, 'model': "0F2C10" },
-]
+    {   'dType':'classN',    'des':'C100','path':'FLALL' , 'it':10, 'dispIt':0.025,
+        'filter' :[["", 0]], 'n_i':0, 'batch_size':64,'n_o':100, 'typeSep':False,
+        'lr':0.1, 'model': "0F2C10" } ]
 
 # executions = executionsFRFLO
 # executions = executionsFRALL
@@ -185,7 +182,7 @@ def main2(dc, dt, de ):
     # mlp.dummy3(); return;
     
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
-    mlp.train2(dataTrain=dt_l, dataEv = de_l, it=ex['it'], disp=ex['dispIt'], desc=ex['des'])
+    mlp.train2(dataTrain=dt_l, dataEv = de_l, it=ex['it'], desc=ex['des'], batch_size = ex["batch_size"])
     
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
     mlp.evaluate(dataTrain=dt_l, dataEv = de_l, desc=ex['des'])

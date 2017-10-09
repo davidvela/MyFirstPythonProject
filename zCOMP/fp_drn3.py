@@ -9,7 +9,7 @@ import time
 from types import *
 from collections import Counter
 from datetime import datetime
-from fp_drc2     import fpDataModel
+from fp_drc2  import fpDataModel
 
 
 #version 2 - network + model 
@@ -17,7 +17,6 @@ class fpNN:
     def __init__(self, n_input, layers=2, hidden_nodes = [256 , 256], 
                  lr = 0.1, min_count = 10, polarity_cutoff = 0.1, output = 100   ):
         self.init_network(n_input, layers, output, lr, hidden_nodes)
-    
     def init_network(self, n_input, layers, n_classes, learning_rate,  hidden_nodes):
         self.learning_rate = learning_rate # 0.001
         self.n_input     = n_input #1814 #1221
@@ -75,17 +74,25 @@ class fpNN:
         self.summ = tf.summary.merge_all()
         self.init = tf.global_variables_initializer()
         self.saver= tf.train.Saver()
+    def get_nns(self):
+        ns = "n:" + str(self.n_input) + "*"
+        #for(i in range(self.layers) )                
+        ns = ns + str(self.n_h1) + "*" + str(self.n_h2) + "*"
+        ns = ns + str(self.n_classes)
+        return ns 
 # print("network built")
 class fpModel:
-    def __init__(self, nn, dataClass, model_path ):
-        self.nn = nn
-        self.dc = dataClass
+    def __init__(self, model_path, inp, hn, lr, out ):
+        self.nn =  fpNN(n_input=inp, layers=2, hidden_nodes = hn ,lr = lr , output=out, min_count = 10, polarity_cutoff = 0.1 )
+        # self.dc = dataClass
         self.model_path = model_path 
         self.l3 = 0; self.l15 = 0; 
         # self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = ''; self.start=0; self.elapsed_time=0;
+    
     def ini():
         # self.rp_s = '';  self.tr_ac = ''; self.ev_ac = ''; self.ts_ac = ''; self.start=0; self.elapsed_time=0;
         pass
+    
     def logr(self, datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
         if desc == '': print("Log not recorded"); return 
         LOG = "../../_zfp/LOGT2.txt"
@@ -101,21 +108,16 @@ class fpModel:
         else: times = datetime.now().strftime('%H:%M:%S') 
 
         line =  datetime.now().strftime('%d.%m.%Y') + '\t' + times
-        line = line + '\t' + str(it) + '\t'+ self.get_nns() +  '\t' + str(self.nn.learning_rate,)
+        line = line + '\t' + str(it) + '\t'+ self.nn.get_nns() +  '\t' + str(self.nn.learning_rate)
         line = line + '\t' + typ 
         line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc + '\n'
 
         f.write(line)
         f.close()
         print("___Log recorded")
-    def get_nns(self):
-        ns = "n:" + str(self.nn.n_input) + "*"
-        #for(i in range(self.layers) )                
-        ns = ns + str(self.nn.n_h1) + "*" + str(self.nn.n_h2) + "*"
-        ns = ns + str(self.nn.n_classes)
-        return ns 
     def dummy(self):
-        print("hello") 
+        print("hello")
+        
     def restore_model(self, sess):
         print("Model restored from file: %s" % self.model_path)
         self.nn.saver.restore(sess, self.model_path)
@@ -143,10 +145,10 @@ class fpModel:
             if (i % 1000==0): print('i='+str(i), end="")
             pred_vali = 0; data_vali = 0;
             try:
-                pred_vali = self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))
+                pred_vali = deClassifN( predv.tolist()[i], np.max(predv[i]))
                 if sk_ev == True:
                     data_vali = dataEv['label'][i]
-                else: data_vali = self.dc.deClassifN( dataEv['label'][i])
+                else: data_vali = deClassifN( dataEv['label'][i])
                 # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
                 pred_val.append(pred_vali)
                 data_val.append(data_vali)
@@ -156,8 +158,7 @@ class fpModel:
         self.l3, self.l15 = self.check_perf(pred_val, data_val)  
         print("Total: {} GT3: {}  GTM: {}".format(len(pred_val), self.l3, self.l15)) 
 
-    def train(self, dataTrain, dataEv, it = 10000, disp=0.1, desc=''):
-        it = it # = 10000 #200000
+    def train(self, dataTrain, dataEv, it = 10000, disp=0.1, desc='', desc2='FRALL'):
         batch_size = 128
         display_step =  it*disp #10%
         record_step  =  it*(disp/2) 
@@ -187,8 +188,8 @@ class fpModel:
             # ev_ac = str(sess.run(self.nn.accuracy, feed_dict={self.nn.x: dataEv['data'], self.nn.y: dataEv['label']}))[:5] 
             # print("Eval Accuracy:", ev_ac)
             # def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
-            self.logr( it=it, typ='TR', DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
-            self.logr( it=it, typ='EV', DS=self.dc.DSC, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
+            self.logr( it=it, typ='TR', DS=desc2, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
+            self.logr( it=it, typ='EV', DS=desc2, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
     def evaluate(self, dataTrain, dataEv,  desc='' ):
         print("EVALUATION...")
         with tf.Session() as sess:
@@ -210,9 +211,13 @@ class fpModel:
         self.logr(  it=0, typ='EV', AC=ev_ac,DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
     def test(self, col, p_abs, p_json_str=0, p_label=0, desc=''):
         print("TESTS...")    
+        
+        dc = fpDataModel( path= 'dummy', dType="classN", nC=n_classes, nRange=1, toList = True )
+        
         dataTest = {'label' : [] , 'data' :  [] }
         pred_val = []
-        print("input-no={}".format(self.dc.set_columns(col) ))
+        
+        print("input-no={}".format(dc.set_columns(col) ))
         
         if p_json_str != 0: json_str = p_json_str
         else: 
@@ -223,7 +228,7 @@ class fpModel:
         else: tmpLab = [59,99]
         
         json_data = json.loads(json_str)
-        dataTest['data']  = self.dc.feed_data(json_data, abstract = p_abs) 
+        dataTest['data']  = dc.feed_data(json_data, abstract = p_abs) 
         # dataTest['label'] = tmpLab.map( lambda x: self.dc.classify(x)) 
         for x in tmpLab:
             dataTest['label'].append(self.dc.classify(x))
@@ -240,22 +245,23 @@ class fpModel:
             print("RealVal: {}  - PP value: {}".format( self.dc.deClassifN( dataTest['label'][i] ), #self.dctmpLab[i], 
                                                         self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))  ))  
         self.check_perf_CN(predv, dataTest, False )
-        self.logr( it=0, typ='TS', 
-                         DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=self.l3, AC10=self.l15, desc=desc)      
+        self.logr( it=0, typ='TS', DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=self.l3, AC10=self.l15, desc=desc)      
+    
     def dummy3(self): 
-        self.logr( it=1000, nn='200*200', typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
+        self.logr( it=1000, nn='200*200', lr=0.01, typ='TR', DS='FRALL', AC=0.99, num=400, AC3=4, AC10=3, desc='test fclass')
+    
     def train2(self, dataTrain, dataEv, it = 100, disp=50, desc='', batch_size = 128):
-        display_step =  disp
+        display_step =  disp 
         total_batch  = len(dataTrain['label']) / batch_size
         
         with tf.Session() as sess:
             sess.run(self.nn.init)
             start = time.time()
             for i in range(it):            
-                for ii, (xtb,ytb) in enumerate(self.dc.get_batches(dataTrain['data'], dataTrain['label'],batch_size)):
+                for ii, (xtb,ytb) in enumerate(get_batches(dataTrain['data'], dataTrain['label'],batch_size)):
                     # xtb, ytb = self.dc.next_batch(batch_size, dataTrain['data'], dataTrain['label']) 
                     sess.run(self.nn.optimizer, feed_dict={self.nn.x: xtb, self.nn.y: ytb})
-                    if ii % display_step ==0: 
+                    if ii % display_step ==0: #record_step == 0:
                         [train_accuracy] = sess.run([self.nn.accuracy], feed_dict={self.nn.x: xtb, self.nn.y: ytb }) 
                         elapsed_time = float(time.time() - start)
                         reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
@@ -274,13 +280,11 @@ class fpModel:
             # def logr(self, datep = '' , time='', it=1000, nn='', lr=0.01, typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
             self.logr( it=it, typ='TR', DS=self.dc.DSC, AC=tr_ac,num=len(dataTrain["label"]), AC3=0, AC10=0, desc=desc)
             self.logr( it=it, typ='EV', DS=self.dc.DSC, AC=ev_ac,num=len(dataEv["label"]),    AC3=0, AC10=0, desc=desc)
-# print("model class build")
 
+print("model class build")
 # test:  
-# LOGDIR     = "../../_zfp/data/my_graph/"        
-# nc = fpNN(ncol=1814, layers=2, hidden_nodes = [256 , 256],lr = 0.01, min_count = 10, polarity_cutoff = 0.1, output=4)
-# print("network built")
-# model_path  = LOGDIR + "0F2CV4/model.ckpt"      
-# mlp =  fpModel(nc, model_path)
+LOGDIR     = "../../_zfp/data/my_graph/"        
+MODEL_P  = LOGDIR + "0F2CV4/model.ckpt"      
+mlp =  fpModel( MODEL_P, 1814,  [40 , 10] , 0.01, 4)
 # mlp.logr(desc = 'testVC - class')
 

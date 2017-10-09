@@ -172,16 +172,20 @@ def main2(dc, dt, de ):
     #dt,  de =  dataClass.get_data( filt=filt[0], filtn=filt[1] ) 
     dt_l = dc.convert_2List(dt)  # dt.as_matrix().tolist()
     de_l = dc.convert_2List(de)
+    
     # print(len(dt["data"].columns)) #1814
     ex['n_i'] = len(dt["data"].columns)
-    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [40 , 10] ,lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
+    ex['lr'] = 0.01
+    # ex['n_o'] = 100
+    nc  = fpNN(n_input=ex['n_i'], layers=2, hidden_nodes = [128 , 128] ,lr = ex['lr'] , min_count = 10, polarity_cutoff = 0.1, output=ex['n_o'] )
     print("network built") 
-    
     mlp =  fpModel(nc, dc, MODEL_P)
     print(mlp.get_nns())
     # mlp.dummy3(); return;
     
     # _______DEFINITION train(self, dataClass, dataTrain, dataEv, it = 10000, desc=''):
+    ex['it'] = 100
+    ex['batch_size'] = 128
     mlp.train2(dataTrain=dt_l, dataEv = de_l, it=ex['it'], desc=ex['des'], batch_size = ex["batch_size"])
     
     #_______DEFINITION def evaluate(self, dataTrain, dataEv,  desc='' )
@@ -193,11 +197,6 @@ def main2(dc, dt, de ):
     desc='json-desc'  
     # mlp.test(COL_DS, True, json_str, label, ex['des'] ) #'C100 FRAFLO - c1; c3c4')  
     #_____________ test using some part of ev. 
-
-
-    #_____________ test using some part of ev. 
-
-
 
     #______________ test push "c" to the next level - 
     json_o = [{ "m":"8989", "c1":0.5 }]

@@ -102,10 +102,10 @@ class fpDataModel:
             self.dst = self.dst.fillna(0)
         return self.dst
     def get_data(self, typeSep = True, pathA = "", filt = "", filtn = 0, pand=True ):
-        dst = self.read_dst(pathA = pathA )
-        # if pathA != "": dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
-        # else: dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
-        # dst = dst.fillna(0)
+        # dst = self.read_dst(pathA = pathA )
+        if pathA != "": dst =  pd.read_csv( tf.gfile.Open(pathA), sep=None, skipinitialspace=True,  engine="python")
+        else: dst =  pd.read_csv( tf.gfile.Open(self.path), sep=None, skipinitialspace=True,  engine="python")
+        dst = dst.fillna(0)
 
         if filt == '>':
             dst = dst[dst["FP"]>filtn]

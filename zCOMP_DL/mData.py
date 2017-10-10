@@ -20,7 +20,6 @@ DC         = "/datac.csv"
 DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
-MMF        = "MOD1"
 DESC       = "FRFLO"
 # DESC       = "FLALL"
 dType      = "C4" #C1 or C4
@@ -38,7 +37,6 @@ LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-MODEL_P    = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
 nout   = 100
 ninp   = 0
@@ -141,3 +139,23 @@ if __name__ == '__main__':
     print("hi1")
     mainRead()
 
+def check_perf_CN(predv, dataEv, sk_ev=False ):
+    gt3 = 0; gtM = 0; 
+    predvList = predv.tolist()
+    # assert(len(predv) == len(dataEv['label']))
+    print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
+    #for i in range(100):
+    for i in range(len(predv)):
+        if (i % 1000==0): print(str(i)) #, end="__") 
+        try:
+            pred_v = dc( predv.tolist()[i], np.max(predv[i]))
+            data_v = dataEv['label'][i] if sk_ev  else dc( dataEv['label'][i])
+            # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
+            if   dType == 'C4' and pred_v != data_v:  gt3=gtM=gtM+1
+            elif dType == 'C1':
+                num = abs(pred_v-data_v)
+                if num > 3: gt3+=1
+                if num > 10: gtM+=1
+        except: print("error: i={}, pred={}, data={} -- ".format(i, pred_vali, data_vali))
+    print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
+    return gt3, gtM   

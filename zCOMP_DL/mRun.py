@@ -10,16 +10,18 @@ import time
 from types import *
 from collections import Counter
 from datetime import datetime
+import mData as md
 
-from mData import *
-
-print("___Start!___" +  str(time.time())  )
-ninp, nout = mainRead()
-epochs     = 10
-disp       = 50
-descr = des()
-batch_size = 128
+print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
+ninp, nout  = md.mainRead()
+descr       = md.des()
 print("___Data Read!")
+
+epochs     = 30
+disp       = 5
+batch_size = 128
+MMF        = "MOD1"
+model_path    = md.LOGDIR + md.DESC + '/' + md.DESC +  MMF +"/model.ckpt"  
 
 lr         = 0.01
 h          = [40 , 10]
@@ -35,14 +37,14 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
     else:             times = datetime.now().strftime('%H:%M:%S') 
 
     line =  datetime.now().strftime('%d.%m.%Y') + '\t' + times
-    line = line + '\t' + str(it) + '\t'+  get_nns() +  '\t' + str( learning_rate)
+    line = line + '\t' + str(it) + '\t'+  get_nns() +  '\t' + str(lr)
     line = line + '\t' + typ 
     line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc + '\n'
 
     f.write(line);  f.close()
     print("___Log recorded")    
 
-# cust - network 
+# NETWORK-----------------------------------------------------
 print( get_nns() )
 x = tf.placeholder(tf.float32,   shape=[None, ninp],              name="x")
 y = tf.placeholder(tf.int16,     shape=[None, nout],              name="y")
@@ -83,43 +85,48 @@ def build_network1( ):
     summ = tf.summary.merge_all()
     init = tf.global_variables_initializer()
     saver= tf.train.Saver()
-    return init, prediction, accuracy, cost, optimizer, saver, softmaxT
+    return init, pred, accuracy, cost, optimizer, saver, softmaxT
 # initialize network!
 init, prediction, accuracy, cost, optimizer, saver, softmaxT = build_network1()
+
+def restore_model(sess):    
+    print("Model restored from file: %s" % model_path)
+    saver.restore(sess, model_path)
+
 print("___Network created")
 
 
-def evaluate():
+def evaluate( descr=''):
     print("EVALUATION...")
-    # with tf.Session() as sess:
-    #     sess.run( init)
-    #     self.restore_model(sess)
-    #     # test the model
-    #     tr_ac = str(sess.run( accuracy, feed_dict={ x: dataTrain['data'],  y: dataTrain['label']}) )[:5]  
-    #     ev_ac = str(sess.run( accuracy, feed_dict={ x: dataEv['data'],     y: dataEv['label']}))[:5] 
-    #     print("Training   Accuracy:", tr_ac )
-    #     print("Evaluation Accuracy:", ev_ac )
-    #     # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
-    #     predv, softv = sess.run([prediction, softmaxT], feed_dict={x: dataEv['data']}) 
-    #     print("Preview the first predictions:")
-    #     for i in range(20):
-    #         print("RealVal: {}  - PP value: {}".format( dc( dataEv['label'][i]), 
-    #                                                     dc( predv.tolist()[i], np.max(predv[i]))  ))
-    #     # maxa = sess.run([prediction], feed_dict={y: predv })
-    # self.check_perf_CN(predv, dataEv , False)
-    # self.logr(  it=0, typ='EV', AC=ev_ac,DS=self.dc.DSC, num=len(dataEv["label"]), AC3=self.l3, AC10=self.l15, desc=desc)
+    with tf.Session() as sess:
+        sess.run(init)
+        restore_model(sess)
+        # test the model
+        tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
+        ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label']}))[:5] 
+        print("Training   Accuracy:", tr_ac )
+        print("Evaluation Accuracy:", ev_ac )
+        # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
+        predv, softv = sess.run([prediction, softmaxT], feed_dict={x: md.dataE['data']  }) # , y: md.dataE['label'] 
+        print("Preview the first predictions:")
+        for i in range(20):
+            print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
+                                                        md.dc( predv.tolist()[i], np.max(predv[i]))  ))
+        # maxa = sess.run([prediction], feed_dict={y: predv })
+    gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
+    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
 def tests():
     pass
 
 def train(it = 100, disp=50, descr='', batch_size = 128):
     display_step =  disp 
-    total_batch  = len(dataT['label']) / batch_size
+    total_batch  = len(md.dataT['label']) / batch_size
     
     with tf.Session() as sess:
         sess.run(init)
         start = time.time()
         for i in range(it):            
-            for ii, (xtb,ytb) in enumerate(get_batches(batch_size) ):
+            for ii, (xtb,ytb) in enumerate(md.get_batches(batch_size) ):
                 # xtb, ytb = dc.next_batch(batch_size, dataT['data'], dataT['label']) 
                 sess.run(optimizer, feed_dict={x: xtb, y: ytb})
                 if ii % display_step ==0: #record_step == 0:
@@ -130,24 +137,25 @@ def train(it = 100, disp=50, descr='', batch_size = 128):
                     tr_ac = str(train_accuracy)[:5]  
                     print('Epoch: {} batch: {} / {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, ii, total_batch, rp_s, tr_ac ))
                     #writer.add_summary(s, i)
-            ev_ac = str(sess.run(accuracy, feed_dict={x: dataE['data'], y: dataE['label']}))[:5] 
-            print("Eval Accuracy:", ev_ac)
+        ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
+        print("E Ac:", ev_ac)
+        
+        tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
+        print("T Ac:", tr_ac)
         
         print("Optimization Finished!")
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path) 
 
-        logr( it=it, typ='TR', DS=DESC, AC=tr_ac,num=len(dataT["label"]), AC3=0, AC10=0, desc=descr)
-        logr( it=it, typ='EV', DS=DESC, AC=ev_ac,num=len(dataE["label"]), AC3=0, AC10=0, desc=descr)
+        logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=descr)
+        logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=descr)
 
 
 
 def mainRun(): 
     train(epochs, disp, descr, batch_size)
-    evaluate()
+    evaluate(descr)
     tests()
-    # mlp =  fpModel( MODEL_P, ni,  network , no)
-    # print(mlp.nn.get_nns())
     print("___The end!")
 
 if __name__ == '__main__':

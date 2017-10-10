@@ -287,4 +287,6 @@ LOGDIR     = "../../_zfp/data/my_graph/"
 MODEL_P  = LOGDIR + "0F2CV4/model.ckpt"      
 mlp =  fpModel( MODEL_P, 1814,  [40 , 10] , 0.01, 4)
 # mlp.logr(desc = 'testVC - class')
+# mlp =  fpModel( MODEL_P, ni,  network , no)
+# print(mlp.nn.get_nns())
 

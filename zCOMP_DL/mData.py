@@ -2,9 +2,6 @@ import pandas as pd
 import tensorflow as tf 
 import numpy as np 
 
-# my notes: new customer to get benefits (france)... 
-# problem sym that there was no german speaker person(project india)
-
 import requests
 import json
 import sys
@@ -25,11 +22,11 @@ DL         = "/datal.csv"
 #---------------------------------------------------------------------
 MMF        = "MOD1"
 DESC       = "FRFLO"
-DESC       = "FLALL"
-dType      = "C1" #C1 or C4
-type_sep   = False
+# DESC       = "FLALL"
+dType      = "C4" #C1 or C4
+type_sep   = True
 spn        = 5000
-
+filter     = ["", 0]
 
 # lr         = 0.01
 # batch_size = 128
@@ -43,12 +40,12 @@ ALL_DSJ    = LOGDAT + DESC + DSJ
 ALL_DS     = LOGDAT + DESC + DSC 
 MODEL_P    = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
-no     = 100
-ni     = 0
-dataE  = {'label' : [] , 'data' :  [] }
+nout   = 100
+ninp   = 0
 dataT  = {'label' : [] , 'data' :  [] }
+dataE  = {'label' : [] , 'data' :  [] }
 
-def des():  return DESC+'_'+dType
+def des():  return DESC+'_'+dType+"_filt:"+  filter[0]+str(filter[1])
 
 def c4(df, rv=1):
     if rv == 1:
@@ -67,26 +64,25 @@ def c4(df, rv=1):
     #     elif( df == [0,0,1,0] ):        return 2  
     #     elif( df == [0,0,0,1] ):        return 3  
 def cN(df):
-    global no 
-    listofzeros = [0] * no
+    global nout
+    listofzeros = [0] * nout
     dfIndex = df #//nRange
     # print('{} and {}', (df,dfIndex))
-    if    0 < dfIndex < no: listofzeros[dfIndex] = 1
-    elif  dfIndex < 0:      listofzeros[0] = 1
-    elif  dfIndex >= no:    listofzeros[no-1] = 1
+    if    0 < dfIndex < nout:   listofzeros[dfIndex] = 1
+    elif  dfIndex < 0:          listofzeros[0]       = 1
+    elif  dfIndex >= nout:      listofzeros[nout-1]  = 1
     
     return listofzeros 
 # Maybe I can do this with hot-encoder in sckitlearn
 def cc(x, rv=1):
-    global no
-    if   dType == 'C4':  no = 4;   return c4(x, rv);
-    elif dType == 'C1':  no = 100; return cN(x); 
+    global nout
+    if   dType == 'C4':  nout = 4;   return c4(x, rv);
+    elif dType == 'C1':  nout = 100; return cN(x); 
 def dc(df, val = 1 ): return df.index(val)
 
 def read_data2():
     columns = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
     dst = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
-
 
 def read_data1( typeSep = True, filt = "", filtn = 0, pand=True): 
     global dataT; global dataE; global type_sep;
@@ -114,7 +110,7 @@ def read_data1( typeSep = True, filt = "", filtn = 0, pand=True):
         dataE  = {'label' : dst.loc[:spn,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
 
 def get_data(filt=["", 0]):
-    global dataT; global dataE; global ni
+    global dataT, dataE; 
     print(des())
     start = time.time()
     read_data1(typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
@@ -128,15 +124,27 @@ def get_data(filt=["", 0]):
     #     dataE  = {'label' : dataAll['label'][:spn] , 'data' :  dataAll['data'][:spn]  }
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataT["label"]),len(dataE["label"]),elapsed_time ))
-    ni = len(dataE["data"].columns)
-    print("N of columns: {}" .format( str(ni) ) )
 
-def main():             
-    get_data()
-    return 
-    mlp =  fpModel( MODEL_P, ni,  network , no)
-    print(mlp.nn.get_nns())
+def convert_2List(dst): return {'label' : dst["label"].as_matrix().tolist(), 'data' : dst["data"].as_matrix().tolist()}
 
-if __name__ == '__main__':
-    print("hi")
-    main()
+def get_batches(batch_size):
+    n_batches = len(dataT["label"])//batch_size
+    # x,y = dataT["data"][:n_batches*batch_size], dataT["label"][:n_batches*batch_size]
+    
+    for ii in range(0, len(dataT["data"][:n_batches*batch_size] ), batch_size ):
+        #convert to list! 
+        yield dataT["data"][ii:ii+batch_size], dataT["label"][ii:ii+batch_size]    
+
+def mainRead():             
+    global ninp, nout, dataT, dataE; 
+    get_data(filter)
+
+    ninp = len(dataE["data"].columns)
+    print("N of columns: {}" .format( str(ninp) ) )
+    dataT= convert_2List(dataT)
+    dataE= convert_2List(dataE)
+    return ninp, nout
+
+# if __name__ == '__main__':
+#     print("hi1")
+#     mainRead()

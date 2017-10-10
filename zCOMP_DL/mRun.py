@@ -94,30 +94,6 @@ def restore_model(sess):
     saver.restore(sess, model_path)
 
 print("___Network created")
-
-
-def evaluate( descr=''):
-    print("EVALUATION...")
-    with tf.Session() as sess:
-        sess.run(init)
-        restore_model(sess)
-        # test the model
-        tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
-        ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label']}))[:5] 
-        print("Training   Accuracy:", tr_ac )
-        print("Evaluation Accuracy:", ev_ac )
-        # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
-        predv, softv = sess.run([prediction, softmaxT], feed_dict={x: md.dataE['data']  }) # , y: md.dataE['label'] 
-        print("Preview the first predictions:")
-        for i in range(20):
-            print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
-                                                        md.dc( predv.tolist()[i], np.max(predv[i]))  ))
-        # maxa = sess.run([prediction], feed_dict={y: predv })
-    gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
-    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
-def tests():
-    pass
-
 def train(it = 100, disp=50, descr='', batch_size = 128):
     display_step =  disp 
     total_batch  = len(md.dataT['label']) / batch_size
@@ -149,11 +125,31 @@ def train(it = 100, disp=50, descr='', batch_size = 128):
 
         logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=descr)
         logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=descr)
-
+def evaluate( descr=''):
+    print("EVALUATION...")
+    with tf.Session() as sess:
+        sess.run(init)
+        restore_model(sess)
+        # test the model
+        tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
+        ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label']}))[:5] 
+        print("Training   Accuracy:", tr_ac )
+        print("Evaluation Accuracy:", ev_ac )
+        # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
+        predv, softv = sess.run([prediction, softmaxT], feed_dict={x: md.dataE['data']  }) # , y: md.dataE['label'] 
+        print("Preview the first predictions:")
+        for i in range(20):
+            print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
+                                                        md.dc( predv.tolist()[i], np.max(predv[i]))  ))
+        # maxa = sess.run([prediction], feed_dict={y: predv })
+    gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
+    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
+def tests():
+    pass
 
 
 def mainRun(): 
-    train(epochs, disp, descr, batch_size)
+    # train(epochs, disp, descr, batch_size)
     evaluate(descr)
     tests()
     print("___The end!")

@@ -135,10 +135,6 @@ def mainRead():
     dataE= convert_2List(dataE)
     return ninp, nout
 
-if __name__ == '__main__':
-    print("hi1")
-    mainRead()
-
 def check_perf_CN(predv, dataEv, sk_ev=False ):
     gt3 = 0; gtM = 0; 
     predvList = predv.tolist()
@@ -158,4 +154,10 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
                 if num > 10: gtM+=1
         except: print("error: i={}, pred={}, data={} -- ".format(i, pred_vali, data_vali))
     print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
-    return gt3, gtM   
+    return gt3, gtM 
+
+if __name__ == '__main__':
+    print("hi1")
+    mainRead()
+
+  

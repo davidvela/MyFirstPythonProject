@@ -140,7 +140,7 @@ class fpModel:
         print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
         #for i in range(100):
         for i in range(len(predv)):
-            if (i % 1000==0): print('i='+str(i), end="")
+            if (i % 500==0): print(str(i)) #print('i='+str(i), end="")
             pred_vali = 0; data_vali = 0;
             try:
                 pred_vali = self.dc.deClassifN( predv.tolist()[i], np.max(predv[i]))

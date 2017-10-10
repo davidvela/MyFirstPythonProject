@@ -40,10 +40,10 @@ class fpDataModel:
             yield x[ii:ii+batch_size], y[ii:ii+batch_size]
     def classif(self, df, rv=False):
         if rv == False: 
-            if( df < 23 ): return [1,0,0,0] 
-            elif( df >= 23 and df < 60 ): return [0,1,0,0]
-            elif( df >= 60 and df < 93 ): return [0,0,1,0] 
-            elif( df >= 93 ): return [0,0,0,1] 
+            if( df < 23 ): return [1,0,0,0]                 #0
+            elif( df >= 23 and df < 60 ): return [0,1,0,0]  #1
+            elif( df >= 60 and df < 93 ): return [0,0,1,0]  #2
+            elif( df >= 93 ): return [0,0,0,1]              #3
         else: 
             if( df < 23 ): return 0
             elif( df >= 23 and df < 60 ): return 1
@@ -115,7 +115,7 @@ class fpDataModel:
             cat_n  = dst.loc[:,'FP'] 
             dst['FP'] = self.normalization( cat_n )               
         dst.insert(2, 'FP_P', dst['FP'].map(lambda x: self.classify(x)))        
-        self.dst = dst
+        # self.dst = dst
         # 3 if no type and 4 if type
         if typeSep == True:
             self.dataCol = 4 # M F T C1 ... 

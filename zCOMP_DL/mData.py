@@ -114,14 +114,6 @@ def get_data(filt=["", 0]):
     print(des())
     start = time.time()
     read_data1(typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
-
-    # if type_sep == True: 
-    #     read_data1(typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
-    # else: 
-    #     dataAll     = {'label' : [] , 'data' :  [] }
-    #     dataAll    =  read_data1( typeSep = False, filt=filt[0], filtn=filt[1] ) 
-    #     dataT  = {'label' : dataAll['label'][spn:] , 'data' :  dataAll['data'][spn:] }
-    #     dataE  = {'label' : dataAll['label'][:spn] , 'data' :  dataAll['data'][:spn]  }
     elapsed_time = float(time.time() - start)
     print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataT["label"]),len(dataE["label"]),elapsed_time ))
 
@@ -145,6 +137,7 @@ def mainRead():
     dataE= convert_2List(dataE)
     return ninp, nout
 
-# if __name__ == '__main__':
-#     print("hi1")
-#     mainRead()
+if __name__ == '__main__':
+    print("hi1")
+    mainRead()
+

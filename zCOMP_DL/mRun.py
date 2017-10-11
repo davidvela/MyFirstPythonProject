@@ -20,14 +20,12 @@ print("___Data Read!")
 epochs     = 30
 disp       = 5
 batch_size = 128
-MMF        = "MOD1"
-model_path    = md.LOGDIR + md.DESC + '/' + md.DESC +  MMF +"/model.ckpt"  
-
+model_path    = md.MODEL_DIR 
 lr         = 0.01
 h          = [40 , 10]
 
 def get_nns(): return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
-def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc=''):
+def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', timeStart=''):
     if desc == '': print("Log not recorded"); return 
     LOG = "../../_zfp/LOGT2.txt"
     f= open(LOG ,"a+") #w,a,
@@ -36,10 +34,11 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
     if time != '':    times = time
     else:             times = datetime.now().strftime('%H:%M:%S') 
 
-    line =  datetime.now().strftime('%d.%m.%Y') + '\t' + times
+    line =  datetime.now().strftime('%d.%m.%Y') + '\t' + times 
     line = line + '\t' + str(it) + '\t'+  get_nns() +  '\t' + str(lr)
     line = line + '\t' + typ 
-    line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc + '\n'
+    line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc 
+    line = line + '\t' + str(batch_size) + '\t' +  timeStart #new
 
     f.write(line);  f.close()
     print("___Log recorded")    
@@ -137,15 +136,38 @@ def evaluate( descr=''):
         print("Evaluation Accuracy:", ev_ac )
         # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
         predv, softv = sess.run([prediction, softmaxT], feed_dict={x: md.dataE['data']  }) # , y: md.dataE['label'] 
-        print("Preview the first predictions:")
-        for i in range(20):
-            print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
-                                                        md.dc( predv.tolist()[i], np.max(predv[i]))  ))
         # maxa = sess.run([prediction], feed_dict={y: predv })
+    print("Preview the first predictions:")
+    for i in range(20):
+        print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
+                                                    md.dc( predv.tolist()[i], np.max(predv[i]))  ))
     gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
     logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
-def tests():
-    pass
+def tests(p_abs, descr=''):
+    print("TESTS...")    
+    dataTest = {'label' : [] , 'data' :  [] };     pred_val = []
+    
+    json_str = '''[{ "m":"8989", "c1" :0.5 },
+        { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+    tmpLab = [59,99]
+    
+    json_data = json.loads(json_str)
+    dataTest['data']  = md.feed_data(json_data, True , d_st=True)
+    dataTest['label'].append( md.cc(x) for x in tmpLab )
+    return
+    with tf.Session() as sess:
+        sess.run(init)
+        restore_model(sess)
+        predv = sess.run( prediction, feed_dict={x: dataTest['data']}) 
+        #ts_acn= sess.run( [self.nn.pred], feed_dict={self.nn.x: dataTest['data'], self.nn.y: dataTest['label']}) 
+        #ts_ac = str(ts_acn)[:5]  
+        #print("test ac = {}".format(ts_ac))
+    # print(dataTest['label'])
+    for i in range(len(predv)):
+        print("RealVal: {}  - PP value: {}".format( md.dc( md.dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
+    check_perf_CN(predv, dataTest, False )
+    gt3, gtM = md.check_perf_CN(predv, dataTest, False)
+    logr( it=0, typ='TS', DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=descr)  
 
 
 def mainRun(): 

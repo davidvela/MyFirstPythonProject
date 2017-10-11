@@ -21,10 +21,10 @@ DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
 DESC       = "FRFLO"
-# DESC       = "FLALL"
-dType      = "C4" #C1 or C4
-type_sep   = True
-spn        = 5000
+DESC       = "FLALL"
+dType      = "C1" #C1 or C4
+type_sep   = False
+spn        = 500 #5000 -1 = all for training 
 filter     = ["", 0]
 
 # lr         = 0.01
@@ -37,6 +37,8 @@ LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
+MMF        = "MOD1"
+MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
 nout   = 100
 ninp   = 0
@@ -82,10 +84,10 @@ def read_data2():
     columns = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
     dst = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
 
-def read_data1( typeSep = True, filt = "", filtn = 0, pand=True): 
-    global dataT; global dataE; global type_sep;
+def read_data1(path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle = True): 
+    global dataT; global dataE;
     #read excel by batchs
-    dst = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" )# ,skiprows=1, nrows=2)
+    dst = pd.read_csv( tf.gfile.Open([path]), sep=None, skipinitialspace=True,  engine="python" )# ,skiprows=1, nrows=2)
     dst = dst.fillna(0)
     if filt == '>':
             dst = dst[dst["FP"]>filtn]
@@ -102,18 +104,10 @@ def read_data1( typeSep = True, filt = "", filtn = 0, pand=True):
         dataT   =  {'label' : dst_tmp[1].loc[:,'FP_P'], 'data' : dst_tmp[1].iloc[:,dataCol:]  }
     else :  
         dataCol = 3 # M F Cx  
-        dst = dst.sample(frac=1).reset_index(drop=True) #shuffle
+        if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
         # dataA   =  {'label' : dst.loc[:,'FP_P'], 'data' : dst.loc[:,dataCol:]  }
         dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, dataCol:] }
         dataE  = {'label' : dst.loc[:spn,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
-
-def get_data(filt=["", 0]):
-    global dataT, dataE; 
-    print(des())
-    start = time.time()
-    read_data1(typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
-    elapsed_time = float(time.time() - start)
-    print("data read - lenTrain={} - lenTests={} - time:{}" .format(len(dataT["label"]),len(dataE["label"]),elapsed_time ))
 
 def convert_2List(dst): return {'label' : dst["label"].as_matrix().tolist(), 'data' : dst["data"].as_matrix().tolist()}
 
@@ -125,14 +119,27 @@ def get_batches(batch_size):
         #convert to list! 
         yield dataT["data"][ii:ii+batch_size], dataT["label"][ii:ii+batch_size]    
 
-def mainRead():             
+def mainRead(filt=["", 0]):             
     global ninp, nout, dataT, dataE; 
-    get_data(filter)
+    print(des())
+    
+    start = time.time()
+    read_data1(ALL_DS, typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
+    elapsed_time = float(time.time() - start)
+    print("data read - lenTrain={} - lenEv={} - time:{}" .format(len(dataT["label"]),len(dataE["label"]),elapsed_time ))
 
     ninp = len(dataE["data"].columns)
     print("N of columns: {}" .format( str(ninp) ) )
     dataT= convert_2List(dataT)
     dataE= convert_2List(dataE)
+    return ninp, nout
+
+def mainRead2(filt=["", 0], path):
+    global ninp, nout, dataT, dataE; 
+    read_data1(path, typeSep = type_sep, filt=filt[0], filtn=filt[1], shuffle = False )              
+    ninp = len(dataE["data"].columns)
+    dataT= convert_2List(dataT)
+    # dataE= convert_2List(dataE)
     return ninp, nout
 
 def check_perf_CN(predv, dataEv, sk_ev=False ):
@@ -156,8 +163,76 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
     print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
     return gt3, gtM 
 
+def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
+    indx=[];   index_col=0 if p_abs else 2 
+ 
+    col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
+    print("input-no={}".format( len(col_df )))
+
+    if p_exp:   indx.append(i for i in range(103))
+    else:       indx = col_df.index
+    
+    json_df  = pd.DataFrame(columns=indx); df_entry = pd.Series(index=indx)
+    df_entry = df_entry.fillna(0) 
+    
+    ccount = Counter()
+    if(isinstance(dataJJ, list)):json_data = dataJJ
+    else: json_str=open(dataJJ).read();  json_data = json.loads(json_str)
+    # for i in range(20):
+    for i in range(len(json_data)): # print(i)
+        df_entry *= 0
+        m = str(json_data[i]["m"])
+        df_entry.name = m
+        for key in json_data[i]:
+            if key == "m": pass            
+            else: 
+                key_wz = key if p_abs else int(key)  #str(int(key))
+                try: #filling of key - experimental or components 
+                    ds_comp = col_df.loc[key_wz]
+                    if p_exp == True:  #fp key - 0-102   
+                        co = str(ds_comp['FP'])
+                        if co == 'nan':  col_key = 102
+                        else: 
+                            col_key = int(ds_comp['FP'])
+                            if col_key>101: col_key = 101
+                            if col_key<0: col_key = 0
+                    else: col_key = key_wz      
+                    # df_entry.loc[col_key]
+                    df_entry[col_key] =  np.float32(json_data[i][key])
+                except: 
+                    if d_st: print("m:{}-c:{} not included" .format(m, key_wz)); ccount[key_wz] +=1
+
+        json_df = json_df.append(df_entry,ignore_index=False)
+        if i % 1000 == 0: print("cycle: {}".format(i))
+    
+    print("Counter of comp. not included :"); print(ccount) # print(len(ccount))
+
+    if pand == True:  return json_df  
+    else:             return json_df.as_matrix().tolist()  
+
+def testsJ(excel):
+    print("tests JSON")    
+    dataAll = {'label' : [] , 'data' :  [] }
+    json_flag = True    
+    if json_flag: 
+        json_str = '''[{ "m":"8989", "c1" :0.5, "c3" :0.5  },
+                    { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        json_data = json.loads(json_str)  #;print(json_data[0]['m'])
+    else: json_data = ALL_DSJ
+  
+    start = time.time()
+    dataAll['data'] = feed_data(json_data, p_abs = True, pand=True, d_st=True,  p_exp=False);
+    elapsed_time = float(time.time() - start)
+    # TO DO: separate between training and evaluation! 
+    
+    print("data read - time:{}" .format(elapsed_time ))
+    if excel == True:# Create the excel with the new layout!  
+        writer = pd.ExcelWriter(LOGDAT+'pandas.xlsx')
+        dataAll['data'].to_excel(writer, sheet_name='Sheet1')
+        writer.save()
+        print("JSON downloaded into excel! ")
+
 if __name__ == '__main__':
     print("hi1")
-    mainRead()
-
-  
+    mainRead()     
+    #testsJ(False)

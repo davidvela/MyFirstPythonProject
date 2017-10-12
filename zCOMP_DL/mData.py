@@ -21,16 +21,11 @@ DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
 DESC       = "FRFLO"
-DESC       = "FLALL"
-dType      = "C1" #C1 or C4
+# DESC       = "FLALL"
+dType      = "C4" #C1 or C4
 type_sep   = False
-spn        = 500 #5000 -1 = all for training 
+spn        = 2  #5000 -1 = all for training 
 filter     = ["", 0]
-
-# lr         = 0.01
-# batch_size = 128
-# epochs     = 100
-# network    = [40 , 10]
 #---------------------------------------------------------------------
 
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
@@ -84,10 +79,10 @@ def read_data2():
     columns = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
     dst = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
 
-def read_data1(path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle = True): 
+def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle = True): 
     global dataT; global dataE;
     #read excel by batchs
-    dst = pd.read_csv( tf.gfile.Open([path]), sep=None, skipinitialspace=True,  engine="python" )# ,skiprows=1, nrows=2)
+    dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )# ,skiprows=1, nrows=2)
     dst = dst.fillna(0)
     if filt == '>':
             dst = dst[dst["FP"]>filtn]
@@ -104,10 +99,14 @@ def read_data1(path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle =
         dataT   =  {'label' : dst_tmp[1].loc[:,'FP_P'], 'data' : dst_tmp[1].iloc[:,dataCol:]  }
     else :  
         dataCol = 3 # M F Cx  
-        if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
+        # if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
         # dataA   =  {'label' : dst.loc[:,'FP_P'], 'data' : dst.loc[:,dataCol:]  }
         dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, dataCol:] }
-        dataE  = {'label' : dst.loc[:spn,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
+        dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
+        
+        writer = pd.ExcelWriter(LOGDAT+'shit.xlsx')
+        dataT['label'].to_excel(writer, sheet_name='Sheet1')
+        writer.save()
 
 def convert_2List(dst): return {'label' : dst["label"].as_matrix().tolist(), 'data' : dst["data"].as_matrix().tolist()}
 
@@ -126,7 +125,7 @@ def mainRead(filt=["", 0]):
     start = time.time()
     read_data1(ALL_DS, typeSep = type_sep, filt=filt[0], filtn=filt[1] ) 
     elapsed_time = float(time.time() - start)
-    print("data read - lenTrain={} - lenEv={} - time:{}" .format(len(dataT["label"]),len(dataE["label"]),elapsed_time ))
+    print("data read - lenTrain={}-{} & lenEv={}-{} time:{}" .format(len(dataT["data"]), len(dataT["label"]),len(dataE["data"]),len(dataE["label"]),elapsed_time ))
 
     ninp = len(dataE["data"].columns)
     print("N of columns: {}" .format( str(ninp) ) )
@@ -134,7 +133,7 @@ def mainRead(filt=["", 0]):
     dataE= convert_2List(dataE)
     return ninp, nout
 
-def mainRead2(filt=["", 0], path):
+def mainRead2(path, filt=["", 0]):
     global ninp, nout, dataT, dataE; 
     read_data1(path, typeSep = type_sep, filt=filt[0], filtn=filt[1], shuffle = False )              
     ninp = len(dataE["data"].columns)
@@ -144,7 +143,7 @@ def mainRead2(filt=["", 0], path):
 
 def check_perf_CN(predv, dataEv, sk_ev=False ):
     gt3 = 0; gtM = 0; 
-    predvList = predv.tolist()
+    # predvList = predv.tolist()
     # assert(len(predv) == len(dataEv['label']))
     print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
     #for i in range(100):

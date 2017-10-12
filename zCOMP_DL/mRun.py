@@ -12,17 +12,19 @@ from collections import Counter
 from datetime import datetime
 import mData as md
 
+# READ DATA -------------------------------------------------
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
+# md.spn = 200
 ninp, nout  = md.mainRead()
 descr       = md.des()
 print("___Data Read!")
 
-epochs     = 30
-disp       = 5
-batch_size = 128
 model_path    = md.MODEL_DIR 
 lr         = 0.01
 h          = [40 , 10]
+epochs     = 30
+disp       = 5
+batch_size = 128
 
 def get_nns(): return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
 def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', timeStart=''):
@@ -85,24 +87,26 @@ def build_network1( ):
     init = tf.global_variables_initializer()
     saver= tf.train.Saver()
     return init, pred, accuracy, cost, optimizer, saver, softmaxT
-# initialize network!
 init, prediction, accuracy, cost, optimizer, saver, softmaxT = build_network1()
 
 def restore_model(sess):    
     print("Model restored from file: %s" % model_path)
     saver.restore(sess, model_path)
-
 print("___Network created")
-def train(it = 100, disp=50, descr='', batch_size = 128):
+
+# OPERATIONS-----------------------------------------------------
+def train(it = 100, disp=50, descr='', batch_size = 128): 
+    print("____TRAINING...")
     display_step =  disp 
-    total_batch  = len(md.dataT['label']) / batch_size
+    total_batch  = int(len(md.dataT['label']) / batch_size)
     
     with tf.Session() as sess:
         sess.run(init)
+        # restore_model(sess)  #Run if I want to retrain an existing model
         start = time.time()
         for i in range(it):            
             for ii, (xtb,ytb) in enumerate(md.get_batches(batch_size) ):
-                # xtb, ytb = dc.next_batch(batch_size, dataT['data'], dataT['label']) 
+                # xtb, ytb = dc.next_batch(batch_size, dataT['data'], dataT['label'])
                 sess.run(optimizer, feed_dict={x: xtb, y: ytb})
                 if ii % display_step ==0: #record_step == 0:
                     [train_accuracy] = sess.run([accuracy], feed_dict={x: xtb, y: ytb }) 
@@ -124,14 +128,14 @@ def train(it = 100, disp=50, descr='', batch_size = 128):
 
         logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=descr)
         logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=descr)
-def evaluate( descr=''):
-    print("EVALUATION...")
+def evaluate( descr=''): 
+    print("_____EVALUATION...")
     with tf.Session() as sess:
         sess.run(init)
-        restore_model(sess)
+        # restore_model(sess)
         # test the model
         tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
-        ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label']}))[:5] 
+        ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label'][:md.spn]   }))[:5] 
         print("Training   Accuracy:", tr_ac )
         print("Evaluation Accuracy:", ev_ac )
         # xtp1.append(dataTest['data'][i]);    ytp1.append(dataTest['label'][i])
@@ -143,8 +147,8 @@ def evaluate( descr=''):
                                                     md.dc( predv.tolist()[i], np.max(predv[i]))  ))
     gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
     logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
-def tests(p_abs, descr=''):
-    print("TESTS...")    
+def tests(descr=''):  
+    print("_____TESTS...")    
     dataTest = {'label' : [] , 'data' :  [] };     pred_val = []
     
     json_str = '''[{ "m":"8989", "c1" :0.5 },
@@ -153,8 +157,8 @@ def tests(p_abs, descr=''):
     
     json_data = json.loads(json_str)
     dataTest['data']  = md.feed_data(json_data, True , d_st=True)
-    dataTest['label'].append( md.cc(x) for x in tmpLab )
-    return
+    [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
+
     with tf.Session() as sess:
         sess.run(init)
         restore_model(sess)
@@ -164,14 +168,14 @@ def tests(p_abs, descr=''):
         #print("test ac = {}".format(ts_ac))
     # print(dataTest['label'])
     for i in range(len(predv)):
-        print("RealVal: {}  - PP value: {}".format( md.dc( md.dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
-    check_perf_CN(predv, dataTest, False )
+        print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
+    
     logr( it=0, typ='TS', DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=descr)  
 
 
 def mainRun(): 
-    # train(epochs, disp, descr, batch_size)
+    train(epochs, disp, descr, batch_size)
     evaluate(descr)
     tests()
     print("___The end!")

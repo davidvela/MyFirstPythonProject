@@ -24,7 +24,7 @@ DESC       = "FRFLO"
 # DESC       = "FLALL"
 dType      = "C4" #C1 or C4
 type_sep   = False
-spn        = 100  #5000 -1 = all for training 
+spn        = 5000  #5000 -1 = all for training 
 filter     = ["", 0]
 #---------------------------------------------------------------------
 
@@ -37,8 +37,9 @@ MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"
 
 nout   = 100
 ninp   = 0
-dataT  = {'label' : [] , 'data' :  [] }
+dataT  = {'label' : [] , 'data' :  [] } #inmutables array are faster! 
 dataE  = {'label' : [] , 'data' :  [] }
+dataS  = {'label' : [] , 'data' :  [] }
 
 def des():  return DESC+'_'+dType+"_filt:"+  filter[0]+str(filter[1])
 
@@ -75,14 +76,18 @@ def cc(x, rv=1):
     elif dType == 'C1':  nout = 100; return cN(x); 
 def dc(df, val = 1 ): return df.index(val)
 
-def read_data2():
-    columns = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
-    dst = pd.read_csv( tf.gfile.Open(ALL_DS), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
+def read_data2(path):
+    # columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
+    # dst = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
+    dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )
+    dst = dst.fillna(0)
+    dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc(x)))  
+    return {'label' : dst.loc[:,'FP_P'] , 'data' :  dst.iloc[:, 3:] }
 
 def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle = True): 
     global dataT; global dataE;
     #read excel by batchs
-    dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )# ,skiprows=1, nrows=2)
+    dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )
     dst = dst.fillna(0)
     if filt == '>':
             dst = dst[dst["FP"]>filtn]
@@ -130,10 +135,11 @@ def mainRead(filt=["", 0]):
     return ninp, nout
 
 def mainRead2(path, filt=["", 0]):
-    global ninp, nout, dataT, dataE; 
-    read_data1(path, typeSep = type_sep, filt=filt[0], filtn=filt[1], shuffle = False )              
-    ninp = len(dataE["data"].columns)
-    dataT= convert_2List(dataT)
+    global ninp, nout, dataT, dataE;
+     
+    dataS = read_data2(path)              
+    ninp  = len(dataS["data"].columns)
+    dataS = convert_2List(dataS)
     # dataE= convert_2List(dataE)
     return ninp, nout
 

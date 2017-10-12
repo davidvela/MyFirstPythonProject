@@ -16,13 +16,15 @@ import mData as md
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
 ninp, nout  = md.mainRead()
-descr       = md.des()
+# For test I am forced to used JSON - column names and order may be different! 
+#  md.DESC     = "FREXP"
+# ninp, nout  = md.mainRead2()
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
 lr         = 0.01
 h          = [40 , 10]
-epochs     = 30
+epochs     = 100
 disp       = 5
 batch_size = 128
 
@@ -40,7 +42,7 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
     line = line + '\t' + str(it) + '\t'+  get_nns() +  '\t' + str(lr)
     line = line + '\t' + typ 
     line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc 
-    line = line + '\t' + str(batch_size) + '\t' +  timeStart #new
+    line = line + '\t' + str(batch_size) + '\t' +  timeStart + '\n' #new
 
     f.write(line);  f.close()
     print("___Log recorded")    
@@ -95,7 +97,7 @@ def restore_model(sess):
 print("___Network created")
 
 # OPERATIONS-----------------------------------------------------
-def train(it = 100, disp=50, descr='', batch_size = 128): 
+def train(it = 100, disp=50, batch_size = 128): 
     print("____TRAINING...")
     display_step =  disp 
     total_batch  = int(len(md.dataT['label']) / batch_size)
@@ -126,9 +128,9 @@ def train(it = 100, disp=50, descr='', batch_size = 128):
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path) 
 
-        logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=descr)
-        logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=descr)
-def evaluate( descr=''): 
+        logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=md.des() )
+        logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=md.des() )
+def evaluate( ): 
     print("_____EVALUATION...")
     with tf.Session() as sess:
         sess.run(init)
@@ -146,38 +148,45 @@ def evaluate( descr=''):
         print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
                                                     md.dc( predv.tolist()[i], np.max(predv[i]))  ))
     gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
-    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DSC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=descr)
-def tests(descr=''):  
+    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des() )
+def tests(url_test = 'url'):  
     print("_____TESTS...")    
     dataTest = {'label' : [] , 'data' :  [] };     pred_val = []
     
-    json_str = '''[{ "m":"8989", "c1" :0.5 },
-        { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-    tmpLab = [59,99]
-    
-    json_data = json.loads(json_str)
-    dataTest['data']  = md.feed_data(json_data, True , d_st=True)
+    if url_test != 'url':  
+        json_data = url_test + "data_json.txt"
+        tmpLab = pd.read_csv(url_test + "datal.csv", sep=',', usecols=[0,1])    
+        tmpLab = tmpLab.loc[:,'fp']
+    else: 
+        json_str = '''[{ "m":"8989", "c1" :0.5 },
+            { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        json_data = json.loads(json_str)
+        tmpLab = [59,99]
+    dataTest['data']  = md.feed_data(json_data, True , d_st=False)
     [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
 
     with tf.Session() as sess:
         sess.run(init)
         restore_model(sess)
-        predv = sess.run( prediction, feed_dict={x: dataTest['data']}) 
-        #ts_acn= sess.run( [self.nn.pred], feed_dict={self.nn.x: dataTest['data'], self.nn.y: dataTest['label']}) 
-        #ts_ac = str(ts_acn)[:5]  
-        #print("test ac = {}".format(ts_ac))
+        # predv = sess.run( prediction, feed_dict={x: dataTest['data']}) 
+        ts_acn = '0'
+        ts_acn, predv = sess.run( [accuracy, prediction], feed_dict={x: dataTest['data'], y: dataTest['label']}) 
+        ts_ac = str(ts_acn) 
+        print("test ac = {}".format(ts_ac))
     # print(dataTest['label'])
-    for i in range(len(predv)):
+    range_ts = len(predv) if len(predv)<20 else 20
+    for i in range( range_ts ):
         print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     
-    logr( it=0, typ='TS', DS='matnrList...', AC='0',num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=descr)  
-
+    logr( it=0, typ='TS', DS='matnrList...', AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
+    
 
 def mainRun(): 
-    # train(epochs, disp, descr, batch_size)
-    evaluate(descr)
-    tests()
+    # train(epochs, disp, batch_size)
+    # evaluate( )
+    url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
+    tests( url_test )
     print("___The end!")
 
 if __name__ == '__main__':

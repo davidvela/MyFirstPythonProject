@@ -21,10 +21,10 @@ DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
 DESC       = "FRFLO"
-# DESC       = "FLALL"
+DESC       = "FRALL"
 dType      = "C4" #C1 or C4
 type_sep   = False
-spn        = 5000  #5000 -1 = all for training 
+spn        = 10000  #5000 -1 = all for training 
 filter     = ["", 0]
 #---------------------------------------------------------------------
 
@@ -39,7 +39,6 @@ nout   = 100
 ninp   = 0
 dataT  = {'label' : [] , 'data' :  [] } #inmutables array are faster! 
 dataE  = {'label' : [] , 'data' :  [] }
-dataS  = {'label' : [] , 'data' :  [] }
 
 def des():  return DESC+'_'+dType+"_filt:"+  filter[0]+str(filter[1])
 
@@ -73,16 +72,17 @@ def cN(df):
 def cc(x, rv=1):
     global nout
     if   dType == 'C4':  nout = 4;   return c4(x, rv);
-    elif dType == 'C1':  nout = 100; return cN(x); 
+    elif dType == 'C1':  nout = 102; return cN(x); 
 def dc(df, val = 1 ): return df.index(val)
 
-def read_data2(path):
+# def read_data2(path):
     # columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
+    # columns = columns.columns
     # dst = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" , skiprows=128, nrows=128)
-    dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )
-    dst = dst.fillna(0)
-    dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc(x)))  
-    return {'label' : dst.loc[:,'FP_P'] , 'data' :  dst.iloc[:, 3:] }
+    # # dst = pd.read_csv( tf.gfile.Open(data_path), sep=None, skipinitialspace=True,  engine="python" )
+    # dst = dst.fillna(0)
+    # dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc(x)))  
+    
 
 def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuffle = True): 
     global dataT; global dataE;
@@ -104,7 +104,7 @@ def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuf
         dataT   =  {'label' : dst_tmp[1].loc[:,'FP_P'], 'data' : dst_tmp[1].iloc[:,dataCol:]  }
     else :  
         dataCol = 3 # M F Cx  
-        # if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
+        if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
         # dataA   =  {'label' : dst.loc[:,'FP_P'], 'data' : dst.loc[:,dataCol:]  }
         dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, dataCol:] }
         dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
@@ -134,13 +134,20 @@ def mainRead(filt=["", 0]):
     dataE= convert_2List(dataE)
     return ninp, nout
 
-def mainRead2(path, filt=["", 0]):
+def mainRead2(path, part, batch_size):  # read by partitions! 
     global ninp, nout, dataT, dataE;
-     
-    dataS = read_data2(path)              
-    ninp  = len(dataS["data"].columns)
-    dataS = convert_2List(dataS)
-    # dataE= convert_2List(dataE)
+    
+    columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
+    data = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=100, nrows=batch_size)
+
+    if batch_size > spn: spn = -1
+
+    dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, 3:] }
+    dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, 3:] }
+
+    ninp  = len(dataT["data"].columns)
+    dataT= convert_2List(dataT)
+    dataE= convert_2List(dataE)
     return ninp, nout
 
 def check_perf_CN(predv, dataEv, sk_ev=False ):
@@ -167,7 +174,8 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
 def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
     indx=[];   index_col=0 if p_abs else 2 
  
-    col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
+    # col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
+    col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2])    
     print("input-no={}".format( len(col_df )))
 
     if p_exp:   indx.append(i for i in range(103))

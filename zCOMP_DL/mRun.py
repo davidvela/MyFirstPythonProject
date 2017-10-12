@@ -16,6 +16,7 @@ import mData as md
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
 ninp, nout  = md.mainRead()
+ninp, nout  = md.mainRead2(md.ALL_DS, 0, 2 )
 # For test I am forced to used JSON - column names and order may be different! 
 #  md.DESC     = "FREXP"
 # ninp, nout  = md.mainRead2()
@@ -24,7 +25,7 @@ print("___Data Read!")
 model_path    = md.MODEL_DIR 
 lr         = 0.01
 h          = [40 , 10]
-epochs     = 100
+epochs     = 10
 disp       = 5
 batch_size = 128
 
@@ -118,8 +119,8 @@ def train(it = 100, disp=50, batch_size = 128):
                     tr_ac = str(train_accuracy)[:5]  
                     print('Epoch: {} batch: {} / {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, ii, total_batch, rp_s, tr_ac ))
                     #writer.add_summary(s, i)
-        ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
-        print("E Ac:", ev_ac)
+            ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
+            print("E Ac:", ev_ac)
         
         tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
         print("T Ac:", tr_ac)
@@ -191,3 +192,9 @@ def mainRun():
 
 if __name__ == '__main__':
     mainRun()
+
+def get_data_test( desc ): 
+    if desc == "FRFLO": 
+        return "dsalk"
+    elif desc == "FRALL":
+        return "dlasdjl", []

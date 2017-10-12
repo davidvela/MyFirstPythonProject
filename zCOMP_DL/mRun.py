@@ -132,7 +132,7 @@ def evaluate( descr=''):
     print("_____EVALUATION...")
     with tf.Session() as sess:
         sess.run(init)
-        # restore_model(sess)
+        restore_model(sess)
         # test the model
         tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
         ev_ac = str(sess.run( accuracy, feed_dict={ x: md.dataE['data'],  y: md.dataE['label'][:md.spn]   }))[:5] 
@@ -175,7 +175,7 @@ def tests(descr=''):
 
 
 def mainRun(): 
-    train(epochs, disp, descr, batch_size)
+    # train(epochs, disp, descr, batch_size)
     evaluate(descr)
     tests()
     print("___The end!")

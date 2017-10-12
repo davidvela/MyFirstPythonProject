@@ -24,7 +24,7 @@ DESC       = "FRFLO"
 # DESC       = "FLALL"
 dType      = "C4" #C1 or C4
 type_sep   = False
-spn        = 2  #5000 -1 = all for training 
+spn        = 100  #5000 -1 = all for training 
 filter     = ["", 0]
 #---------------------------------------------------------------------
 

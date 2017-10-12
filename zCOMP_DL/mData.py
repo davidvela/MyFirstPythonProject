@@ -104,10 +104,6 @@ def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuf
         dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, dataCol:] }
         dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
         
-        writer = pd.ExcelWriter(LOGDAT+'shit.xlsx')
-        dataT['label'].to_excel(writer, sheet_name='Sheet1')
-        writer.save()
-
 def convert_2List(dst): return {'label' : dst["label"].as_matrix().tolist(), 'data' : dst["data"].as_matrix().tolist()}
 
 def get_batches(batch_size):

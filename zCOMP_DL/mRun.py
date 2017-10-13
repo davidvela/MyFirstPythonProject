@@ -16,16 +16,14 @@ import mData as md
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
 ninp, nout  = md.mainRead()
-# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 )
-# For test I am forced to used JSON - column names and order may be different! 
-#  md.DESC     = "FREXP"
-# ninp, nout  = md.mainRead2()
+# md.DESC     = "FREXP"
+# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
 lr         = 0.01
-h          = [40 , 10]
-epochs     = 10
+h          = [100 , 40]
+epochs     = 60
 disp       = 5
 batch_size = 128
 
@@ -59,7 +57,12 @@ weights = { 'h1': tf.Variable(tf.random_normal([ninp,h[0]]),      name="Weights_
             'h2': tf.Variable(tf.random_normal([h[0],h[1]]),      name="Weights_2"),
             'out': tf.Variable(tf.random_normal([h[1], nout]),    name="Weights_out")}
 
+def build_network2():
+    # layer_1 = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
+    pass
+
 def build_network1( ):
+    # tf.reset_default_graph( )
     with tf.name_scope("fc_1"):
         layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
         layer_1 = tf.nn.relu(layer_1)
@@ -96,6 +99,30 @@ def restore_model(sess):
     print("Model restored from file: %s" % model_path)
     saver.restore(sess, model_path)
 print("___Network created")
+
+def get_data_test( desc ): 
+    if desc == "FRFLO": 
+        json_str = '''[
+            { "m":"8989", "c1" :0.5 },
+            { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        tmpLab = [59,99]
+
+    elif desc == "FRALL": #most used 
+        json_str =  '''[
+            { "m":"1", "c1122" :1 },
+            { "m":"2", "c884" : 1 },
+            { "m":"3", "c825" : 1 },
+            { "m":"4", "c1122" :0.5 , "c825" :0.5 },
+            { "m":"10", "c3" :0.5 , "c4" :0.5 }] '''
+
+        tmpLab = [121,110, 75, 90, 80]
+
+    elif desc == "TESTS" : 
+        json_str =  '''[
+            { "m":"8989", "c1" :0.5 },
+            { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        tmpLab = [59,99]
+    return json_str, tmpLab
 
 # OPERATIONS-----------------------------------------------------
 def train(it = 100, disp=50, batch_size = 128): 
@@ -152,18 +179,18 @@ def evaluate( ):
     logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des() )
 def tests(url_test = 'url'):  
     print("_____TESTS...")    
-    dataTest = {'label' : [] , 'data' :  [] };     pred_val = []
+    dataTest = {'label' : [] , 'data' :  [] }; pred_val = []
     
     if url_test != 'url':  
         json_data = url_test + "data_json.txt"
         tmpLab = pd.read_csv(url_test + "datal.csv", sep=',', usecols=[0,1])    
         tmpLab = tmpLab.loc[:,'fp']
+        abstcc = False
     else: 
-        json_str = '''[{ "m":"8989", "c1" :0.5 },
-            { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        json_str, tmpLab = get_data_test("FRALL")
         json_data = json.loads(json_str)
-        tmpLab = [59,99]
-    dataTest['data']  = md.feed_data(json_data, True , d_st=False)
+        abstcc = True
+    dataTest['data']  = md.feed_data(json_data, p_abs=abstcc , d_st=True)
     [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
 
     with tf.Session() as sess:
@@ -184,8 +211,8 @@ def tests(url_test = 'url'):
     
 
 def mainRun(): 
-    # train(epochs, disp, batch_size)
-    evaluate( )
+    train(epochs, disp, batch_size)
+    # evaluate( )
     url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
     tests( url_test )
     print("___The end!")
@@ -193,8 +220,6 @@ def mainRun():
 if __name__ == '__main__':
     mainRun()
 
-def get_data_test( desc ): 
-    if desc == "FRFLO": 
-        return "dsalk"
-    elif desc == "FRALL":
-        return "dlasdjl", []
+
+
+

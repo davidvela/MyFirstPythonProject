@@ -105,9 +105,9 @@ def read_data1(data_path,  typeSep = True, filt = "", filtn = 0, pand=True, shuf
     else :  
         dataCol = 3 # M F Cx  
         if shuffle: dst = dst.sample(frac=1).reset_index(drop=True) 
-        # dataA   =  {'label' : dst.loc[:,'FP_P'], 'data' : dst.loc[:,dataCol:]  }
         dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, dataCol:] }
         dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, dataCol:] }
+        # dataA   =  {'label' : dst.loc[:,'FP_P'], 'data' : dst.loc[:,dataCol:]  }
         
 def convert_2List(dst): return {'label' : dst["label"].as_matrix().tolist(), 'data' : dst["data"].as_matrix().tolist()}
 
@@ -135,17 +135,23 @@ def mainRead(filt=["", 0]):
     return ninp, nout
 
 def mainRead2(path, part, batch_size):  # read by partitions! 
-    global ninp, nout, dataT, dataE;
-    
+    global ninp, nout, dataT, dataE, spn;
+    start = time.time()
     columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
-    data = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=100, nrows=batch_size)
-
+    dst = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=part*batch_size, nrows=batch_size, names = columns.columns)
+    
+    dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc(x)))  
+    
     if batch_size > spn: spn = -1
-
+    dst = dst.sample(frac=1).reset_index(drop=True) 
     dataT  = {'label' : dst.loc[spn:,'FP_P'] , 'data' :  dst.iloc[spn:, 3:] }
     dataE  = {'label' : dst.loc[:spn-1,'FP_P'] , 'data' :  dst.iloc[:spn, 3:] }
 
+    elapsed_time = float(time.time() - start)
+    print("data read - lenTrain={}-{} & lenEv={}-{} time:{}" .format(len(dataT["data"]), len(dataT["label"]),len(dataE["data"]),len(dataE["label"]), elapsed_time ))
+   
     ninp  = len(dataT["data"].columns)
+
     dataT= convert_2List(dataT)
     dataE= convert_2List(dataE)
     return ninp, nout
@@ -243,5 +249,6 @@ def testsJ(excel):
 
 if __name__ == '__main__':
     print("hi1")
-    mainRead()     
+    # mainRead()   
+    ninp, nout  = mainRead2(ALL_DS, 1, 2 )  
     #testsJ(False)

@@ -16,7 +16,7 @@ import mData as md
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
 ninp, nout  = md.mainRead()
-ninp, nout  = md.mainRead2(md.ALL_DS, 0, 2 )
+# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 )
 # For test I am forced to used JSON - column names and order may be different! 
 #  md.DESC     = "FREXP"
 # ninp, nout  = md.mainRead2()
@@ -185,7 +185,7 @@ def tests(url_test = 'url'):
 
 def mainRun(): 
     # train(epochs, disp, batch_size)
-    # evaluate( )
+    evaluate( )
     url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
     tests( url_test )
     print("___The end!")

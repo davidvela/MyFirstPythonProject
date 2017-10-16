@@ -21,7 +21,7 @@ DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
 # DESC       = "FRFLO"
-DESC       = "FRALL"
+DESC       = "FRALL1"
 dType      = "C1" #C1 or C4
 type_sep   = False
 spn        = 10000  #5000 -1 = all for training 
@@ -32,7 +32,7 @@ LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-MMF        = "MOD1"
+MMF        = "MOD2"
 MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
 nout   = 100
@@ -183,10 +183,10 @@ def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
     # col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
     col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2])    
     print("input-no={}".format( len(col_df )))
-
+    
     if p_exp:   indx.append(i for i in range(103))
     else:       indx = col_df.index
-
+    
     json_df  = pd.DataFrame(columns=indx); df_entry = pd.Series(index=indx)
     df_entry = df_entry.fillna(0) 
    
@@ -201,7 +201,7 @@ def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
         for key in json_data[i]:
             if key == "m": pass            
             else: 
-                key_wz = key if p_abs else str(int(key))  #str(int(key))
+                key_wz = key if p_abs else (int(key))  #str(int(key)) FRFLO - int // FRALL str!
                 try: #filling of key - experimental or components 
                     ds_comp = col_df.loc[key_wz]
                     if p_exp == True:  #fp key - 0-102   

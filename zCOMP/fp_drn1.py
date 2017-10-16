@@ -11,7 +11,7 @@ from collections import Counter
 from datetime import datetime
 from fp_drc2     import fpDataModel
 
-
+ 
 #version 1 - network + model 
 class fpNN:
     def __init__(self, n_input, layers=2, hidden_nodes = [256 , 256], 

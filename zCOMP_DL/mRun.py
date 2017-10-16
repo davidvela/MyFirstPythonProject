@@ -21,9 +21,10 @@ ninp, nout  = md.mainRead()
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
-lr         = 0.01
+lr         = 0.0001
 h          = [100 , 40]
-epochs     = 60
+# h          = [40 , 10]
+epochs     = 40
 disp       = 5
 batch_size = 128
 
@@ -48,20 +49,43 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
 
 # NETWORK-----------------------------------------------------
 print( get_nns() )
-x = tf.placeholder(tf.float32,   shape=[None, ninp],              name="x")
-y = tf.placeholder(tf.int16,     shape=[None, nout],              name="y")
-biases  = { 'b1': tf.Variable(tf.random_normal( [ h[0] ]),        name="Bias_1"),
-                'b2': tf.Variable(tf.random_normal( [ h[1] ]),    name="Bias_2"),
-                'out': tf.Variable(tf.random_normal( [nout] ),    name="Bias_out") }
-weights = { 'h1': tf.Variable(tf.random_normal([ninp,h[0]]),      name="Weights_1"),
-            'h2': tf.Variable(tf.random_normal([h[0],h[1]]),      name="Weights_2"),
-            'out': tf.Variable(tf.random_normal([h[1], nout]),    name="Weights_out")}
+x = tf.placeholder(tf.float32,   shape=[None, ninp], name="x")
+y = tf.placeholder(tf.int16,     shape=[None, nout], name="y")
 
-def build_network2():
-    # layer_1 = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
+def build_network3():                   # RNN logic mix with NN - 
     pass
+def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
+    kp = 0.9
 
-def build_network1( ):
+    # h0 = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
+    h0 = tf.layers.dense( x, h[0], use_bias=False, activation=None )
+    h0 = tf.layers.batch_normalization(h0, training=is_train)
+    h0 = tf.nn.relu(h0)
+    # h0 = tf.nn.dropout(h0, kp)
+    
+    h1 = tf.layers.dense( h0, h[1], use_bias=False, activation=None )
+    h1 = tf.layers.batch_normalization(h1, training=is_train)
+    h1 = tf.nn.relu(h1)
+    # h1 = tf.nn.dropout(h1, kp)
+    
+    out = tf.layers.dense( h1, nout, use_bias=False, activation=None )
+    out = tf.layers.batch_normalization(out, training=is_train)
+    out = tf.nn.relu(out)
+    # out = tf.nn.dropout(h0, kp)
+ 
+    softmaxT = tf.nn.softmax(out, )
+    prediction=tf.reduce_max(y,1)
+    correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    return out, accuracy, softmaxT
+def build_network1( ):                  # Simple NN - 2layers - matmul 
+    biases  = { 'b1': tf.Variable(tf.random_normal( [ h[0] ]),        name="Bias_1"),
+                'b2': tf.Variable(tf.random_normal( [ h[1] ]),        name="Bias_2"),
+                'out': tf.Variable(tf.random_normal( [nout] ),        name="Bias_out") }
+    weights = { 'h1': tf.Variable(tf.random_normal([ninp,h[0]]),      name="Weights_1"),
+                'h2': tf.Variable(tf.random_normal([h[0],h[1]]),      name="Weights_2"),
+                'out': tf.Variable(tf.random_normal([h[1], nout]),    name="Weights_out")}
+
     # tf.reset_default_graph( )
     with tf.name_scope("fc_1"):
         layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
@@ -72,41 +96,40 @@ def build_network1( ):
         layer_2 = tf.nn.relu(layer_2)
     # Output layer with linear activation
     with tf.name_scope("fc_output"):
-        pred = tf.matmul(layer_2, weights['out']) + biases['out']
+        out = tf.matmul(layer_2, weights['out']) + biases['out']
 
-    softmaxT = tf.nn.softmax(pred, )
+    softmaxT = tf.nn.softmax(out, )
     prediction=tf.reduce_max(y,1)
 
     with tf.name_scope("accuracy"):
-        correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+        correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         tf.summary.scalar("accuracy", accuracy)
 
-    with tf.name_scope("xent"):
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-        tf.summary.scalar("xent", cost)
 
-    with tf.name_scope("train"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
-    
-    summ = tf.summary.merge_all()
-    init = tf.global_variables_initializer()
-    saver= tf.train.Saver()
-    return init, pred, accuracy, cost, optimizer, saver, softmaxT
-init, prediction, accuracy, cost, optimizer, saver, softmaxT = build_network1()
+    return out, accuracy, softmaxT, biases, weights
+# prediction, accuracy, softmaxT, biases, weights = build_network1()
+prediction, accuracy, softmaxT = build_network2()
 
-def restore_model(sess):    
+def restore_model(sess):   
+    saver= tf.train.Saver() 
     print("Model restored from file: %s" % model_path)
     saver.restore(sess, model_path)
 print("___Network created")
 
 def get_data_test( desc ): 
     if desc == "FRFLO": 
+        # json_str = '''[
+        #     { "m":"8989", "c1" :0.5 },
+        #     { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
+        # tmpLab = [59,99]
         json_str = '''[
-            { "m":"8989", "c1" :0.5 },
-            { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-        tmpLab = [59,99]
-
+            { "m":"1", "c1122" :1 },
+            { "m":"2", "c884" : 1 },
+            { "m":"3", "c825" : 1 },
+            { "m":"4", "c1122" :0.5 , "c825" :0.5 },
+            { "m":"10", "c3" :0.5 , "c4" :0.5 }] '''
+        tmpLab = [121, 110, 75, 90, 80]
     elif desc == "FRALL": #most used 
         json_str =  '''[
             { "m":"1", "c1122" :1 },
@@ -130,8 +153,18 @@ def train(it = 100, disp=50, batch_size = 128):
     display_step =  disp 
     total_batch  = int(len(md.dataT['label']) / batch_size)
     
+    with tf.name_scope("xent"):
+        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
+        tf.summary.scalar("xent", cost)
+
+    with tf.name_scope("train"):
+        optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
+    
+    summ = tf.summary.merge_all()
+    saver= tf.train.Saver()
+
     with tf.Session() as sess:
-        sess.run(init)
+        sess.run(tf.global_variables_initializer())
         # restore_model(sess)  #Run if I want to retrain an existing model
         start = time.time()
         for i in range(it):            
@@ -160,8 +193,9 @@ def train(it = 100, disp=50, batch_size = 128):
         logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=md.des() )
 def evaluate( ): 
     print("_____EVALUATION...")
+    
     with tf.Session() as sess:
-        sess.run(init)
+        sess.run(tf.global_variables_initializer())
         restore_model(sess)
         # test the model
         tr_ac = str(sess.run( accuracy, feed_dict={ x: md.dataT['data'],  y: md.dataT['label']}) )[:5]  
@@ -194,7 +228,7 @@ def tests(url_test = 'url'):
     [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
 
     with tf.Session() as sess:
-        sess.run(init)
+        sess.run(tf.global_variables_initializer())
         restore_model(sess)
         # predv = sess.run( prediction, feed_dict={x: dataTest['data']}) 
         ts_acn = '0'
@@ -209,9 +243,9 @@ def tests(url_test = 'url'):
     
     logr( it=0, typ='TS', DS='matnrList...', AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
     
-
+ 
 def mainRun(): 
-    train(epochs, disp, batch_size)
+    # train(epochs, disp, batch_size)
     # evaluate( )
     url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
     tests( url_test )

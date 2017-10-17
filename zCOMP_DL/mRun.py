@@ -15,9 +15,9 @@ import mData as md
 # READ DATA -------------------------------------------------
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
-ninp, nout  = md.mainRead()
+# ninp, nout  = md.mainRead()
 # md.DESC     = "FREXP"
-# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
+ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
@@ -119,10 +119,6 @@ print("___Network created")
 
 def get_data_test( desc ): 
     if desc == "FRFLO": 
-        # json_str = '''[
-        #     { "m":"8989", "c1" :0.5 },
-        #     { "m":"8988", "c3" :0.5 , "c4" :0.5 }] '''
-        # tmpLab = [59,99]
         json_str = '''[
             { "m":"1", "c1122" :1 },
             { "m":"2", "c884" : 1 },
@@ -132,13 +128,12 @@ def get_data_test( desc ):
         tmpLab = [121, 110, 75, 90, 80]
     elif desc == "FRALL": #most used 
         json_str =  '''[
-            { "m":"1", "c1122" :1 },
-            { "m":"2", "c884" : 1 },
-            { "m":"3", "c825" : 1 },
-            { "m":"4", "c1122" :0.5 , "c825" :0.5 },
-            { "m":"10", "c3" :0.5 , "c4" :0.5 }] '''
-
-        tmpLab = [121,110, 75, 90, 80]
+            { "m":"1", "c1122" : 1 },
+            { "m":"2", "c884"  : 1 },
+            { "m":"3", "c825"  : 1 },
+            { "m":"4", "c1122" : 0.5 , "c825" :0.5 },
+            { "m": 5,   "c903" :1	}     ] '''
+        tmpLab = [121,110, 75, 90, 80, 44]
 
     elif desc == "TESTS" : 
         json_str =  '''[
@@ -248,7 +243,7 @@ def mainRun():
     # train(epochs, disp, batch_size)
     # evaluate( )
     url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
-    tests( url_test )
+    tests(  )
     print("___The end!")
 
 if __name__ == '__main__':

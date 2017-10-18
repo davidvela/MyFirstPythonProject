@@ -32,7 +32,7 @@ LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-MMF        = "MOD2"
+MMF        = "MOD2" #2(1) OR 5 (4)
 MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
 nout   = 100
@@ -138,9 +138,9 @@ def mainRead2(path, part, batch_size):  # read by partitions!
     global ninp, nout, dataT, dataE, spn;
     start = time.time()
     columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
-    dst = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=part*batch_size, nrows=batch_size, names = columns.columns)
-    
-    dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc(x)))  
+    dst = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=part*batch_size+1, nrows=batch_size, names = columns.columns)
+    dst = dst.fillna(0)
+    dst.insert(2, 'FP_P', dst['FP'].map(lambda x: cc( x )))  
     
     if batch_size > spn: spn = -1
     dst = dst.sample(frac=1).reset_index(drop=True) 
@@ -167,13 +167,12 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
         try:
             pred_v = dc( predv.tolist()[i], np.max(predv[i]))
             data_v = dataEv['label'][i] if sk_ev  else dc( dataEv['label'][i])
-            # print("realVal: {} -- PP value: {}".format(data_vali,pred_vali))
             if   dType == 'C4' and pred_v != data_v:  gt3=gtM=gtM+1
             elif dType == 'C1':
                 num = abs(pred_v-data_v)
                 if num > 3: gt3+=1
                 if num > 10: gtM+=1
-        except: print("error: i={}, pred={}, data={} -- ".format(i, pred_vali, data_vali))
+        except: print("error: i={}, pred={}, data={} -- ".format(i, pred_v, data_v))
     print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
     return gt3, gtM 
 
@@ -202,7 +201,7 @@ def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
             if key == "m": pass            
             else: 
                 key_wz = key if p_abs else (int(key))  #str(int(key)) FRFLO - int // FRALL str!
-                try: #filling of key - experimental or components 
+                try: #filling of key - experimental or COMP 
                     ds_comp = col_df.loc[key_wz]
                     if p_exp == True:  #fp key - 0-102   
                         co = str(ds_comp['FP'])
@@ -224,6 +223,18 @@ def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
 
     if pand == True:  return json_df  
     else:             return json_df.as_matrix().tolist()  
+
+
+def feedCOM(p_abs, d_st = False, p_exp=False, pand=False):
+    # read excel - generate string 1 = 1 
+    
+    dataJJ = "["
+    dataJJ += "["
+    print(dataJJ)
+
+    feed_data(dataJJ, p_abs, d_st, p_exp, pand)
+
+
 
 def testsJ(excel):
     print("tests JSON")    

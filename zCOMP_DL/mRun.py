@@ -21,7 +21,7 @@ ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used J
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
-lr         = 0.0001
+lr         = 0.01
 h          = [100 , 40]
 # h          = [40 , 10]
 epochs     = 40
@@ -29,7 +29,7 @@ disp       = 5
 batch_size = 128
 
 def get_nns(): return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
-def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', timeStart=''):
+def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', startTime=''):
     if desc == '': print("Log not recorded"); return 
     LOG = "../../_zfp/LOGT2.txt"
     f= open(LOG ,"a+") #w,a,
@@ -42,7 +42,7 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
     line = line + '\t' + str(it) + '\t'+  get_nns() +  '\t' + str(lr)
     line = line + '\t' + typ 
     line = line + '\t' + str(DS) + '\t' + str(AC) + '\t' + str(num) + '\t' + str(AC3) + '\t' +  str(AC10) + '\t' + desc 
-    line = line + '\t' + str(batch_size) + '\t' +  timeStart + '\n' #new
+    line = line + '\t' + str(batch_size) + '\t' +  startTime + '\n' #new
 
     f.write(line);  f.close()
     print("___Log recorded")    
@@ -154,7 +154,7 @@ def train(it = 100, disp=50, batch_size = 128):
 
     with tf.name_scope("train"):
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
-    
+    startTime = datetime.now().strftime('%H:%M:%S')
     summ = tf.summary.merge_all()
     saver= tf.train.Saver()
 
@@ -180,15 +180,16 @@ def train(it = 100, disp=50, batch_size = 128):
         tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
         print("T Ac:", tr_ac)
         
-        print("Optimization Finished!")
         save_path = saver.save(sess, model_path)
         print("Model saved in file: %s" % save_path) 
+    print("Optimization Finished!")
 
-        logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=md.des() )
-        logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=md.des() )
+    logr( it=it, typ='TR', DS=md.DESC, AC=tr_ac,num=len(md.dataT["label"]), AC3=0, AC10=0, desc=md.des(), startTime=startTime )
+    logr( it=it, typ='EV', DS=md.DESC, AC=ev_ac,num=len(md.dataE["label"]), AC3=0, AC10=0, desc=md.des() )
 def evaluate( ): 
     print("_____EVALUATION...")
-    
+    startTime = datetime.now().strftime('%H:%M:%S')
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         restore_model(sess)
@@ -205,20 +206,21 @@ def evaluate( ):
         print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
                                                     md.dc( predv.tolist()[i], np.max(predv[i]))  ))
     gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
-    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des() )
+    logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des(), startTime=startTime )
 def tests(url_test = 'url'):  
     print("_____TESTS...")    
     dataTest = {'label' : [] , 'data' :  [] }; pred_val = []
     
     if url_test != 'url':  
-        json_data = url_test + "data_json.txt"
-        tmpLab = pd.read_csv(url_test + "datal.csv", sep=',', usecols=[0,1])    
+        json_data = url_test + "data_json6.txt"
+        tmpLab = pd.read_csv(url_test + "datal6.csv", sep=',', usecols=[0,1])    
         tmpLab = tmpLab.loc[:,'fp']
         abstcc = False
     else: 
         json_str, tmpLab = get_data_test("FRALL")
         json_data = json.loads(json_str)
         abstcc = True
+        md.DESC =  'matnrList...'
     dataTest['data']  = md.feed_data(json_data, p_abs=abstcc , d_st=True)
     [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
 
@@ -236,14 +238,18 @@ def tests(url_test = 'url'):
         print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     
-    logr( it=0, typ='TS', DS='matnrList...', AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
-    
+    logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
+
+def test_comp():
+    pass
+    #try to calculate the FP from the COM ...
+    #if it's good - COM input = OK if not ... I need more matnr with that COM
  
 def mainRun(): 
     # train(epochs, disp, batch_size)
     # evaluate( )
-    url_test = "../../_zfp/data/FREXP/" ; md.DESC     = "FREXP"
-    tests(  )
+    url_test = "../../_zfp/data/FREXP1/" ; md.DESC     = "FREXP1_6"
+    tests(url_test  )
     print("___The end!")
 
 if __name__ == '__main__':

@@ -73,7 +73,9 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     out = tf.nn.relu(out)
     # out = tf.nn.dropout(h0, kp)
  
-    softmaxT = tf.nn.softmax(out, )
+    # softmaxT = tf.nn.softmax(out)
+    softmaxT = tf.nn.top_k(tf.nn.softmax(out), 3)
+            
     prediction=tf.reduce_max(y,1)
     correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -229,15 +231,17 @@ def tests(url_test = 'url'):
         restore_model(sess)
         # predv = sess.run( prediction, feed_dict={x: dataTest['data']}) 
         ts_acn = '0'
-        ts_acn, predv = sess.run( [accuracy, prediction], feed_dict={x: dataTest['data'], y: dataTest['label']}) 
+        ts_acn, predv, sf = sess.run( [accuracy, prediction, softmaxT], feed_dict={x: dataTest['data'], y: dataTest['label']}) 
         ts_ac = str(ts_acn) 
         print("test ac = {}".format(ts_ac))
     # print(dataTest['label'])
+    print(sf)
     range_ts = len(predv) if len(predv)<20 else 20
     for i in range( range_ts ):
         print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
-    gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     
+    return
+    gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
 
 def test_comp():

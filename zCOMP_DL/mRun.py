@@ -240,7 +240,7 @@ def tests(url_test = 'url'):
     for i in range( range_ts ):
         print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
     
-    return
+    # return
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
 

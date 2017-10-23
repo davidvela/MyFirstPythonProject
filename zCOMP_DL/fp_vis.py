@@ -45,7 +45,8 @@ else:
     colors = np.random.rand(N)
     area = 1 #np.pi * (15 * np.random.rand(N))**2  # 0 to 15 point radii
 
-    plt.plot(X, Y,  s=area, c=colors, alpha=0.5) #'bo', label='FP Comp',
+    plt.plot(X, Y,  marker='bo', c=colors, alpha=0.5 label='FP Comp' )
+    # plt.plot(X, Y,  s=area, c=colors, alpha=0.5) #'bo', label='FP Comp',
     plt.legend()
 
 # 3 - Display plot. 

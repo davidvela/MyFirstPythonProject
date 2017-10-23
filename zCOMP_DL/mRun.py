@@ -74,8 +74,8 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     # out = tf.nn.dropout(h0, kp)
  
     # softmaxT = tf.nn.softmax(out)
-    softmaxT = tf.nn.top_k(tf.nn.softmax(out), 3)
-            
+    softmaxT = tf.nn.top_k(tf.nn.softmax(out), 4)
+         
     prediction=tf.reduce_max(y,1)
     correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -118,7 +118,6 @@ def restore_model(sess):
     print("Model restored from file: %s" % model_path)
     saver.restore(sess, model_path)
 print("___Network created")
-
 def get_data_test( desc ): 
     if desc == "FRFLO": 
         json_str = '''[
@@ -224,6 +223,7 @@ def tests(url_test = 'url'):
         abstcc = True
         md.DESC =  'matnrList...'
     dataTest['data']  = md.feed_data(json_data, p_abs=abstcc , d_st=True)
+    dataTest['label'] = []
     [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
 
     with tf.Session() as sess:
@@ -234,12 +234,12 @@ def tests(url_test = 'url'):
         ts_acn, predv, sf = sess.run( [accuracy, prediction, softmaxT], feed_dict={x: dataTest['data'], y: dataTest['label']}) 
         ts_ac = str(ts_acn) 
         print("test ac = {}".format(ts_ac))
-    # print(dataTest['label'])
-    print(sf)
+    # print(dataTest['label']);    # print(sf)
     range_ts = len(predv) if len(predv)<20 else 20
     for i in range( range_ts ):
-        print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
-    
+        # print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
+        print("{} RealVal: {} - {} - PP: {} PR: {}".format( i, md.dc( dataTest['label'][i]), sf[1][i][0],  sf[1][i], sf[0][i]   ))
+
     # return
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  

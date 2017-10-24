@@ -6,9 +6,10 @@ import time
 
 start = time.time()
 # 1- Get data: 
-path = outfile = '../../_zfp/data/FRFLO/datasc.csv' 
-# path = outfile = '../../_zfp/data/FRALL1/datasc.csv' 
+# path = outfile = '../../_zfp/data/FRFLO/datasc.csv' 
+path = outfile = '../../_zfp/data/FRALL1/datasc.csv' 
 dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
+print(dst.describe())
 
 # path = "../../knime-workspace/Data/FP2/TFFRAL_ALSNN.xlsx"  #160s longer! 
 # dst  =  pd.read_excel( path )
@@ -45,8 +46,10 @@ else:
     colors = np.random.rand(N)
     area = 1 #np.pi * (15 * np.random.rand(N))**2  # 0 to 15 point radii
 
-    plt.plot(X, Y,  marker='bo', c=colors, alpha=0.5 label='FP Comp' )
-    # plt.plot(X, Y,  s=area, c=colors, alpha=0.5) #'bo', label='FP Comp',
+    #plt.plot(X, Y, color='blue', marker='o', label='FP Comp')
+    #plt.plot(X, Y, 'bo', label='FP Comp')
+    plt.scatter(X,Y, s=6, c='b', marker='o', cmap=None, norm=None, vmin=60, vmax=101, alpha=None,  label='FP Comp')
+    
     plt.legend()
 
 # 3 - Display plot. 

@@ -53,6 +53,10 @@ x = tf.placeholder(tf.float32,   shape=[None, ninp], name="x")
 y = tf.placeholder(tf.int16,     shape=[None, nout], name="y")
 
 def build_network3():                   # RNN logic mix with NN - 
+    
+    
+    
+    
     pass
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
     kp = 0.9
@@ -208,24 +212,29 @@ def evaluate( ):
                                                     md.dc( predv.tolist()[i], np.max(predv[i]))  ))
     gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
     logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des(), startTime=startTime )
-def tests(url_test = 'url'):  
+def tests(url_test = 'url', p_col=False):  
     print("_____TESTS...")    
-    dataTest = {'label' : [] , 'data' :  [] }; pred_val = []
     
-    if url_test != 'url':  
-        json_data = url_test + "data_json6.txt"
-        tmpLab = pd.read_csv(url_test + "datal6.csv", sep=',', usecols=[0,1])    
-        tmpLab = tmpLab.loc[:,'fp']
-        abstcc = False
+    # Load test data 
+    dataTest = {'label' : [] , 'data' :  [] }; pred_val = []
+    if p_col: dataTest['data'], dataTest['label']  = md.feed_data("", p_abs=False , d_st=True, p_col=True)   
     else: 
-        json_str, tmpLab = get_data_test("FRALL")
-        json_data = json.loads(json_str)
-        abstcc = True
-        md.DESC =  'matnrList...'
-    dataTest['data']  = md.feed_data(json_data, p_abs=abstcc , d_st=True)
-    dataTest['label'] = []
-    [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
-
+        if url_test != 'url':  
+            json_data = url_test + "data_json6.txt"
+            tmpLab = pd.read_csv(url_test + "datal6.csv", sep=',', usecols=[0,1])    
+            tmpLab = tmpLab.loc[:,'fp']
+            abstcc = False
+        else: 
+            json_str, tmpLab = get_data_test("FRALL")
+            json_data = json.loads(json_str)
+            abstcc = True
+            md.DESC =  'matnrList...'
+        
+        dataTest['data']  = md.feed_data(json_data, p_abs=abstcc , d_st=True)
+        
+        dataTest['label'] = []
+        [dataTest['label'].append( md.cc(x) ) for x in tmpLab ]
+    # Predict data 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         restore_model(sess)
@@ -234,7 +243,7 @@ def tests(url_test = 'url'):
         ts_acn, predv, sf = sess.run( [accuracy, prediction, softmaxT], feed_dict={x: dataTest['data'], y: dataTest['label']}) 
         ts_ac = str(ts_acn) 
         print("test ac = {}".format(ts_ac))
-    # print(dataTest['label']);    # print(sf)
+    # print(dataTest['label']);     print(sf)
     range_ts = len(predv) if len(predv)<20 else 20
     for i in range( range_ts ):
         # print("RealVal: {}  - PP value: {}".format( md.dc( dataTest['label'][i]), md.dc( predv.tolist()[i], np.max(predv[i]))  ))  
@@ -244,16 +253,15 @@ def tests(url_test = 'url'):
     gt3, gtM = md.check_perf_CN(predv, dataTest, False)
     logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
 
-def test_comp():
-    pass
-    #try to calculate the FP from the COM ...
-    #if it's good - COM input = OK if not ... I need more matnr with that COM
+    outfile = '../../_zfp/data/export2' 
+    np.savetxt(outfile + '.csv', sf[1], delimiter=',')
+    np.savetxt(outfile + 'PRO.csv', sf[0], delimiter=',')
  
 def mainRun(): 
     # train(epochs, disp, batch_size)
     # evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ; md.DESC     = "FREXP1_6"
-    tests(url_test  )
+    tests(url_test, p_col=False  )
     print("___The end!")
 
 if __name__ == '__main__':

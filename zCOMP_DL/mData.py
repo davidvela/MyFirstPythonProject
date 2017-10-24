@@ -73,7 +73,10 @@ def cc(x, rv=1):
     global nout
     if   dType == 'C4':  nout = 4;   return c4(x, rv);
     elif dType == 'C1':  nout = 102; return cN(x); 
-def dc(df, val = 1 ): return df.index(val)
+def dc(df, val = 1 ): 
+    try:    val = df.index(val)
+    except: val = 0
+    return val
 
 # def read_data2(path):
     # columns = pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python" ,skiprows=0, nrows=1)
@@ -176,16 +179,27 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
     print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
     return gt3, gtM 
 
-def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
-    indx=[];   index_col=0 if p_abs else 2 
+def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False, p_col = False):
+    indx=[];   index_col=0 if p_abs else 2 #abs=F => 2 == 6D
  
     # col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
-    col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2])    
+    col_df = pd.read_csv(COL_DS, index_col=index_col, sep=',', usecols=[0,1,2,3])    
+    col_df = col_df.fillna(0)
     print("input-no={}".format( len(col_df )))
     
     if p_exp:   indx.append(i for i in range(103))
     else:       indx = col_df.index
     
+    if p_col: 
+        dataTest_label = []
+        dataJJ = "["
+        for i in range(len(col_df)): 
+            dataTest_label.append( cc( int(  col_df.iloc[i]["fp"]  )  )) 
+            dataJJ += '{"m":"'+str(i)+'",'+'"'+str(col_df.iloc[i].name)+'"'+":1},"
+        dataJJ += '{"m":"0"}]';  dataTest_label.append(cc(0))
+        # dataJJ += ']'
+        dataJJ = json.loads(dataJJ)
+
     json_df  = pd.DataFrame(columns=indx); df_entry = pd.Series(index=indx)
     df_entry = df_entry.fillna(0) 
    
@@ -218,23 +232,12 @@ def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False):
 
         json_df = json_df.append(df_entry,ignore_index=False)
         if i % 1000 == 0: print("cycle: {}".format(i))
-    
     print("Counter of comp. not included :"); print(ccount) # print(len(ccount))
 
-    if pand == True:  return json_df  
-    else:             return json_df.as_matrix().tolist()  
-
-
-def feedCOM(p_abs, d_st = False, p_exp=False, pand=False):
-    # read excel - generate string 1 = 1 
-    
-    dataJJ = "["
-    dataJJ += "["
-    print(dataJJ)
-
-    feed_data(dataJJ, p_abs, d_st, p_exp, pand)
-
-
+    if p_col: return json_df.as_matrix().tolist(), dataTest_label
+    else: 
+        if pand:  return json_df  
+        else:     return json_df.as_matrix().tolist()  
 
 def testsJ(excel):
     print("tests JSON")    

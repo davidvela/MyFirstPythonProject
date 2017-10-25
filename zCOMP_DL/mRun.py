@@ -15,16 +15,16 @@ import mData as md
 # READ DATA -------------------------------------------------
 print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
-# ninp, nout  = md.mainRead()
+ninp, nout  = md.mainRead()
 # md.DESC     = "FREXP"
-ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
+# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
 print("___Data Read!")
 
 model_path    = md.MODEL_DIR 
-lr         = 0.01
+lr         = 0.0001
 h          = [100 , 40]
 # h          = [40 , 10]
-epochs     = 40
+epochs     = 80
 disp       = 5
 batch_size = 128
 
@@ -151,6 +151,12 @@ def get_data_test( desc ):
 def train(it = 100, disp=50, batch_size = 128): 
     print("____TRAINING...")
     display_step =  disp 
+
+    dataTest = {'label' : [] , 'data' :  [] };
+    dataTest['data'], dataTest['label']  = md.feed_data("", p_abs=False , d_st=True, p_col=True)   
+    md.dataT['data'].append(dataTest['data']) ;     md.dataT['label'].append(dataTest['label']) 
+    print("data read - lenTrain={}-{} & lenEv={}-{}" .format(len(md.dataT["data"]), len(md.dataT["label"]),len(md.dataE["data"]),len(md.dataE["label"]) ))
+
     total_batch  = int(len(md.dataT['label']) / batch_size)
     
     with tf.name_scope("xent"):
@@ -182,7 +188,7 @@ def train(it = 100, disp=50, batch_size = 128):
             ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
             print("E Ac:", ev_ac)
         
-        tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
+        # tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
         print("T Ac:", tr_ac)
         
         save_path = saver.save(sess, model_path)
@@ -259,7 +265,7 @@ def tests(url_test = 'url', p_col=False):
  
 def mainRun(): 
     # train(epochs, disp, batch_size)
-    # evaluate( )
+    evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ; md.DESC     = "FREXP1_6"
     tests(url_test, p_col=False  )
     print("___The end!")

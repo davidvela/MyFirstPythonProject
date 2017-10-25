@@ -32,7 +32,7 @@ LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-MMF        = "MOD2" #2(1) OR 5 (4)
+MMF        = "MODX1" #2(1) OR 5 (4)
 MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 
 nout   = 100
@@ -41,7 +41,13 @@ dataT  = {'label' : [] , 'data' :  [] } #inmutables array are faster!
 dataE  = {'label' : [] , 'data' :  [] }
 
 def des():  return DESC+'_'+dType+"_filt:"+  filter[0]+str(filter[1])
-
+def c2(df, rv=1):
+    if rv == 1:
+        if( df < 60 ):                  return [1,0]  
+        elif( df >= 60 ):               return [0,1]      
+    elif rf==2: 
+        if( df < 60 ):                  return 0
+        elif( df >= 60 ):               return 1
 def c4(df, rv=1):
     if rv == 1:
         if( df < 23 ):                  return [1,0,0,0]  #0
@@ -73,6 +79,7 @@ def cc(x, rv=1):
     global nout
     if   dType == 'C4':  nout = 4;   return c4(x, rv);
     elif dType == 'C1':  nout = 102; return cN(x); 
+    elif dType == 'C2':  nout = 2;   return c2(x, rv);
 def dc(df, val = 1 ): 
     try:    val = df.index(val)
     except: val = 0

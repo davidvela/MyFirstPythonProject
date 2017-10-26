@@ -20,20 +20,21 @@ DC         = "/datac.csv"
 DL         = "/datal.csv"
 
 #---------------------------------------------------------------------
+filter     = ["", 0]
+type_sep   = False
+spn        = 10000  #5000 -1 = all for training 
+
 # DESC       = "FRFLO"
 DESC       = "FRALL1"
 dType      = "C1" #C1 or C4
-type_sep   = False
-spn        = 10000  #5000 -1 = all for training 
-filter     = ["", 0]
+MMF        = "MODX1" #2(1) OR 5 (4)
 #---------------------------------------------------------------------
-
+MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"
 COL_DS     = LOGDAT + DESC + DC 
 ALL_DSJ    = LOGDAT + DESC + DSJ 
 ALL_DS     = LOGDAT + DESC + DSC 
-MMF        = "MODX1" #2(1) OR 5 (4)
-MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/model.ckpt"  
+
 
 nout   = 100
 ninp   = 0
@@ -170,14 +171,16 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
     gt3 = 0; gtM = 0; 
     # predvList = predv.tolist()
     # assert(len(predv) == len(dataEv['label']))
-    print("denormalization all Evaluation : {} = {}" .format(len(predv), len(dataEv["label"])))
+    print("denormalization all Evaluation : {} = {}" .format(len(predv[1]), len(dataEv["label"])))
     #for i in range(100):
-    for i in range(len(predv)):
+    for i in range(len(dataEv["label"])):
         if (i % 1000==0): print(str(i)) #, end="__") 
         try:
-            pred_v = dc( predv.tolist()[i], np.max(predv[i]))
+            # pred_v = dc( predv.tolist()[i], np.max(predv[i]))
+            pred_v = predv[1][i][0]
             data_v = dataEv['label'][i] if sk_ev  else dc( dataEv['label'][i])
             if   dType == 'C4' and pred_v != data_v:  gt3=gtM=gtM+1
+            elif dType == 'C2' and pred_v != data_v:  gt3=gtM=gtM+1
             elif dType == 'C1':
                 num = abs(pred_v-data_v)
                 if num > 3: gt3+=1

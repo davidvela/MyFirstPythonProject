@@ -20,11 +20,12 @@ ninp, nout  = md.mainRead()
 # ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
 print("___Data Read!")
 
+top_k = 2 
 model_path    = md.MODEL_DIR 
-lr         = 0.0001
+lr         = 0.001 #0.0001
 h          = [100 , 40]
 # h          = [40 , 10]
-epochs     = 80
+epochs     = 30
 disp       = 5
 batch_size = 128
 
@@ -78,7 +79,7 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     # out = tf.nn.dropout(h0, kp)
  
     # softmaxT = tf.nn.softmax(out)
-    softmaxT = tf.nn.top_k(tf.nn.softmax(out), 4)
+    softmaxT = tf.nn.top_k(tf.nn.softmax(out), top_k)
          
     prediction=tf.reduce_max(y,1)
     correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
@@ -216,7 +217,7 @@ def evaluate( ):
     for i in range(20):
         print("RealVal: {}  - PP value: {}".format( md.dc( md.dataE['label'][i]), 
                                                     md.dc( predv.tolist()[i], np.max(predv[i]))  ))
-    gt3, gtM = md.check_perf_CN(predv, md.dataE, False)
+    gt3, gtM = md.check_perf_CN(softv, md.dataE, False) #predv
     logr(  it=0, typ='EV', AC=ev_ac,DS=md.DESC, num=len(md.dataE["label"]), AC3=gt3, AC10=gtM, desc=md.des(), startTime=startTime )
 def tests(url_test = 'url', p_col=False):  
     print("_____TESTS...")    
@@ -256,7 +257,7 @@ def tests(url_test = 'url', p_col=False):
         print("{} RealVal: {} - {} - PP: {} PR: {}".format( i, md.dc( dataTest['label'][i]), sf[1][i][0],  sf[1][i], sf[0][i]   ))
 
     # return
-    gt3, gtM = md.check_perf_CN(predv, dataTest, False)
+    gt3, gtM = md.check_perf_CN(sf, dataTest, False)
     logr( it=0, typ='TS', DS=md.DESC, AC=ts_acn ,num=len(dataTest["label"]),  AC3=gt3, AC10=gtM, desc=md.des() )  
 
     outfile = '../../_zfp/data/export2' 
@@ -264,7 +265,7 @@ def tests(url_test = 'url', p_col=False):
     np.savetxt(outfile + 'PRO.csv', sf[0], delimiter=',')
  
 def mainRun(): 
-    # train(epochs, disp, batch_size)
+    #train(epochs, disp, batch_size)
     evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ; md.DESC     = "FREXP1_6"
     tests(url_test, p_col=False  )

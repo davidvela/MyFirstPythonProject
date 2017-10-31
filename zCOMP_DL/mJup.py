@@ -324,7 +324,9 @@ ALL_DS     = LOGDAT + DESC + DSC
 
 
 readData()
+
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
+    global ninp, nout
     kp = 0.9;     nout   = 100;     ninp   = 0
     
     if   dType == 'C4':  nout = 4;   
@@ -359,8 +361,9 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     return out, accuracy, softmaxT, x,y 
-prediction, accuracy, softmaxT x,y = build_network2()
 print( get_nns() )
+#---------------------------------------------------------------------
+prediction, accuracy, softmaxT x,y = build_network2()
 
 
 

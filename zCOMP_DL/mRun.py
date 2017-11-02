@@ -17,15 +17,15 @@ print("___Start!___" +  datetime.now().strftime('%H:%M:%S')  )
 # md.spn = 200
 ninp, nout  = md.mainRead()
 # md.DESC     = "FREXP"
-# ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
+#ninp, nout  = md.mainRead2(md.ALL_DS, 1, 2 ) # For testing I am forced to used JSON - column names and order may be different! 
 print("___Data Read!")
 
 top_k = 2 
-model_path    = md.MODEL_DIR 
-lr         = 0.001 #0.0001
-h          = [100 , 40]
-# h          = [40 , 10]
-epochs     = 30
+model_path = md.MODEL_DIR 
+lr         = 0.0001 #0.0001
+h          = [500 , 200]
+# h        = [40 , 10]
+epochs     = 150
 disp       = 5
 batch_size = 128
 
@@ -227,8 +227,9 @@ def tests(url_test = 'url', p_col=False):
     if p_col: dataTest['data'], dataTest['label']  = md.feed_data("", p_abs=False , d_st=True, p_col=True)   
     else: 
         if url_test != 'url':  
-            json_data = url_test + "data_json6.txt"
-            tmpLab = pd.read_csv(url_test + "datal6.csv", sep=',', usecols=[0,1])    
+            md.DESC     = "FREXP1_X"
+            json_data = url_test + "data_jsonX.txt"
+            tmpLab = pd.read_csv(url_test + "datalX.csv", sep=',', usecols=[0,1])    
             tmpLab = tmpLab.loc[:,'fp']
             abstcc = False
         else: 
@@ -265,9 +266,9 @@ def tests(url_test = 'url', p_col=False):
     np.savetxt(outfile + 'PRO.csv', sf[0], delimiter=',')
  
 def mainRun(): 
-    #train(epochs, disp, batch_size)
+    train(epochs, disp, batch_size)
     evaluate( )
-    url_test = "../../_zfp/data/FREXP1/" ; md.DESC     = "FREXP1_6"
+    url_test = "../../_zfp/data/FREXP1/" ;
     tests(url_test, p_col=False  )
     print("___The end!")
 

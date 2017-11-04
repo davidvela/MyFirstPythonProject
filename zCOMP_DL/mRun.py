@@ -21,15 +21,15 @@ ninp, nout  = md.mainRead()
 print("___Data Read!")
 
 top_k = 2 
-model_path = md.MODEL_DIR 
+model_path = md.MODEL_DIR + "model.ckpt" 
 lr         = 0.0001 #0.0001
 h          = [500 , 200]
 # h        = [40 , 10]
 epochs     = 150
 disp       = 5
 batch_size = 128
-
-def get_nns(): return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
+def get_hpar(): return "lr_%.0E,NN%s" % (lr, get_nns())
+def get_nns():  return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
 def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', startTime=''):
     if desc == '': print("Log not recorded"); return 
     LOG = "../../_zfp/LOGT2.txt"
@@ -55,10 +55,8 @@ y = tf.placeholder(tf.int16,     shape=[None, nout], name="y")
 
 def build_network3():                   # RNN logic mix with NN - 
     
-    
-    
-    
     pass
+
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
     kp = 0.9
 
@@ -77,14 +75,18 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     out = tf.layers.batch_normalization(out, training=is_train)
     out = tf.nn.relu(out)
     # out = tf.nn.dropout(h0, kp)
- 
-    # softmaxT = tf.nn.softmax(out)
-    softmaxT = tf.nn.top_k(tf.nn.softmax(out), top_k)
-         
     prediction=tf.reduce_max(y,1)
-    correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    
+    # softmaxT = tf.nn.softmax(out)
+    with tf.name_scope("accuracy"):
+        softmaxT = tf.nn.top_k(tf.nn.softmax(out), top_k)         
+        correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(y, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        
+        tf.summary.scalar("accuracy", accuracy)
+
     return out, accuracy, softmaxT
+
 def build_network1( ):                  # Simple NN - 2layers - matmul 
     biases  = { 'b1': tf.Variable(tf.random_normal( [ h[0] ]),        name="Bias_1"),
                 'b2': tf.Variable(tf.random_normal( [ h[1] ]),        name="Bias_2"),
@@ -166,13 +168,18 @@ def train(it = 100, disp=50, batch_size = 128):
 
     with tf.name_scope("train"):
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
+    
+    
     startTime = datetime.now().strftime('%H:%M:%S')
     summ = tf.summary.merge_all()
     saver= tf.train.Saver()
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        # restore_model(sess)  #Run if I want to retrain an existing model
+        # restore_model(sess)  #Run if I want to retrain an existing model  
+        writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
+        writer.add_graph(sess.graph)
+
         start = time.time()
         for i in range(it):            
             for ii, (xtb,ytb) in enumerate(md.get_batches(batch_size) ):
@@ -185,7 +192,7 @@ def train(it = 100, disp=50, batch_size = 128):
                     rp_s = str(reviews_per_second)[0:5]
                     tr_ac = str(train_accuracy)[:5]  
                     print('Epoch: {} batch: {} / {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, ii, total_batch, rp_s, tr_ac ))
-                    #writer.add_summary(s, i)
+                    writer.add_summary(s, i)
             ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
             print("E Ac:", ev_ac)
         
@@ -266,6 +273,7 @@ def tests(url_test = 'url', p_col=False):
     np.savetxt(outfile + 'PRO.csv', sf[0], delimiter=',')
  
 def mainRun(): 
+    # print(get_hpar() ); return 
     train(epochs, disp, batch_size)
     evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ;

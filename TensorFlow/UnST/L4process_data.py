@@ -47,7 +47,7 @@ def build_vocab(words, vocab_size):
     count = [('UNK', -1)]
     count.extend(Counter(words).most_common(vocab_size - 1))
     index = 0
-    with open('processed/vocab_1000.tsv', "w") as f:
+    with open('./models/vocab_1000.tsv', "w") as f:
         # f.write("Name\n")
         for word, _ in count:
             dictionary[word] = index
@@ -94,3 +94,12 @@ def get_index_vocab(vocab_size):
     file_path = download(FILE_NAME, EXPECTED_BYTES)
     words = read_data(file_path)
     return build_vocab(words, vocab_size)
+
+def main():
+    model = SkipGramModel(VOCAB_SIZE, EMBED_SIZE, BATCH_SIZE, NUM_SAMPLED, LEARNING_RATE)
+    model.build_graph()
+    batch_gen = process_data(VOCAB_SIZE, BATCH_SIZE, SKIP_WINDOW)
+    train_model(model, batch_gen, NUM_TRAIN_STEPS, WEIGHTS_FLD)
+
+if __name__ == '__main__':
+    main()

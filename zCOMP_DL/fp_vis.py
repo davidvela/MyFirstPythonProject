@@ -7,7 +7,7 @@ import time
 start = time.time()
 # 1- Get data: 
 # path = outfile = '../../_zfp/data/FRFLO/datasc.csv' 
-path = outfile = '../../_zfp/data/FRALL1/datasc.csv' 
+path = outfile = '../../_zfp/data/FLALL/datasc.csv' 
 dst  =  pd.read_csv( tf.gfile.Open(path), sep=None, skipinitialspace=True,  engine="python")
 print(dst.describe())
 

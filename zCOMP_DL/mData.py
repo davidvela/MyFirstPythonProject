@@ -25,9 +25,9 @@ type_sep   = False
 spn        = 10000  #5000 -1 = all for training 
 
 # DESC       = "FRFLO"
-DESC       = "FRALL1"
-dType      = "C1" #C1 or C4
-MMF        = "MODY1" #2(1) OR 5 (4)
+DESC       = "FLALL"
+dType      = "C1" #C1, C2, C4
+MMF        = "MODX1" #2(1) OR 5 (4)
 #---------------------------------------------------------------------
 MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/"  
 LAB_DS     = LOGDAT + DESC + DL #"../../_zfp/data/FRFLO/datal.csv"

@@ -23,12 +23,12 @@ print("___Data Read!")
 top_k = 2 
 model_path = md.MODEL_DIR + "model.ckpt" 
 lr         = 0.0001 #0.0001
-h          = [500 , 200]
+h          = [100 , 40]
 # h        = [40 , 10]
-epochs     = 150
+epochs     = 120
 disp       = 5
 batch_size = 128
-def get_hpar(): return "lr_%.0E,NN%s" % (lr, get_nns())
+def get_hpar(): return "lr_%.0E_NN%s" % (lr, get_nns())
 def get_nns():  return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
 def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', startTime=''):
     if desc == '': print("Log not recorded"); return 
@@ -177,8 +177,8 @@ def train(it = 100, disp=50, batch_size = 128):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         # restore_model(sess)  #Run if I want to retrain an existing model  
-        writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
-        writer.add_graph(sess.graph)
+        # writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
+        # writer.add_graph(sess.graph)
 
         start = time.time()
         for i in range(it):            
@@ -192,7 +192,7 @@ def train(it = 100, disp=50, batch_size = 128):
                     rp_s = str(reviews_per_second)[0:5]
                     tr_ac = str(train_accuracy)[:5]  
                     print('Epoch: {} batch: {} / {} - %Speed(it/disp_step): {} - tr_ac {}' .format(i, ii, total_batch, rp_s, tr_ac ))
-                    writer.add_summary(s, i)
+                    # writer.add_summary(s, i)
             ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
             print("E Ac:", ev_ac)
         
@@ -274,7 +274,7 @@ def tests(url_test = 'url', p_col=False):
  
 def mainRun(): 
     # print(get_hpar() ); return 
-    train(epochs, disp, batch_size)
+    #train(epochs, disp, batch_size)
     evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ;
     tests(url_test, p_col=False  )

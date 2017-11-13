@@ -177,8 +177,8 @@ def train(it = 100, disp=50, batch_size = 128):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         # restore_model(sess)  #Run if I want to retrain an existing model  
-        # writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
-        # writer.add_graph(sess.graph)
+        writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
+        writer.add_graph(sess.graph)
 
         start = time.time()
         for i in range(it):            

@@ -17,8 +17,8 @@ import os.path
 import shutil
 import tensorflow as tf
 
-LOGDIR = "/tmp/mnist_tutorial/"
-LABELS = os.path.join(os.getcwd(), "labels_1024.tsv")
+LOGDIR  = "/tmp/mnist_tutorial/"
+LABELS  = os.path.join(os.getcwd(), "labels_1024.tsv")
 SPRITES = os.path.join(os.getcwd(), "sprite_1024.png")
 ### MNIST EMBEDDINGS ###
 mnist = tf.contrib.learn.datasets.mnist.read_data_sets(train_dir=LOGDIR + "data", one_hot=True)

@@ -25,8 +25,6 @@ print(elapsed_time)
 # print("")
 
 
-
-
 #C1 M; C2 FP; C3 FN; C4 SFM; C5 AP
 Y  = dst.loc[:,'FP'].as_matrix().tolist()
 X  = dst.loc[:, 'M'].as_matrix().tolist()

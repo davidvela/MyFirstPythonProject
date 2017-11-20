@@ -58,7 +58,7 @@ def build_network3():                   # RNN logic mix with NN -
     pass
 
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
-    kp = 0.9
+    kp = 0.5
 
     # h0 = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
     h0 = tf.layers.dense( x, h[0], use_bias=False, activation=None )
@@ -72,8 +72,8 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     # h1 = tf.nn.dropout(h1, kp)
     
     out = tf.layers.dense( h1, nout, use_bias=False, activation=None )
-    out = tf.layers.batch_normalization(out, training=is_train)
-    out = tf.nn.relu(out)
+    # out = tf.layers.batch_normalization(out, training=is_train)
+    # out = tf.nn.relu(out)
     # out = tf.nn.dropout(h0, kp)
     prediction=tf.reduce_max(y,1)
     

@@ -56,7 +56,6 @@ y = tf.placeholder(tf.int16,     shape=[None, nout], name="y")
 def build_network3():                   # RNN logic mix with NN - 
     
     pass
-
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
     kp = 0.5
 
@@ -64,12 +63,12 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
     h0 = tf.layers.dense( x, h[0], use_bias=False, activation=None )
     h0 = tf.layers.batch_normalization(h0, training=is_train)
     h0 = tf.nn.relu(h0)
-    # h0 = tf.nn.dropout(h0, kp)
+    h0 = tf.nn.dropout(h0, kp)
     
     h1 = tf.layers.dense( h0, h[1], use_bias=False, activation=None )
     h1 = tf.layers.batch_normalization(h1, training=is_train)
     h1 = tf.nn.relu(h1)
-    # h1 = tf.nn.dropout(h1, kp)
+    h1 = tf.nn.dropout(h1, kp)
     
     out = tf.layers.dense( h1, nout, use_bias=False, activation=None )
     # out = tf.layers.batch_normalization(out, training=is_train)
@@ -120,6 +119,16 @@ def build_network1( ):                  # Simple NN - 2layers - matmul
 # prediction, accuracy, softmaxT, biases, weights = build_network1()
 prediction, accuracy, softmaxT = build_network2()
 
+with tf.name_scope("xent"): #loss
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
+    tf.summary.scalar("xent", cost)
+
+with tf.name_scope("train"): #optimizer
+    optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
+
+summ = tf.summary.merge_all()
+saver= tf.train.Saver()
+
 def restore_model(sess):   
     saver= tf.train.Saver() 
     print("Model restored from file: %s" % model_path)
@@ -159,26 +168,12 @@ def train(it = 100, disp=50, batch_size = 128):
     dataTest['data'], dataTest['label']  = md.feed_data("", p_abs=False , d_st=True, p_col=True)   
     md.dataT['data'].append(dataTest['data']) ;     md.dataT['label'].append(dataTest['label']) 
     print("data read - lenTrain={}-{} & lenEv={}-{}" .format(len(md.dataT["data"]), len(md.dataT["label"]),len(md.dataE["data"]),len(md.dataE["label"]) ))
-
-    total_batch  = int(len(md.dataT['label']) / batch_size)
-    
-    with tf.name_scope("xent"):
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
-        tf.summary.scalar("xent", cost)
-
-    with tf.name_scope("train"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
-    
-    
+    total_batch  = int(len(md.dataT['label']) / batch_size)   
     startTime = datetime.now().strftime('%H:%M:%S')
-    summ = tf.summary.merge_all()
-    saver= tf.train.Saver()
-
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         # restore_model(sess)  #Run if I want to retrain an existing model  
-        writer = tf.summary.FileWriter(md.MODEL_DIR + get_hpar() )
-        writer.add_graph(sess.graph)
+        writer = tf.summary.FileWriter(md.MODEL_DIR + "tboard/", sess.graph ) # + get_hpar() )
 
         start = time.time()
         for i in range(it):            
@@ -186,7 +181,11 @@ def train(it = 100, disp=50, batch_size = 128):
                 # xtb, ytb = dc.next_batch(batch_size, dataT['data'], dataT['label'])
                 sess.run(optimizer, feed_dict={x: xtb, y: ytb})
                 if ii % display_step ==0: #record_step == 0:
-                    [train_accuracy] = sess.run([accuracy], feed_dict={x: xtb, y: ytb }) 
+                    [train_accuracy] = sess.run([accuracy], feed_dict={x: xtb, y: ytb })
+                    # s = sess.run(summ, feed_dict={x: xtb, y: ytb })
+                    #[train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
+                    # writer.add_summary(s, i)
+                     
                     elapsed_time = float(time.time() - start)
                     reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
                     rp_s = str(reviews_per_second)[0:5]
@@ -274,7 +273,8 @@ def tests(url_test = 'url', p_col=False):
  
 def mainRun(): 
     # print(get_hpar() ); return 
-    #train(epochs, disp, batch_size)
+    epochs     = 100
+    # train(epochs, disp, batch_size)
     evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ;
     tests(url_test, p_col=False  )

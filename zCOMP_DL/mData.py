@@ -1,3 +1,7 @@
+# tensorboard --logdir=.\my_graph
+# tensorboard => http://localhost:6006 
+# jupyter => http://localhost:8889
+
 import pandas as pd 
 import tensorflow as tf 
 import numpy as np 
@@ -22,11 +26,12 @@ DL         = "/datal.csv"
 #---------------------------------------------------------------------
 filter     = ["", 0]
 type_sep   = False
-spn        = 10000  #5000 -1 = all for training 
+# spn        = 10000  #5000 -1 = all for training 
+spn        = 5000  
 
-# DESC       = "FRFLO"
-DESC       = "FLALL"
-dType      = "C1" #C1, C2, C4
+DESC       = "FRFLO"
+# DESC       = "FRALL1"
+dType      = "C4" #C1, C2, C4
 MMF        = "MODX1" #2(1) OR 5 (4)
 #---------------------------------------------------------------------
 MODEL_DIR  = LOGDIR + DESC + '/' + DESC +  MMF +"/"  
@@ -186,7 +191,7 @@ def check_perf_CN(predv, dataEv, sk_ev=False ):
                 if num > 3: gt3+=1
                 if num > 10: gtM+=1
         except: print("error: i={}, pred={}, data={} -- ".format(i, pred_v, data_v))
-    print("Total: {} GT3: {}  GTM: {}".format(len(predv), gt3, gtM)) 
+    print("Total: {} GT3: {}  GTM: {}".format(len(predv[1]), gt3, gtM)) 
     return gt3, gtM 
 
 def feed_data(dataJJ, p_abs, d_st = False, p_exp=False, pand=False, p_col = False):

@@ -1,3 +1,6 @@
+# tensorboard --logdir=.\_zfp\data\my_graph
+# tensorboard => http://localhost:6006 
+# jupyter => http://localhost:8889
 import pandas as pd 
 import tensorflow as tf 
 import numpy as np 
@@ -23,13 +26,18 @@ print("___Data Read!")
 top_k = 2 
 model_path = md.MODEL_DIR + "model.ckpt" 
 lr         = 0.0001 #0.0001
-h          = [100 , 40]
-# h        = [40 , 10]
-epochs     = 120
+# h      = [100 , 40]
+# h      = [40 , 10]
+h        = [200, 100, 40]
+epochs     = 200
 disp       = 5
 batch_size = 128
 def get_hpar(): return "lr_%.0E_NN%s" % (lr, get_nns())
-def get_nns():  return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
+def get_nns():  #return str(ninp)+'*'+str(h[0])+'*'+str(h[1])+'*'+str(nout)
+    nns =  str(ninp)+'*' 
+    for i in range(len(h)):
+        nns = nns +str(h[i])+'*'
+    return nns +str(nout)
 def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3=0, AC10=0, desc='', startTime=''):
     if desc == '': print("Log not recorded"); return 
     LOG = "../../_zfp/LOGT2.txt"
@@ -52,28 +60,21 @@ def logr(datep = '' , time='', it=1000, nn='', typ='TR', DS='', AC=0, num=0, AC3
 print( get_nns() )
 x = tf.placeholder(tf.float32,   shape=[None, ninp], name="x")
 y = tf.placeholder(tf.int16,     shape=[None, nout], name="y")
-
-def build_network3():                   # RNN logic mix with NN - 
-    
-    pass
+def fc(inp, nodes, kp, is_train):
+    # h = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
+    h = tf.layers.dense( inp, nodes, use_bias=False, activation=None )
+    h = tf.layers.batch_normalization(h, training=is_train)
+    h = tf.nn.relu(h)
+    h = tf.nn.dropout(h, kp)
+    return h
 def build_network2(is_train=False):     # Simple NN - with batch normalization (high level)
     kp = 0.5
-
-    # h0 = tf.layers.dense( x, h[0], activation=tf.nn.relu,  name )
-    h0 = tf.layers.dense( x, h[0], use_bias=False, activation=None )
-    h0 = tf.layers.batch_normalization(h0, training=is_train)
-    h0 = tf.nn.relu(h0)
-    h0 = tf.nn.dropout(h0, kp)
-    
-    h1 = tf.layers.dense( h0, h[1], use_bias=False, activation=None )
-    h1 = tf.layers.batch_normalization(h1, training=is_train)
-    h1 = tf.nn.relu(h1)
-    h1 = tf.nn.dropout(h1, kp)
-    
-    out = tf.layers.dense( h1, nout, use_bias=False, activation=None )
-    # out = tf.layers.batch_normalization(out, training=is_train)
-    # out = tf.nn.relu(out)
-    # out = tf.nn.dropout(h0, kp)
+    inp = x
+    # h0 = fc(x,  h[0], kp, is_train)
+    # h1 = fc(h0, h[1], kp, is_train)    
+    for i in range(len(h)): 
+        hx = fc(inp,  h[i], kp, is_train); inp = hx 
+    out = tf.layers.dense( hx, nout, use_bias=False, activation=None )
     prediction=tf.reduce_max(y,1)
     
     # softmaxT = tf.nn.softmax(out)
@@ -85,7 +86,6 @@ def build_network2(is_train=False):     # Simple NN - with batch normalization (
         tf.summary.scalar("accuracy", accuracy)
 
     return out, accuracy, softmaxT
-
 def build_network1( ):                  # Simple NN - 2layers - matmul 
     biases  = { 'b1': tf.Variable(tf.random_normal( [ h[0] ]),        name="Bias_1"),
                 'b2': tf.Variable(tf.random_normal( [ h[1] ]),        name="Bias_2"),
@@ -118,14 +118,11 @@ def build_network1( ):                  # Simple NN - 2layers - matmul
     return out, accuracy, softmaxT, biases, weights
 # prediction, accuracy, softmaxT, biases, weights = build_network1()
 prediction, accuracy, softmaxT = build_network2()
-
 with tf.name_scope("xent"): #loss
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     tf.summary.scalar("xent", cost)
-
 with tf.name_scope("train"): #optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(cost)
-
 summ = tf.summary.merge_all()
 saver= tf.train.Saver()
 
@@ -166,7 +163,8 @@ def train(it = 100, disp=50, batch_size = 128):
 
     dataTest = {'label' : [] , 'data' :  [] };
     dataTest['data'], dataTest['label']  = md.feed_data("", p_abs=False , d_st=True, p_col=True)   
-    md.dataT['data'].append(dataTest['data']) ;     md.dataT['label'].append(dataTest['label']) 
+    # md.dataT['data'].append(dataTest['data']) ;     md.dataT['label'].append(dataTest['label']) 
+    
     print("data read - lenTrain={}-{} & lenEv={}-{}" .format(len(md.dataT["data"]), len(md.dataT["label"]),len(md.dataE["data"]),len(md.dataE["label"]) ))
     total_batch  = int(len(md.dataT['label']) / batch_size)   
     startTime = datetime.now().strftime('%H:%M:%S')
@@ -181,10 +179,10 @@ def train(it = 100, disp=50, batch_size = 128):
                 # xtb, ytb = dc.next_batch(batch_size, dataT['data'], dataT['label'])
                 sess.run(optimizer, feed_dict={x: xtb, y: ytb})
                 if ii % display_step ==0: #record_step == 0:
-                    [train_accuracy] = sess.run([accuracy], feed_dict={x: xtb, y: ytb })
+                    #[train_accuracy] = sess.run([accuracy], feed_dict={x: xtb, y: ytb })
                     # s = sess.run(summ, feed_dict={x: xtb, y: ytb })
-                    #[train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
-                    # writer.add_summary(s, i)
+                    [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: xtb, y: ytb }) 
+                    writer.add_summary(s, i)
                      
                     elapsed_time = float(time.time() - start)
                     reviews_per_second = i / elapsed_time if elapsed_time > 0 else 0
@@ -194,8 +192,12 @@ def train(it = 100, disp=50, batch_size = 128):
                     # writer.add_summary(s, i)
             ev_ac = str(sess.run(accuracy, feed_dict={x: md.dataE['data'], y: md.dataE['label']}))[:5] 
             print("E Ac:", ev_ac)
+            
+            sess.run([optimizer], feed_dict={x: dataTest['data'], y: dataTest['label']})
+            tr_ac = str(sess.run(accuracy, feed_dict={x: dataTest['data'], y: dataTest['label']}))[:5] 
+            print("Cm Ac:", tr_ac)
         
-        # tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
+        tr_ac = str(sess.run(accuracy, feed_dict={x: md.dataT['data'], y: md.dataT['label']}))[:5] 
         print("T Ac:", tr_ac)
         
         save_path = saver.save(sess, model_path)
@@ -273,8 +275,8 @@ def tests(url_test = 'url', p_col=False):
  
 def mainRun(): 
     # print(get_hpar() ); return 
-    epochs     = 100
-    # train(epochs, disp, batch_size)
+    # epochs     = 10
+    train(epochs, disp, batch_size)
     evaluate( )
     url_test = "../../_zfp/data/FREXP1/" ;
     tests(url_test, p_col=False  )

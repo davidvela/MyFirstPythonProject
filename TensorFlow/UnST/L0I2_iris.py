@@ -120,7 +120,7 @@ def read_irisData():
             skipinitialspace=True,
             engine="python")
             
-    #paint(df_iris)
+    paint(df_iris)
     train =df_iris.sample(frac=0.2,random_state=200)
     test  =df_iris.drop(train.index)
     # train[LABEL_COLUMN] = (  train["income_bracket"].apply(lambda x: ">50K" in x)).astype(int)
